@@ -1,3 +1,11 @@
 {
-  "extends": "@minko-fe/eslint-config"
+  "extends": "@minko-fe/eslint-config",
+  "overrides": [
+    {
+      "files": ["**/*.md/*.*"],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    }
+  ]
 }

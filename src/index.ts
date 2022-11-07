@@ -28,8 +28,14 @@ function build(options: BuildOptions) {
     sourcemap: false,
     ...transformOptions,
   }).then(async (res) => {
-    const hash = getContentHash(res.code)
-    const outPath = normalizePath(`${outputDir}/${fileName}.${hash}.js`)
+    let outPath = ''
+    if (options.hash) {
+      const hash = getContentHash(res.code)
+      outPath = normalizePath(`${outputDir}/${fileName}.${hash}.js`)
+    } else {
+      outPath = normalizePath(`${outputDir}/${fileName}.js`)
+    }
+
     const fp = normalizePath(path.join(publicDir, outPath))
     const oldFiles = fg.sync(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
     // if exits old files
@@ -54,27 +60,38 @@ function build(options: BuildOptions) {
 }
 
 interface VitePluginOptions {
-  ssrBuild: boolean | undefined
+  ssrBuild?: boolean | undefined
   /**
    * @default publicTypescript
    */
-  inputDir: string
+  inputDir?: string
   /**
    * @default /
    */
-  outputDir: string
+  outputDir?: string
   /**
    * @description transformWithEsbuild options
    */
-  transformOptions: TransformOptions | undefined
+  transformOptions?: TransformOptions | undefined
   /**
    * @default manifest
    */
   manifestName?: string
+  /**
+   * @default true
+   */
+  hash?: boolean
 }
 
 export function publicTypescript(options: VitePluginOptions): PluginOption {
-  const { ssrBuild, inputDir } = options
+  const {
+    ssrBuild = false,
+    inputDir = 'publicTypescript',
+    outputDir = '/',
+    manifestName = 'manifest',
+    hash = true,
+  } = options
+
   let config: ResolvedConfig
 
   const cache = new ManifestCache()
@@ -85,7 +102,7 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
       config = c
     },
     buildStart() {
-      if (ssrBuild) return
+      if (ssrBuild || config.build.ssr) return
       const outDir = config.publicDir
       const root = config.root
       const files = fg.sync(normalizePath(path.resolve(root, `${inputDir}/*.ts`)), {
@@ -94,19 +111,22 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
       })
 
       buildLength = files.length
-
       files.forEach((f) => {
         build({
           ...options,
           filePath: f,
           publicDir: outDir,
           cache,
+          inputDir,
+          outputDir,
+          hash,
+          manifestName,
         })
       })
     },
 
     async handleHotUpdate(ctx) {
-      if (path.extname(ctx.file) === 'ts' && ctx.file.includes(normalizePath(path.resolve(config.root, inputDir)))) {
+      if (path.extname(ctx.file) === 'ts' && ctx.file.includes(normalizePath(path.resolve(config.root, inputDir!)))) {
         const code = await ctx.read()
         build({
           ...options,
@@ -114,6 +134,10 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
           publicDir: config.publicDir,
           cache,
           code,
+          inputDir,
+          outputDir,
+          hash,
+          manifestName,
         })
         ctx.server.ws.send({
           type: 'full-reload',
