@@ -6,8 +6,8 @@ on:
       - master
 
   pull_request:
-    branched:
-      -main
+    branches:
+      - master
 
 jobs:
   test:
