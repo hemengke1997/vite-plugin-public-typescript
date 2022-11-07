@@ -1,13 +1,22 @@
 {
   "name": "vite-plugin-public-typescript",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "a template for typescript project or plugin",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md",
+    "README.md"
   ],
   "scripts": {
     "dev": "tsup --watch",
@@ -15,7 +24,9 @@
     "test": "vitest",
     "lint": "eslint .",
     "upgrade:deps": "pnpm update --i --L",
-    "//": "先bump，再release",
+    "log": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "preinstall": "npx only-allow pnpm",
+    "//": "先bump,再release",
     "bump": "bumpp package.json --commit --push --tag",
     "release": "pnpm run build && pnpm publish --access public"
   },
@@ -25,6 +36,7 @@
     "type": "git",
     "url": "git+https://github.com/hemengke1997/vite-plugin-public-typescript.git"
   },
+  "homepage": "https://github.com/hemengke1997/vite-plugin-public-typescript",
   "license": "MIT",
   "devDependencies": {
     "@minko-fe/commitlint-config": "^1.2.2",
@@ -34,6 +46,7 @@
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^18.11.9",
     "bumpp": "^8.2.1",
+    "conventional-changelog-cli": "^2.2.2",
     "eslint": "^8.27.0",
     "prettier": "^2.7.1",
     "tsup": "^6.4.0",
@@ -46,6 +59,6 @@
     "fs-extra": "^10.1.0"
   },
   "peerDependencies": {
-    "vite": "^3.2.3"
+    "vite": ">=3.0.0"
   }
 }
