@@ -7,5 +7,8 @@
         "no-restricted-syntax": "off"
       }
     }
-  ]
+  ],
+  "rules": {
+    "yml/quotes": "off"
+  }
 }
