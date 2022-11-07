@@ -1,0 +1,41 @@
+{
+  "name": "@minko-fe/ts-template",
+  "version": "1.0.0",
+  "description": "a template for typescript project or plugin",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "test": "vitest",
+    "lint": "eslint .",
+    "upgrade:deps": "pnpm update --i --L",
+    "//": "先bump，再release",
+    "bump": "bumpp package.json --commit --push --tag",
+    "release": "pnpm run build && pnpm publish --access public"
+  },
+  "keywords": [],
+  "author": "hemengke <https://github.com/hemengke1997>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hemengke1997/ts-template.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@minko-fe/commitlint-config": "^1.2.2",
+    "@minko-fe/eslint-config": "^1.2.2",
+    "@minko-fe/prettier-config": "^1.2.2",
+    "@minko-fe/tsconfig": "^1.2.2",
+    "bumpp": "^8.2.1",
+    "eslint": "^8.27.0",
+    "prettier": "^2.7.1",
+    "tsup": "^6.4.0",
+    "typescript": "^4.8.4",
+    "vitest": "^0.24.5"
+  }
+}
