@@ -45,6 +45,17 @@ import manifest from './path/to/publicTypescript/manifest.json'
 manifest[yourFileName] // get js fileName! use it anywhere
 ```
 
+## Options
+
+| Parameter        | Types              | Default            | Description                                           |
+| ---------------- | ------------------ | ------------------ | ----------------------------------------------------- |
+| ssrBuild         | `boolean`          | `true`             | whether is ssrBuild                                   |
+| inputDir         | `string`           | `publicTypescript` | input public typescript dir                           |
+| outputDir        | `string`           | `/`                | output public javascript dir, relative to `publicDir` |
+| manifestName     | `string`           | `manifest`         | js manifest fileName                                  |
+| hash             | `boolean`          | `true`             | whether generate js fileName with hash                |
+| transformOptions | `TransformOptions` | `{}`               | transformWithEsbuild options                          |
+
 ## Example project
 
 [vite-react-ssr-boilerplate](https://github.com/hemengke1997/vite-react-ssr-boilerplate)
