@@ -33,7 +33,7 @@
     "upgrade:deps": "pnpm update --i --L",
     "log": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "preinstall": "npx only-allow pnpm",
-    "bump": "bumpp package.json --commit --push --tag"
+    "bump": "pnpm run build && bumpp package.json --commit --push --tag"
   },
   "repository": {
     "type": "git",

@@ -134,7 +134,7 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
     },
 
     async handleHotUpdate(ctx) {
-      if (path.extname(ctx.file) === 'ts' && ctx.file.includes(normalizePath(path.resolve(config.root, inputDir)))) {
+      if (path.extname(ctx.file) === '.ts' && ctx.file.includes(normalizePath(path.resolve(config.root, inputDir)))) {
         const code = await ctx.read()
         build({
           ...options,
