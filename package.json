@@ -31,7 +31,7 @@
     "test": "vitest",
     "lint": "eslint . --fix",
     "upgrade:deps": "pnpm update --i --L",
-    "log": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "log": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "preinstall": "npx only-allow pnpm",
     "bump": "pnpm run build && bumpp package.json --commit --push --tag"
   },
