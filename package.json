@@ -1,7 +1,14 @@
 {
   "name": "vite-plugin-public-typescript",
   "version": "0.0.1",
-  "description": "a template for typescript project or plugin",
+  "description": "vite plugin that generate public javascript from typescript file",
+  "keywords": [
+    "vite",
+    "public",
+    "typescript",
+    "public-typescript"
+  ],
+  "author": "hemengke <https://github.com/hemengke1997>",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -26,12 +33,9 @@
     "upgrade:deps": "pnpm update --i --L",
     "log": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "preinstall": "npx only-allow pnpm",
-    "//": "先bump,再release",
     "bump": "bumpp package.json --commit --push --tag",
     "release": "pnpm run build && pnpm publish --access public"
   },
-  "keywords": [],
-  "author": "hemengke <https://github.com/hemengke1997>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hemengke1997/vite-plugin-public-typescript.git"

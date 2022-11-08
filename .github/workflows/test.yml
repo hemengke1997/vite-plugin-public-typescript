@@ -1,4 +1,4 @@
-name: ✅ test
+name: Test
 
 on:
   push:
