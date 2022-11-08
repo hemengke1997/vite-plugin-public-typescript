@@ -2,7 +2,6 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import type { WebSocketServer } from 'vite'
 import { normalizePath, transformWithEsbuild } from 'vite'
-
 import fg from 'fast-glob'
 import fs from 'fs-extra'
 import type { VitePluginOptions } from '..'
@@ -24,14 +23,16 @@ export async function build(options: BuildOptions) {
   const { filePath, publicDir, transformOptions, outputDir } = options
   const code = options.code || fs.readFileSync(filePath, 'utf-8')
   const fileName = path.basename(filePath, path.extname(filePath))
-  await transformWithEsbuild(code, fileName, {
-    loader: 'ts',
-    format: 'esm',
-    minify: true,
-    platform: 'browser',
-    sourcemap: false,
-    ...transformOptions,
-  }).then(async (res) => {
+  try {
+    const res = await transformWithEsbuild(code, fileName, {
+      loader: 'ts',
+      format: 'esm',
+      minify: true,
+      platform: 'browser',
+      sourcemap: false,
+      ...transformOptions,
+    })
+
     await deleteOldFiles({
       ...options,
       publicDir,
@@ -40,7 +41,7 @@ export async function build(options: BuildOptions) {
     })
 
     await addJsFile({ ...options, code: res.code, fileName })
-  })
+  } catch {}
 }
 
 type TDeleteFile = {

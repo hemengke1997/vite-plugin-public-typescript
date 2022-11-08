@@ -113,7 +113,7 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
         })
       ) {
         const code = await ctx.read()
-        build({
+        await build({
           ...opts,
           filePath: ctx.file,
           publicDir: config.publicDir,
