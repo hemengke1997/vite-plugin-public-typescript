@@ -1,3 +1,12 @@
+## [0.0.7](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.6...v0.0.7) (2022-11-08)
+
+
+### Bug Fixes
+
+* overrides args ([b899c62](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/b899c62c97f2a06d7563a990f043fb6a639edd98))
+
+
+
 ## [0.0.6](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.5...v0.0.6) (2022-11-08)
 
 
