@@ -1,65 +1,13 @@
 import path from 'node:path'
 import type { PluginOption, ResolvedConfig, TransformOptions } from 'vite'
-import { normalizePath, transformWithEsbuild } from 'vite'
+import { normalizePath } from 'vite'
 import fg from 'fast-glob'
-import fs from 'fs-extra'
-import { getContentHash } from './utils'
+import { addJsFile, build, deleteOldFiles, isPublicTypescript, reloadPage, ts } from './utils'
 import { ManifestCache } from './utils/manifestCache'
 
 let buildLength = 0
-let current = 0
 
-type BuildOptions = {
-  filePath: string
-  publicDir: string
-  cache: ManifestCache
-  code?: string
-} & VitePluginOptions
-
-function build(options: BuildOptions) {
-  const { filePath, publicDir, cache, transformOptions, outputDir, inputDir, manifestName } = options
-  const code = options.code || fs.readFileSync(filePath, 'utf-8')
-  const fileName = path.basename(filePath, path.extname(filePath))
-  transformWithEsbuild(code, fileName, {
-    loader: 'ts',
-    format: 'esm',
-    minify: true,
-    platform: 'browser',
-    sourcemap: false,
-    ...transformOptions,
-  }).then(async (res) => {
-    let outPath = ''
-    if (options.hash) {
-      const hash = getContentHash(res.code)
-      outPath = normalizePath(`${outputDir}/${fileName}.${hash}.js`)
-    } else {
-      outPath = normalizePath(`${outputDir}/${fileName}.js`)
-    }
-
-    const fp = normalizePath(path.join(publicDir, outPath))
-    const oldFiles = fg.sync(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
-    // if exits old files
-    if (oldFiles.length) {
-      const oldFile = oldFiles.filter((t) => t !== fp)
-      // delete old files
-      oldFile.forEach(async (f) => {
-        if (fs.existsSync(f)) {
-          await fs.remove(f)
-        }
-      })
-    }
-    await fs.ensureDir(path.dirname(fp))
-    await fs.writeFile(fp, res.code)
-    cache.setCache({ key: fileName, value: outPath })
-    // write cache
-    current++
-    if (current === buildLength) {
-      cache.writeCache(`${inputDir}/${manifestName}.json`)
-    }
-  })
-}
-
-interface VitePluginOptions {
+export interface VitePluginOptions {
   /**
    * @description vite ssrBuild
    * @see https://vitejs.dev/config/#conditional-config
@@ -91,65 +39,90 @@ interface VitePluginOptions {
   hash?: boolean
 }
 
+const defaultOptions: Required<VitePluginOptions> = {
+  inputDir: 'publicTypescript',
+  outputDir: '/',
+  manifestName: 'manifest',
+  hash: true,
+  ssrBuild: false,
+  transformOptions: {},
+}
+
 export function publicTypescript(options: VitePluginOptions): PluginOption {
-  const {
-    ssrBuild = false,
-    inputDir = 'publicTypescript',
-    outputDir = '/',
-    manifestName = 'manifest',
-    hash = true,
-  } = options
+  const opts = {
+    ...defaultOptions,
+    ...options,
+  }
 
   let config: ResolvedConfig
-
+  let files: string[]
   const cache = new ManifestCache()
 
   return {
     name: 'vite:public-typescript',
     configResolved(c) {
       config = c
-    },
-    buildStart() {
-      if (ssrBuild || config.build.ssr) return
-      const outDir = config.publicDir
-      const root = config.root
-      const files = fg.sync(normalizePath(path.resolve(root, `${inputDir}/*.ts`)), {
-        cwd: root,
+      files = fg.sync(normalizePath(path.resolve(config.root, `${opts.inputDir}/*.ts`)), {
+        cwd: config.root,
         absolute: true,
       })
 
       buildLength = files.length
+    },
+    buildStart() {
+      if (opts.ssrBuild || config.build.ssr) return
+      const outDir = config.publicDir
+
       files.forEach((f) => {
         build({
-          ...options,
+          ...opts,
           filePath: f,
           publicDir: outDir,
           cache,
-          inputDir,
-          outputDir,
-          hash,
-          manifestName,
+          buildLength,
         })
       })
     },
+    configureServer(server) {
+      const { watcher, ws } = server
+      watcher.on('unlink', async (f) => {
+        // ts file deleted
+        if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
+          const fileName = path.basename(f, ts)
+          // need to delete js
+          await deleteOldFiles({ publicDir: config.publicDir, fileName, cache, ...opts })
+          reloadPage(ws)
+        }
+      })
 
+      watcher.on('add', async (f) => {
+        // ts file added
+        if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
+          const fileName = path.basename(f, ts)
+          // need to add js
+          await addJsFile({ cache, fileName, buildLength, publicDir: config.publicDir, ...opts })
+          reloadPage(ws)
+        }
+      })
+    },
     async handleHotUpdate(ctx) {
-      if (path.extname(ctx.file) === '.ts' && ctx.file.includes(normalizePath(path.resolve(config.root, inputDir)))) {
+      if (
+        isPublicTypescript({
+          filePath: ctx.file,
+          inputDir: opts.inputDir!,
+          root: config.root,
+        })
+      ) {
         const code = await ctx.read()
         build({
-          ...options,
+          ...opts,
           filePath: ctx.file,
           publicDir: config.publicDir,
           cache,
           code,
-          inputDir,
-          outputDir,
-          hash,
-          manifestName,
+          buildLength,
         })
-        ctx.server.ws.send({
-          type: 'full-reload',
-        })
+        reloadPage(ctx.server.ws)
         return []
       }
     },

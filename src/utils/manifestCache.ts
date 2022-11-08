@@ -10,7 +10,7 @@ let cacheMap = new Map<CacheType['key'], CacheType['value']>()
 
 export class ManifestCache {
   setCache(c: CacheType) {
-    this.removeCache(c)
+    this.removeCache(c.key)
 
     cacheMap.set(c.key, c.value)
   }
@@ -19,9 +19,9 @@ export class ManifestCache {
     return cacheMap.get(k)
   }
 
-  removeCache(c: CacheType) {
-    if (cacheMap.has(c.key)) {
-      cacheMap.delete(c.key)
+  removeCache(k: CacheType['key']) {
+    if (cacheMap.has(k)) {
+      cacheMap.delete(k)
     }
   }
 
