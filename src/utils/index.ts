@@ -39,7 +39,7 @@ export async function build(options: BuildOptions) {
       outputDir,
     })
 
-    await addJsFile({ code: res.code, fileName, ...options })
+    await addJsFile({ ...options, code: res.code, fileName })
   })
 }
 

@@ -5,8 +5,6 @@ import fg from 'fast-glob'
 import { addJsFile, build, deleteOldFiles, isPublicTypescript, reloadPage, ts } from './utils'
 import { ManifestCache } from './utils/manifestCache'
 
-let buildLength = 0
-
 export interface VitePluginOptions {
   /**
    * @description vite ssrBuild
@@ -56,6 +54,7 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
 
   let config: ResolvedConfig
   let files: string[]
+  let buildLength = 0
   const cache = new ManifestCache()
 
   return {
@@ -90,7 +89,7 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
         if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
           const fileName = path.basename(f, ts)
           // need to delete js
-          await deleteOldFiles({ publicDir: config.publicDir, fileName, cache, ...opts })
+          await deleteOldFiles({ ...opts, publicDir: config.publicDir, fileName, cache })
           reloadPage(ws)
         }
       })
@@ -100,7 +99,7 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
         if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
           const fileName = path.basename(f, ts)
           // need to add js
-          await addJsFile({ cache, fileName, buildLength, publicDir: config.publicDir, ...opts })
+          await addJsFile({ ...opts, cache, fileName, buildLength, publicDir: config.publicDir })
           reloadPage(ws)
         }
       })
