@@ -7,7 +7,7 @@ export default defineConfig({
     publicTypescript({
       manifestName: 'custom-manifest',
       hash: true,
-      outputDir: 'lib',
+      outputDir: '/',
     }),
   ],
 })

@@ -60,12 +60,18 @@ function build(options: BuildOptions) {
 }
 
 interface VitePluginOptions {
+  /**
+   * @description vite ssrBuild
+   * @see https://vitejs.dev/config/#conditional-config
+   */
   ssrBuild?: boolean | undefined
   /**
+   * @description input public typescript dir
    * @default publicTypescript
    */
   inputDir?: string
   /**
+   * @description output public javascript dir, relative to `publicDir`
    * @default /
    */
   outputDir?: string
@@ -74,10 +80,12 @@ interface VitePluginOptions {
    */
   transformOptions?: TransformOptions | undefined
   /**
+   * @description manifest fileName
    * @default manifest
    */
   manifestName?: string
   /**
+   * @description whether generate js with hash
    * @default true
    */
   hash?: boolean
@@ -126,7 +134,7 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
     },
 
     async handleHotUpdate(ctx) {
-      if (path.extname(ctx.file) === 'ts' && ctx.file.includes(normalizePath(path.resolve(config.root, inputDir!)))) {
+      if (path.extname(ctx.file) === 'ts' && ctx.file.includes(normalizePath(path.resolve(config.root, inputDir)))) {
         const code = await ctx.read()
         build({
           ...options,

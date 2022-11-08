@@ -1,3 +1,1 @@
-console.log('this is ts')
-
-export {}
+console.log('this is test')

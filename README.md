@@ -17,6 +17,10 @@ or
 npm i vite-plugin-public-typescript -D
 ```
 
+## Preview
+
+<img src="./assets/ts.gif" />
+
 ## Usage
 
 ```ts
@@ -34,3 +38,19 @@ export default defineConfig({
   ],
 })
 ```
+
+```ts
+import manifest from './path/to/publicTypescript/manifest.json'
+
+manifest[yourFileName] // get js fileName! use it anywhere
+```
+
+## Example project
+
+[vite-react-ssr-boilerplate](https://github.com/hemengke1997/vite-react-ssr-boilerplate)
+
+## License
+
+MIT
+
+[npm-img]: https://img.shields.io/npm/v/vite-plugin-public-typescript.svg
