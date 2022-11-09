@@ -19,7 +19,7 @@ npm i vite-plugin-public-typescript -D
 
 ## Preview
 
-<img src="./assets/ts.gif" />
+<img src="./screenshots/ts.gif" />
 
 ## Usage
 
