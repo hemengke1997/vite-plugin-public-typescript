@@ -47,14 +47,14 @@ manifest[yourFileName] // get js fileName! use it anywhere
 
 ## Options
 
-| Parameter        | Types              | Default            | Description                                           |
-| ---------------- | ------------------ | ------------------ | ----------------------------------------------------- |
-| ssrBuild         | `boolean`          | `true`             | whether is ssrBuild                                   |
-| inputDir         | `string`           | `publicTypescript` | input public typescript dir                           |
-| outputDir        | `string`           | `/`                | output public javascript dir, relative to `publicDir` |
-| manifestName     | `string`           | `manifest`         | js manifest fileName                                  |
-| hash             | `boolean`          | `true`             | whether generate js fileName with hash                |
-| transformOptions | `TransformOptions` | `{}`               | transformWithEsbuild options                          |
+| Parameter      | Types          | Default            | Description                                           |
+| -------------- | -------------- | ------------------ | ----------------------------------------------------- |
+| ssrBuild       | `boolean`      | `true`             | whether is ssrBuild                                   |
+| inputDir       | `string`       | `publicTypescript` | input public typescript dir                           |
+| outputDir      | `string`       | `/`                | output public javascript dir, relative to `publicDir` |
+| manifestName   | `string`       | `manifest`         | js manifest fileName                                  |
+| hash           | `boolean`      | `true`             | whether generate js fileName with hash                |
+| esBuildOptions | `BuildOptions` | `{}`               | esbuild BuildOptions                                  |
 
 ## Example project
 
