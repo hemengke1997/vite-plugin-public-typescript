@@ -1,7 +1,8 @@
 import path from 'node:path'
-import type { PluginOption, ResolvedConfig, TransformOptions } from 'vite'
+import type { PluginOption, ResolvedConfig } from 'vite'
 import { normalizePath } from 'vite'
 import fg from 'fast-glob'
+import type { BuildOptions } from 'esbuild'
 import { addJsFile, build, deleteOldFiles, isPublicTypescript, reloadPage, ts } from './utils'
 import { ManifestCache } from './utils/manifestCache'
 
@@ -22,9 +23,10 @@ export interface VitePluginOptions {
    */
   outputDir?: string
   /**
-   * @description transformWithEsbuild options
+   * @description esbuild BuildOptions
+   * @see https://esbuild.github.io/api/#build-api
    */
-  transformOptions?: TransformOptions | undefined
+  esBuildOptions?: BuildOptions | undefined
   /**
    * @description manifest fileName
    * @default manifest
@@ -43,7 +45,7 @@ const defaultOptions: Required<VitePluginOptions> = {
   manifestName: 'manifest',
   hash: true,
   ssrBuild: false,
-  transformOptions: {},
+  esBuildOptions: {},
 }
 
 export function publicTypescript(options: VitePluginOptions): PluginOption {
@@ -112,13 +114,11 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
           root: config.root,
         })
       ) {
-        const code = await ctx.read()
         await build({
           ...opts,
           filePath: ctx.file,
           publicDir: config.publicDir,
           cache,
-          code,
           buildLength,
         })
         reloadPage(ctx.server.ws)

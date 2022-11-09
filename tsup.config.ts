@@ -2,10 +2,11 @@ import { defineConfig } from 'tsup'
 
 export const tsup = defineConfig((option) => ({
   entry: ['src/index.ts'],
-  dts: !option.watch,
+  dts: true,
   clean: true,
   format: ['cjs', 'esm'],
   minify: false,
+  platform: 'node',
   sourcemap: !!option.watch,
   esbuildOptions: (options) => {
     if (options.format === 'cjs') {

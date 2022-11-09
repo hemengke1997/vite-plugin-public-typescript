@@ -1,5 +1,11 @@
-console.log('this is a')
+import { hello } from 'lib'
+import { other, setupCounter } from '@/other'
 
-const a: any = {}
+const x = other(1, 2)
+console.log(x)
 
-console.log(a, 'a')
+const h = hello()
+
+console.log(h)
+
+setupCounter()

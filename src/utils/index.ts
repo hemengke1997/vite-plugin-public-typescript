@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import type { WebSocketServer } from 'vite'
-import { normalizePath, transformWithEsbuild } from 'vite'
+import { normalizePath } from 'vite'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
+import { build as esbuild } from 'esbuild'
 import type { VitePluginOptions } from '..'
 import type { ManifestCache } from './manifestCache'
 
@@ -15,23 +16,28 @@ type BuildOptions = {
   filePath: string
   publicDir: string
   cache: ManifestCache
-  code?: string
   buildLength: number
 } & Required<VitePluginOptions>
 
 export async function build(options: BuildOptions) {
-  const { filePath, publicDir, transformOptions, outputDir } = options
-  const code = options.code || fs.readFileSync(filePath, 'utf-8')
+  const { filePath, publicDir, esBuildOptions, outputDir } = options
+
   const fileName = path.basename(filePath, path.extname(filePath))
   try {
-    const res = await transformWithEsbuild(code, fileName, {
-      loader: 'ts',
-      format: 'esm',
-      minify: true,
+    const res = await esbuild({
+      entryPoints: [filePath],
+      write: false,
       platform: 'browser',
+      bundle: true,
+      format: 'iife',
       sourcemap: false,
-      ...transformOptions,
+      treeShaking: true,
+      splitting: false,
+      minify: true,
+      ...esBuildOptions,
     })
+
+    const code = res.outputFiles?.[0].text
 
     await deleteOldFiles({
       ...options,
@@ -40,7 +46,7 @@ export async function build(options: BuildOptions) {
       outputDir,
     })
 
-    await addJsFile({ ...options, code: res.code, fileName })
+    await addJsFile({ ...options, code, fileName })
   } catch {}
 }
 

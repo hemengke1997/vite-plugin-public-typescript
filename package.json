@@ -58,6 +58,7 @@
     "vitest": "^0.24.5"
   },
   "dependencies": {
+    "esbuild": "^0.15.13",
     "fast-glob": "^3.2.12",
     "fs-extra": "^10.1.0"
   },
