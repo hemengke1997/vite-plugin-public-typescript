@@ -26,7 +26,7 @@ export interface VitePluginOptions {
    * @description esbuild BuildOptions
    * @see https://esbuild.github.io/api/#build-api
    */
-  esBuildOptions?: BuildOptions | undefined
+  esbuildOptions?: BuildOptions | undefined
   /**
    * @description manifest fileName
    * @default manifest
@@ -45,7 +45,7 @@ const defaultOptions: Required<VitePluginOptions> = {
   manifestName: 'manifest',
   hash: true,
   ssrBuild: false,
-  esBuildOptions: {},
+  esbuildOptions: {},
 }
 
 export function publicTypescript(options: VitePluginOptions): PluginOption {

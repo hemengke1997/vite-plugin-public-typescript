@@ -20,7 +20,7 @@ type BuildOptions = {
 } & Required<VitePluginOptions>
 
 export async function build(options: BuildOptions) {
-  const { filePath, publicDir, esBuildOptions, outputDir } = options
+  const { filePath, publicDir, esbuildOptions, outputDir } = options
 
   const fileName = path.basename(filePath, path.extname(filePath))
   try {
@@ -34,7 +34,7 @@ export async function build(options: BuildOptions) {
       treeShaking: true,
       splitting: false,
       minify: true,
-      ...esBuildOptions,
+      ...esbuildOptions,
     })
 
     const code = res.outputFiles?.[0].text

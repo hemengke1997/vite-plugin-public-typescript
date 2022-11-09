@@ -54,7 +54,7 @@ manifest[yourFileName] // get js fileName! use it anywhere
 | outputDir      | `string`       | `/`                | output public javascript dir, relative to `publicDir` |
 | manifestName   | `string`       | `manifest`         | js manifest fileName                                  |
 | hash           | `boolean`      | `true`             | whether generate js fileName with hash                |
-| esBuildOptions | `BuildOptions` | `{}`               | esbuild BuildOptions                                  |
+| esbuildOptions | `BuildOptions` | `{}`               | esbuild BuildOptions                                  |
 
 ## Example project
 
