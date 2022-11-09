@@ -1,3 +1,12 @@
+## [0.0.8](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.7...v0.0.8) (2022-11-08)
+
+
+### Bug Fixes
+
+* **hmr:** wait build then reload ([5e4d834](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/5e4d8349607d3ea1952cdd944107a07a97002a56))
+
+
+
 ## [0.0.7](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.6...v0.0.7) (2022-11-08)
 
 
