@@ -1,3 +1,12 @@
+## [0.0.9](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.8...v0.0.9) (2022-11-09)
+
+
+### Features
+
+* ✨ use `esbuild` build replace vite builtin `transformWithEsbuild` ([a40515f](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/a40515f1ecf7efdc267e15a89d1fa4f12a76c949))
+
+
+
 ## [0.0.8](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.7...v0.0.8) (2022-11-08)
 
 
