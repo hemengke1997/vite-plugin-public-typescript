@@ -1,3 +1,7 @@
+## [0.0.10](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.9...v0.0.10) (2022-11-10)
+
+
+
 ## [0.0.9](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.8...v0.0.9) (2022-11-09)
 
 
@@ -51,13 +55,21 @@
 
 
 
-## [0.0.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/2f7ecdb66a3004addbe372e91bf2caf33243e0e8...v0.0.2) (2022-11-08)
+## [0.0.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.1...v0.0.2) (2022-11-08)
+
+
+### Features
+
+* playground ([e36ac70](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e36ac706ed1261fadbc837dd48e21fe312026826))
+
+
+
+## [0.0.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/2f7ecdb66a3004addbe372e91bf2caf33243e0e8...v0.0.1) (2022-11-07)
 
 
 ### Features
 
 * 🎉 init ([2f7ecdb](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/2f7ecdb66a3004addbe372e91bf2caf33243e0e8))
-* playground ([e36ac70](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e36ac706ed1261fadbc837dd48e21fe312026826))
 
 
 
