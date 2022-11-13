@@ -23,31 +23,29 @@ export async function build(options: BuildOptions) {
   const { filePath, publicDir, esbuildOptions, outputDir } = options
 
   const fileName = path.basename(filePath, path.extname(filePath))
-  try {
-    const res = await esbuild({
-      entryPoints: [filePath],
-      write: false,
-      platform: 'browser',
-      bundle: true,
-      format: 'iife',
-      sourcemap: false,
-      treeShaking: true,
-      splitting: false,
-      minify: true,
-      ...esbuildOptions,
-    })
+  const res = await esbuild({
+    entryPoints: [filePath],
+    write: false,
+    platform: 'browser',
+    bundle: true,
+    format: 'iife',
+    sourcemap: false,
+    treeShaking: true,
+    splitting: false,
+    minify: true,
+    ...esbuildOptions,
+  })
 
-    const code = res.outputFiles?.[0].text
+  const code = res.outputFiles?.[0].text
 
-    await deleteOldFiles({
-      ...options,
-      publicDir,
-      fileName,
-      outputDir,
-    })
+  await deleteOldFiles({
+    ...options,
+    publicDir,
+    fileName,
+    outputDir,
+  })
 
-    await addJsFile({ ...options, code, fileName })
-  } catch {}
+  await addJsFile({ ...options, code, fileName })
 }
 
 type TDeleteFile = {
