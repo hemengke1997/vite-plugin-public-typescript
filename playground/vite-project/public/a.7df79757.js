@@ -1,0 +1,1 @@
+"use strict";(()=>{function r(){return"hello"}function e(t){let o=0,n=c=>{o=c,t.innerHTML=`count is ${o}`};t.addEventListener("click",()=>n(o+1)),n(0)}function u(t,o){return t+o}var l=u(1,2);console.log(l);var s=r();console.log(s);e();})();
