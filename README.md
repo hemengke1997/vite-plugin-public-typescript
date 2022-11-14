@@ -1,6 +1,8 @@
 # vite-plugin-public-typescript
 
-## Feature
+> This is useful for SSR ✨
+
+## Features
 
 - transform public typescript to public javascript
 - output js with hash
