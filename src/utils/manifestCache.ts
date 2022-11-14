@@ -1,5 +1,6 @@
 import path from 'node:path'
 import fs from 'fs-extra'
+import { crlf } from '.'
 
 interface CacheType {
   key: string
@@ -40,6 +41,6 @@ export class ManifestCache {
       .sort()
       .forEach((k) => (orderdCache[k] = cacheObj[k]))
     await fs.ensureDir(path.dirname(targetPath))
-    await fs.writeFile(targetPath, `${JSON.stringify(orderdCache, null, 2)}`)
+    await fs.writeFile(targetPath, crlf(`${JSON.stringify(orderdCache, null, 2)}`))
   }
 }

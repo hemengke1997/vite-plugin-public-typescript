@@ -3,6 +3,7 @@ import type { PluginOption, ResolvedConfig } from 'vite'
 import { normalizePath } from 'vite'
 import fg from 'fast-glob'
 import type { BuildOptions } from 'esbuild'
+import { ensureDirSync } from 'fs-extra'
 import { addJsFile, build, deleteOldFiles, isPublicTypescript, reloadPage, ts } from './utils'
 import { ManifestCache } from './utils/manifestCache'
 
@@ -14,7 +15,7 @@ export interface VitePluginOptions {
   ssrBuild?: boolean | undefined
   /**
    * @description input public typescript dir
-   * @default publicTypescript
+   * @default 'publicTypescript'
    */
   inputDir?: string
   /**
@@ -29,7 +30,7 @@ export interface VitePluginOptions {
   esbuildOptions?: BuildOptions | undefined
   /**
    * @description manifest fileName
-   * @default manifest
+   * @default 'manifest'
    */
   manifestName?: string
   /**
@@ -61,8 +62,12 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
 
   return {
     name: 'vite:public-typescript',
+    enforce: 'pre',
     configResolved(c) {
       config = c
+
+      ensureDirSync(normalizePath(path.resolve(config.root, `${opts.inputDir}`)))
+
       files = fg.sync(normalizePath(path.resolve(config.root, `${opts.inputDir}/*.ts`)), {
         cwd: config.root,
         absolute: true,

@@ -97,7 +97,7 @@ export async function addJsFile(args: TAddFile) {
 
   const fp = normalizePath(path.join(publicDir, outPath))
   await fs.ensureDir(path.dirname(fp))
-  await fs.writeFile(fp, code)
+  await fs.writeFile(fp, crlf(code))
   cache.setCache({ key: fileName, value: outPath })
   // write cache
   currentBuildTimes++
@@ -114,4 +114,10 @@ export function reloadPage(ws: WebSocketServer) {
 
 export function isPublicTypescript({ filePath, root, inputDir }: { filePath: string; root: string; inputDir: string }) {
   return path.extname(filePath) === ts && normalizePath(filePath).includes(normalizePath(path.resolve(root, inputDir)))
+}
+
+export function crlf(text: string) {
+  const CRLF = '\r\n'
+  const R_CRLF = /\r\n|\r(?!\n)|\n/g
+  return text.replace(R_CRLF, CRLF)
 }

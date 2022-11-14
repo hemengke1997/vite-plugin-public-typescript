@@ -1,11 +1,3 @@
-import { hello } from 'lib'
-import { other, setupCounter } from '@/other'
+console.log('this is a')
 
-const x = other(1, 2)
-console.log(x)
-
-const h = hello()
-
-console.log(h)
-
-setupCounter()
+export {}
