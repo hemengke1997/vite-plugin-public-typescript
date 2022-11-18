@@ -26,7 +26,7 @@ npm i vite-plugin-public-typescript -D
 
 ## Usage
 
-```ts
+```t
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 
@@ -50,7 +50,7 @@ Or you can use [`vite-plugin-html`](https://github.com/vbenjs/vite-plugin-html) 
 For full example, please see [spa playground](./playground/spa/vite.config.ts)
 
 #### vite config
-```ts
+```typescript
 import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
@@ -96,7 +96,7 @@ We can easily change the html in SSR mode, because `html` is just a string templ
 For full example, please see [ssr playground](./playground/ssr/index.html)
 
 #### vite config
-```ts
+```typescript
 import { HtmlTagDescriptor, defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 
