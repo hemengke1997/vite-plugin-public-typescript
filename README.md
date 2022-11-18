@@ -1,11 +1,12 @@
 # vite-plugin-public-typescript
 
-> This is useful for SSR ✨
+**English** | [中文](./README-zh.md)
 
 ## Features
 
-- transform public typescript to public javascript
-- output js with hash
+- Transform typescript to javascript at runtime and build time
+- Output js with hash, no worry about cache
+- Customize esbuild build options, specify target browsers range
 
 ## Install
 
@@ -21,7 +22,7 @@ npm i vite-plugin-public-typescript -D
 
 ## Preview
 
-<img src="./screenshots/ts.gif" />
+<img src="./screenshots/ts-new.gif" />
 
 ## Usage
 
@@ -41,11 +42,86 @@ export default defineConfig({
 })
 ```
 
-```ts
-import manifest from './path/to/publicTypescript/manifest.json'
+### SPA
 
-manifest[yourFileName] // get js fileName! use it anywhere
+For `SPA`, you can inject script in vite `transformIndexHtml` hook.
+Or you can use [`vite-plugin-html`](https://github.com/vbenjs/vite-plugin-html) that make injecting easy
+
+For full example, please see [spa playground](./playground/spa/vite.config.ts)
+
+#### vite config
+```ts
+import type { HtmlTagDescriptor } from 'vite'
+import { defineConfig } from 'vite'
+import { publicTypescript } from 'vite-plugin-public-typescript'
+import react from '@vitejs/plugin-react'
+import manifest from './publicTypescript/manifest.json'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    react(),
+    publicTypescript({
+      inputDir: 'publicTypescript',
+      manifestName: 'manifest',
+      hash: true,
+      outputDir: '/',
+    }),
+    {
+      name: 'add-script',
+      transformIndexHtml(html) {
+        const tags: HtmlTagDescriptor[] = [
+          {
+            tag: 'script',
+            attrs: {
+              src: manifest.spa,
+            },
+            injectTo: 'head-prepend',
+          },
+        ]
+        return {
+          html,
+          tags,
+        }
+      },
+    },
+  ],
+})
 ```
+
+### SSR
+
+We can easily change the html in SSR mode, because `html` is just a string template
+
+For full example, please see [ssr playground](./playground/ssr/index.html)
+
+#### vite config
+```ts
+import { HtmlTagDescriptor, defineConfig } from 'vite'
+import { publicTypescript } from 'vite-plugin-public-typescript'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    publicTypescript({
+      inputDir: 'publicTypescript',
+      manifestName: 'custom-manifest',
+      hash: true,
+      outputDir: '/',
+    }),
+  ],
+})
+```
+
+#### server.js
+```js
+import manifest from './publicTypescript/custom-manifest.json' assert { type: 'json' }
+
+const html = template
+      // inject js
+      .replace(`<!--app-prehead-->`, `<script src=${manifest.ssr}></script>`)
+```
+
 
 ## Options
 
