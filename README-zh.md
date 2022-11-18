@@ -26,7 +26,7 @@ npm i vite-plugin-public-typescript -D
 
 ## Usage
 
-```ts
+```typescript
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 
@@ -51,7 +51,7 @@ export default defineConfig({
 
 #### vite config
 
-```ts
+```typescript
 import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
@@ -98,7 +98,7 @@ export default defineConfig({
 
 #### vite config
 
-```ts
+```typescript
 import { HtmlTagDescriptor, defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 
