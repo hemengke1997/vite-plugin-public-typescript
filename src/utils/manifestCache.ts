@@ -34,7 +34,7 @@ export class ManifestCache {
     return cacheMap
   }
 
-  async writeCache(targetPath: string) {
+  async writeManifestJSON(targetPath: string) {
     const cacheObj = Object.fromEntries(this.getAll())
     const orderdCache: Record<string, string> = {}
     Object.keys(cacheObj)

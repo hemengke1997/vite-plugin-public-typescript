@@ -67,7 +67,7 @@ export async function deleteOldFiles(args: TDeleteFile) {
       if (fs.existsSync(f)) {
         // and modify manifest
         cache.removeCache(fileName)
-        cache.writeCache(`${inputDir}/${manifestName}.json`)
+        cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
         await fs.remove(f)
       }
     }
@@ -100,7 +100,7 @@ export async function addJsFile(args: TAddFile) {
   // write cache
   currentBuildTimes++
   if (currentBuildTimes >= buildLength) {
-    cache.writeCache(`${inputDir}/${manifestName}.json`)
+    cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
   }
 }
 
