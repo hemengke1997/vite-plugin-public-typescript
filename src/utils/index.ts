@@ -4,8 +4,10 @@ import type { WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
+import type { BuildResult } from 'esbuild'
 import { build as esbuild } from 'esbuild'
 import type { VitePluginOptions } from '..'
+import { name } from '../../package.json'
 import type { ManifestCache } from './manifestCache'
 
 export function getContentHash(chunk: string | Uint8Array) {
@@ -23,20 +25,27 @@ export async function build(options: BuildOptions) {
   const { filePath, publicDir, esbuildOptions, outputDir } = options
 
   const fileName = path.basename(filePath, path.extname(filePath))
-  const res = await esbuild({
-    entryPoints: [filePath],
-    write: false,
-    platform: 'browser',
-    bundle: true,
-    format: 'iife',
-    sourcemap: false,
-    treeShaking: true,
-    splitting: false,
-    minify: true,
-    ...esbuildOptions,
-  })
 
-  const code = res.outputFiles?.[0].text
+  let res: BuildResult
+  try {
+    res = await esbuild({
+      entryPoints: [filePath],
+      write: false,
+      platform: 'browser',
+      bundle: true,
+      format: 'iife',
+      sourcemap: false,
+      treeShaking: true,
+      splitting: false,
+      minify: true,
+      ...esbuildOptions,
+    })
+  } catch (e) {
+    console.error(`${name} esbuild error:`, e)
+    return
+  }
+
+  const code = res!.outputFiles?.[0].text
 
   await deleteOldFiles({
     ...options,

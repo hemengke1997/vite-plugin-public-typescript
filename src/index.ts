@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { PluginOption, ResolvedConfig, ViteDevServer } from 'vite'
+import type { PluginOption, ResolvedConfig } from 'vite'
 import { normalizePath } from 'vite'
 import fg from 'fast-glob'
 import type { BuildOptions } from 'esbuild'
@@ -58,17 +58,10 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
   let config: ResolvedConfig
   let files: string[]
   let buildLength = 0
-  let server: ViteDevServer
   const cache = new ManifestCache()
-
-  // fix esbuild error: The service is no longer running
-  process.on('SIGINT', () => {
-    server.close()
-  })
 
   return {
     name: 'vite:public-typescript',
-    enforce: 'pre',
     configResolved(c) {
       config = c
 
@@ -94,8 +87,8 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
         })
       })
     },
-    configureServer(_server) {
-      server = _server
+
+    configureServer(server) {
       const { watcher, ws } = server
       watcher.on('unlink', async (f) => {
         // ts file deleted
