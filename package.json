@@ -30,10 +30,10 @@
     "build": "tsup",
     "test": "vitest",
     "lint": "eslint . --fix",
-    "upgrade:deps": "pnpm update --i --L",
-    "log": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "preinstall": "npx only-allow pnpm",
-    "bump": "bumpp package.json --commit --push --tag"
+    "upgrade:deps": "pnpm update --i --L",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "bump": "pnpm changelog && bumpp package.json --commit --push --tag"
   },
   "repository": {
     "type": "git",
