@@ -4,7 +4,7 @@ import type { WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
-import type { BuildResult } from 'esbuild'
+import type { BuildResult, Plugin } from 'esbuild'
 import { build as esbuild } from 'esbuild'
 import type { VitePluginOptions } from '..'
 import { name } from '../../package.json'
@@ -21,10 +21,31 @@ type BuildOptions = {
   buildLength: number
 } & Required<VitePluginOptions>
 
+const noSideEffectsPlugin: Plugin = {
+  name: 'no-side-effects',
+  setup(build) {
+    // https://github.com/evanw/esbuild/issues/1895#issuecomment-1003404929
+    build.onResolve({ filter: /.*/ }, async (args) => {
+      if (args.pluginData) return
+
+      const { path, ...rest } = args
+      rest.pluginData = true
+      const result = await build.resolve(path, rest)
+
+      result.sideEffects = false
+      return result
+    })
+  },
+}
+
 export async function build(options: BuildOptions) {
-  const { filePath, publicDir, esbuildOptions, outputDir } = options
+  const { filePath, publicDir, esbuildOptions, outputDir, sideEffects } = options
 
   const fileName = path.basename(filePath, path.extname(filePath))
+
+  const { plugins = [], ...rest } = esbuildOptions
+
+  const esbuildPlugins = sideEffects ? [noSideEffectsPlugin, ...plugins] : plugins
 
   let res: BuildResult
   try {
@@ -38,7 +59,9 @@ export async function build(options: BuildOptions) {
       treeShaking: true,
       splitting: false,
       minify: true,
-      ...esbuildOptions,
+      plugins: esbuildPlugins,
+      logLevel: sideEffects ? undefined : 'error',
+      ...rest,
     })
   } catch (e) {
     console.error(`${name} esbuild error:`, e)

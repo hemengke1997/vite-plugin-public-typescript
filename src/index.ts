@@ -38,6 +38,11 @@ export interface VitePluginOptions {
    * @default true
    */
   hash?: boolean
+  /**
+   * @description treat `input` as sideEffect or not
+   * @see https://esbuild.github.io/api/#tree-shaking-and-side-effects
+   */
+  sideEffects?: boolean
 }
 
 const defaultOptions: Required<VitePluginOptions> = {
@@ -47,6 +52,7 @@ const defaultOptions: Required<VitePluginOptions> = {
   hash: true,
   ssrBuild: false,
   esbuildOptions: {},
+  sideEffects: false,
 }
 
 export function publicTypescript(options: VitePluginOptions): PluginOption {
