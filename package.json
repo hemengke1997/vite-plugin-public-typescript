@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-public-typescript",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "vite plugin generate public javascript from typescript",
   "keywords": [
     "vite",
@@ -33,7 +33,7 @@
     "preinstall": "npx only-allow pnpm",
     "upgrade:deps": "pnpm update --i --L",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "bump": "pnpm changelog && bumpp package.json --commit --push --tag"
+    "bump": "pnpm changelog && bumpp package.json --commit --push --tag -all"
   },
   "repository": {
     "type": "git",
