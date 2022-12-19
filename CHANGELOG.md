@@ -1,3 +1,12 @@
+## [1.0.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.2...v1.0.3) (2022-12-04)
+
+
+### Features
+
+* ✨ support `sideEffects` option for strict tree shaking ([1348438](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/134843859144fa8ad23684f939cf503d02c2959b))
+
+
+
 ## [1.0.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.1...v1.0.2) (2022-11-26)
 
 

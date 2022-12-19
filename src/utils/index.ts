@@ -43,7 +43,7 @@ export async function esbuildTypescript(options: BuildOptions) {
 
   const { plugins = [], ...rest } = esbuildOptions
 
-  const esbuildPlugins = sideEffects ? [noSideEffectsPlugin, ...plugins] : plugins
+  const esbuildPlugins = sideEffects ? plugins : [noSideEffectsPlugin, ...plugins]
 
   let res: BuildResult
   try {

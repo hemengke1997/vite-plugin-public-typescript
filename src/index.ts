@@ -40,6 +40,7 @@ export interface VitePluginOptions {
   hash?: boolean
   /**
    * @description treat `input` as sideEffect or not
+   * @default false
    * @see https://esbuild.github.io/api/#tree-shaking-and-side-effects
    */
   sideEffects?: boolean
