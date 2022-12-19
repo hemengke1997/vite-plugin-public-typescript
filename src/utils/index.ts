@@ -38,10 +38,8 @@ const noSideEffectsPlugin: Plugin = {
   },
 }
 
-export async function build(options: BuildOptions) {
-  const { filePath, publicDir, esbuildOptions, outputDir, sideEffects } = options
-
-  const fileName = path.basename(filePath, path.extname(filePath))
+export async function esbuildTypescript(options: BuildOptions) {
+  const { filePath, esbuildOptions, sideEffects } = options
 
   const { plugins = [], ...rest } = esbuildOptions
 
@@ -69,6 +67,16 @@ export async function build(options: BuildOptions) {
   }
 
   const code = res!.outputFiles?.[0].text
+
+  return code
+}
+
+export async function build(options: BuildOptions) {
+  const { filePath, publicDir, outputDir } = options
+
+  const fileName = path.basename(filePath, path.extname(filePath))
+
+  const code = await esbuildTypescript(options)
 
   await deleteOldFiles({
     ...options,

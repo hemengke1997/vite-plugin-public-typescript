@@ -1,6 +1,5 @@
 import { defineConfig, HtmlTagDescriptor } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
-import manifest from './publicTypescript/manifest.json'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
@@ -15,12 +14,14 @@ export default defineConfig({
     }),
     {
       name: 'add-script',
-      transformIndexHtml(html) {
+      async transformIndexHtml(html) {
+        const { spa } = await import('./publicTypescript/manifest.json')
+
         const tags: HtmlTagDescriptor[] = [
           {
             tag: 'script',
             attrs: {
-              src: manifest['spa'],
+              src: spa,
             },
             injectTo: 'head-prepend',
           },

@@ -137,3 +137,5 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
     },
   }
 }
+
+export { esbuildTypescript } from './utils'

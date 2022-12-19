@@ -1,3 +1,35 @@
+## [1.0.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.1...v1.0.2) (2022-11-26)
+
+
+### Bug Fixes
+
+* esbuild error ([8c1de9e](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/8c1de9e12389bb83679faf935bc6906720ee14c8))
+
+
+
+## [1.0.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.0...v1.0.1) (2022-11-25)
+
+
+### Bug Fixes
+
+* 🐛 esbuild error `The service is no longer running` ([76a3d20](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/76a3d20a871946db37fde696c42f010a74231b9e))
+
+
+### Performance Improvements
+
+* fix CRLF warning on windows ([cab1e1f](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/cab1e1ff9dbf7e2806c470274257cd011816e726))
+
+
+
+## [0.0.11](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.10...v0.0.11) (2022-11-13)
+
+
+### Bug Fixes
+
+* throw esbuild error ([da1b327](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/da1b327464b78d7a6e6bacde8453cb7798b5771a))
+
+
+
 ## [0.0.10](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v0.0.9...v0.0.10) (2022-11-10)
 
 
