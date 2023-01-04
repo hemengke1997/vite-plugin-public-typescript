@@ -1,3 +1,23 @@
+## [1.0.5](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.4...v1.0.5) (2023-01-04)
+
+
+### Bug Fixes
+
+* aviod infinite loop ([869f9e2](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/869f9e283b2ebb311495123c3a99a0afb9ec805e))
+* dynamic import manifest to aviod infinite loop ([ddfa337](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/ddfa3375f6fac0f7043922002cf4c35225c5c082))
+* loop ([bb59d0d](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/bb59d0d45f02e6b67e5cb9bfa7aefd50ae627b22))
+
+
+
+## [1.0.4](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.3...v1.0.4) (2022-12-06)
+
+
+### Bug Fixes
+
+* `sideEffects` not working ([87d567e](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/87d567ef69667dd8637f1993c76b30d2e4fa1900))
+
+
+
 ## [1.0.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.2...v1.0.3) (2022-12-04)
 
 
