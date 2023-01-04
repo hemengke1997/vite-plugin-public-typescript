@@ -56,7 +56,7 @@ const defaultOptions: Required<VitePluginOptions> = {
   sideEffects: false,
 }
 
-export function publicTypescript(options: VitePluginOptions): PluginOption {
+export function publicTypescript(options: VitePluginOptions = {}): PluginOption {
   const opts = {
     ...defaultOptions,
     ...options,
@@ -67,74 +67,78 @@ export function publicTypescript(options: VitePluginOptions): PluginOption {
   let buildLength = 0
   const cache = new ManifestCache()
 
-  return {
-    name: 'vite:public-typescript',
-    configResolved(c) {
-      config = c
+  return [
+    {
+      name: 'vite:public-typescript',
+      configResolved(c) {
+        config = c
 
-      ensureDirSync(normalizePath(path.resolve(config.root, `${opts.inputDir}`)))
+        ensureDirSync(normalizePath(path.resolve(config.root, `${opts.inputDir}`)))
 
-      files = fg.sync(normalizePath(path.resolve(config.root, `${opts.inputDir}/*.ts`)), {
-        cwd: config.root,
-        absolute: true,
-      })
-
-      buildLength = files.length
-    },
-    buildStart() {
-      if (opts.ssrBuild || config.build.ssr) return
-      const outDir = config.publicDir
-      files.forEach((f) => {
-        build({
-          ...opts,
-          filePath: f,
-          publicDir: outDir,
-          cache,
-          buildLength,
+        files = fg.sync(normalizePath(path.resolve(config.root, `${opts.inputDir}/*.ts`)), {
+          cwd: config.root,
+          absolute: true,
         })
-      })
-    },
 
-    configureServer(server) {
-      const { watcher, ws } = server
-      watcher.on('unlink', async (f) => {
-        // ts file deleted
-        if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
-          const fileName = path.basename(f, ts)
-          // need to delete js
-          await deleteOldFiles({ ...opts, publicDir: config.publicDir, fileName, cache })
-          reloadPage(ws)
+        buildLength = files.length
+      },
+      configureServer(server) {
+        const { watcher, ws } = server
+        watcher.on('unlink', async (f) => {
+          // ts file deleted
+          if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
+            const fileName = path.basename(f, ts)
+            // need to delete js
+            await deleteOldFiles({ ...opts, publicDir: config.publicDir, fileName, cache })
+            reloadPage(ws)
+          }
+        })
+        watcher.on('add', async (f) => {
+          // ts file added
+          if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
+            const fileName = path.basename(f, ts)
+            // need to add js
+            await addJsFile({ ...opts, cache, fileName, buildLength, publicDir: config.publicDir })
+            reloadPage(ws)
+          }
+        })
+      },
+      async handleHotUpdate(ctx) {
+        if (
+          isPublicTypescript({
+            filePath: ctx.file,
+            inputDir: opts.inputDir!,
+            root: config.root,
+          })
+        ) {
+          await build({
+            ...opts,
+            filePath: ctx.file,
+            publicDir: config.publicDir,
+            cache,
+            buildLength,
+          })
+          reloadPage(ctx.server.ws)
+          return []
         }
-      })
-
-      watcher.on('add', async (f) => {
-        // ts file added
-        if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
-          const fileName = path.basename(f, ts)
-          // need to add js
-          await addJsFile({ ...opts, cache, fileName, buildLength, publicDir: config.publicDir })
-          reloadPage(ws)
-        }
-      })
+      },
     },
-    async handleHotUpdate(ctx) {
-      if (
-        isPublicTypescript({
-          filePath: ctx.file,
-          inputDir: opts.inputDir!,
-          root: config.root,
+    {
+      name: 'vite:public-typescript_build',
+      apply: 'build',
+      buildStart() {
+        if (opts.ssrBuild || config.build.ssr) return
+        const outDir = config.publicDir
+        files.forEach((f) => {
+          build({
+            ...opts,
+            filePath: f,
+            publicDir: outDir,
+            cache,
+            buildLength,
+          })
         })
-      ) {
-        await build({
-          ...opts,
-          filePath: ctx.file,
-          publicDir: config.publicDir,
-          cache,
-          buildLength,
-        })
-        reloadPage(ctx.server.ws)
-        return []
-      }
+      },
     },
-  }
+  ]
 }

@@ -54,7 +54,7 @@ app.use('*', async (req, res) => {
     const html = template
       .replace(`<!--app-head-->`, rendered.head ?? '')
       .replace(`<!--app-html-->`, rendered.html ?? '')
-      .replace(`<!--app-prehead-->`, `<script src=${manifest.a}></script>`)
+      .replace(`<!--app-prehead-->`, `<script src=${manifest.ssr}></script>`)
 
     res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
   } catch (e) {
