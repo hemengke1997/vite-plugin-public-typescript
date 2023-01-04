@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { PluginOption, ResolvedConfig } from 'vite'
+import type { ResolvedConfig, PluginOption } from 'vite'
 import { normalizePath } from 'vite'
 import fg from 'fast-glob'
 import type { BuildOptions } from 'esbuild'

@@ -4,7 +4,8 @@
 
 ## Features
 
-- 运行时和构建时，使用 esbuild 把指定文件夹中的 typescript 转化为 javascript，然后放置在 public 中
+- 运行时和构建时，使用 esbuild 把指定文件夹中的 typescript 转化为 javascript，打包在 public 中
+- 支持 HMR
 - 输出带有 hash 的 js 文件，无需担心缓存
 - 可自定义 esbuild 构建选项，指定目标浏览器范围
 
@@ -31,14 +32,7 @@ import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 
 export default defineConfig({
-  plugins: [
-    publicTypescript({
-      inputDir: 'publicTypescript',
-      outputDir: 'lib',
-      manifestName: 'manifest',
-      hash: true,
-    }),
-  ],
+  plugins: [publicTypescript()],
 })
 ```
 
@@ -55,27 +49,14 @@ export default defineConfig({
 import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
-import react from '@vitejs/plugin-react'
-import fs from 'node:fs'
-import path from 'node:path'
+import manifest from './publicTypescript/manifest.json'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
-    publicTypescript({
-      inputDir: 'publicTypescript',
-      manifestName: 'manifest',
-      hash: true,
-      outputDir: '/',
-    }),
+    publicTypescript(),
     {
       name: 'add-script',
       async transformIndexHtml(html) {
-        const manifest =
-          JSON.parse(fs.readFileSync(path.resolve(__dirname, './publicTypescript/manifest.json'), 'utf-8') || '{}') ||
-          {}
-
         const tags: HtmlTagDescriptor[] = [
           {
             tag: 'script',
@@ -107,14 +88,10 @@ export default defineConfig({
 import { HtmlTagDescriptor, defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     publicTypescript({
-      inputDir: 'publicTypescript',
       manifestName: 'custom-manifest',
-      hash: true,
-      outputDir: '/',
     }),
   ],
 })

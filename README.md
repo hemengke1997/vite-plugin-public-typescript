@@ -5,6 +5,7 @@
 ## Features
 
 - Transform typescript to javascript at runtime and build time
+- Support HMR
 - Output js with hash, no worry about cache
 - Customize esbuild build options, specify target browsers range
 
@@ -26,19 +27,12 @@ npm i vite-plugin-public-typescript -D
 
 ## Usage
 
-```t
+```typescript
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 
 export default defineConfig({
-  plugins: [
-    publicTypescript({
-      inputDir: 'publicTypescript',
-      outputDir: 'lib',
-      manifestName: 'manifest',
-      hash: true,
-    }),
-  ],
+  plugins: [publicTypescript()],
 })
 ```
 
@@ -55,27 +49,14 @@ For full example, please see [spa playground](./playground/spa/vite.config.ts)
 import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
-import react from '@vitejs/plugin-react'
-import fs from 'node:fs'
-import path from 'node:path'
+import manifest from './publicTypescript/manifest.json'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
-    publicTypescript({
-      inputDir: 'publicTypescript',
-      manifestName: 'manifest',
-      hash: true,
-      outputDir: '/',
-    }),
+    publicTypescript(),
     {
       name: 'add-script',
       async transformIndexHtml(html) {
-        const manifest =
-          JSON.parse(fs.readFileSync(path.resolve(__dirname, './publicTypescript/manifest.json'), 'utf-8') || '{}') ||
-          {}
-
         const tags: HtmlTagDescriptor[] = [
           {
             tag: 'script',
@@ -111,10 +92,7 @@ import { publicTypescript } from 'vite-plugin-public-typescript'
 export default defineConfig({
   plugins: [
     publicTypescript({
-      inputDir: 'publicTypescript',
       manifestName: 'custom-manifest',
-      hash: true,
-      outputDir: '/',
     }),
   ],
 })
