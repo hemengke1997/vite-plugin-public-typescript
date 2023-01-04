@@ -50,12 +50,14 @@ Or you can use [`vite-plugin-html`](https://github.com/vbenjs/vite-plugin-html) 
 For full example, please see [spa playground](./playground/spa/vite.config.ts)
 
 #### vite config
+
 ```typescript
 import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 import react from '@vitejs/plugin-react'
-import manifest from './publicTypescript/manifest.json'
+import fs from 'node:fs'
+import path from 'node:path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -69,7 +71,11 @@ export default defineConfig({
     }),
     {
       name: 'add-script',
-      transformIndexHtml(html) {
+      async transformIndexHtml(html) {
+        const manifest =
+          JSON.parse(fs.readFileSync(path.resolve(__dirname, './publicTypescript/manifest.json'), 'utf-8') || '{}') ||
+          {}
+
         const tags: HtmlTagDescriptor[] = [
           {
             tag: 'script',
@@ -96,6 +102,7 @@ We can easily change the html in SSR mode, because `html` is just a string templ
 For full example, please see [ssr playground](./playground/ssr/index.html)
 
 #### vite config
+
 ```typescript
 import { HtmlTagDescriptor, defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
@@ -114,14 +121,14 @@ export default defineConfig({
 ```
 
 #### server.js
+
 ```js
 import manifest from './publicTypescript/custom-manifest.json' assert { type: 'json' }
 
 const html = template
-      // inject js
-      .replace(`<!--app-prehead-->`, `<script src=${manifest.ssr}></script>`)
+  // inject js
+  .replace(`<!--app-prehead-->`, `<script src=${manifest.ssr}></script>`)
 ```
-
 
 ## Options
 

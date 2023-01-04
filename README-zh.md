@@ -56,7 +56,8 @@ import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 import react from '@vitejs/plugin-react'
-import manifest from './publicTypescript/manifest.json'
+import fs from 'node:fs'
+import path from 'node:path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -70,7 +71,11 @@ export default defineConfig({
     }),
     {
       name: 'add-script',
-      transformIndexHtml(html) {
+      async transformIndexHtml(html) {
+        const manifest =
+          JSON.parse(fs.readFileSync(path.resolve(__dirname, './publicTypescript/manifest.json'), 'utf-8') || '{}') ||
+          {}
+
         const tags: HtmlTagDescriptor[] = [
           {
             tag: 'script',
