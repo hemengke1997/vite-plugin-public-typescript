@@ -41,6 +41,8 @@ export class ManifestCache {
       .sort()
       .forEach((k) => (orderdCache[k] = cacheObj[k]))
     await fs.ensureDir(path.dirname(targetPath))
-    await fs.writeFile(targetPath, crlf(`${JSON.stringify(orderdCache, null, 2)}`))
+    if (Object.keys(orderdCache).length) {
+      await fs.writeFile(targetPath, crlf(`${JSON.stringify(orderdCache, null, 2)}`))
+    }
   }
 }
