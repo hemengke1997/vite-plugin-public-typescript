@@ -86,7 +86,7 @@ export function publicTypescript(options: VitePluginOptions = {}): PluginOption 
         const { watcher, ws } = server
         watcher.on('unlink', async (f) => {
           // ts file deleted
-          if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
+          if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir })) {
             const fileName = path.basename(f, ts)
             // need to delete js
             await deleteOldFiles({ ...opts, publicDir: config.publicDir, fileName, cache })

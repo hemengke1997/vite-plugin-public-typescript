@@ -1,4 +1,13 @@
-## [1.0.6](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.4...v1.0.6) (2023-01-04)
+## [1.0.6](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.5...v1.0.6) (2023-01-05)
+
+
+### Bug Fixes
+
+* dev restart error while build ([617fcb1](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/617fcb1167905e0d0711e2171a2563931dcd1003))
+
+
+
+## [1.0.5](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.4...v1.0.5) (2023-01-04)
 
 
 ### Bug Fixes

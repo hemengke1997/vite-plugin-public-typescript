@@ -7,31 +7,31 @@ interface CacheType {
   value: string
 }
 
-let cacheMap = new Map<CacheType['key'], CacheType['value']>()
-
 export class ManifestCache {
+  private cacheMap = new Map<CacheType['key'], CacheType['value']>()
+
   setCache(c: CacheType) {
     this.removeCache(c.key)
 
-    cacheMap.set(c.key, c.value)
+    this.cacheMap.set(c.key, c.value)
   }
 
   getCache(k: CacheType['key']) {
-    return cacheMap.get(k)
+    return this.cacheMap.get(k)
   }
 
   removeCache(k: CacheType['key']) {
-    if (cacheMap.has(k)) {
-      cacheMap.delete(k)
+    if (this.cacheMap.has(k)) {
+      this.cacheMap.delete(k)
     }
   }
 
   resetCache() {
-    cacheMap = new Map<CacheType['key'], CacheType['value']>()
+    this.cacheMap = new Map<CacheType['key'], CacheType['value']>()
   }
 
   getAll() {
-    return cacheMap
+    return this.cacheMap
   }
 
   async writeManifestJSON(targetPath: string) {

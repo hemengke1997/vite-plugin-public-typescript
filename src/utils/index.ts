@@ -159,3 +159,12 @@ export function crlf(text: string) {
   const R_CRLF = /\r\n|\r(?!\n)|\n/g
   return text.replace(R_CRLF, CRLF)
 }
+
+export function eq<T extends Record<string, string>>(obj1: T, obj2: T): boolean {
+  if (!obj1 || !obj2) return false
+
+  const keys = Object.keys(obj1)
+  if (keys.length !== Object.keys(obj2).length) return false
+
+  return keys.every((k) => obj1[k] === obj2[k])
+}
