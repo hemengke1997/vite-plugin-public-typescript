@@ -56,7 +56,7 @@ const defaultOptions: Required<VitePluginOptions> = {
   sideEffects: false,
 }
 
-export function publicTypescript(options: VitePluginOptions = {}): PluginOption {
+export function publicTypescript(options: VitePluginOptions = {}) {
   const opts = {
     ...defaultOptions,
     ...options,
@@ -67,7 +67,7 @@ export function publicTypescript(options: VitePluginOptions = {}): PluginOption 
   let buildLength = 0
   const cache = new ManifestCache()
 
-  return [
+  const plugins: PluginOption = [
     {
       name: 'vite:public-typescript',
       configResolved(c) {
@@ -141,6 +141,9 @@ export function publicTypescript(options: VitePluginOptions = {}): PluginOption 
       },
     },
   ]
+
+  // Return as `any` to avoid Plugin type mismatches when there are multiple Vite versions installed
+  return plugins as any
 }
 
 export { esbuildTypescript } from './utils'
