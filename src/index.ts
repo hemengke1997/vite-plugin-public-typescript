@@ -4,7 +4,7 @@ import { normalizePath } from 'vite'
 import fg from 'fast-glob'
 import type { BuildOptions } from 'esbuild'
 import { ensureDirSync } from 'fs-extra'
-import { addJsFile, build, deleteOldFiles, isPublicTypescript, reloadPage, ts } from './utils'
+import { addJsFile, build, deleteOldFiles, esbuildTypescript, isPublicTypescript, reloadPage, ts } from './utils'
 import { ManifestCache } from './utils/manifestCache'
 
 export interface VitePluginOptions {
@@ -146,4 +146,4 @@ export function publicTypescript(options: VitePluginOptions = {}) {
   return plugins as any
 }
 
-export { esbuildTypescript } from './utils'
+export { esbuildTypescript }
