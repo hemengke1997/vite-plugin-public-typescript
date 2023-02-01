@@ -1,4 +1,13 @@
-## [1.0.9](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.7...v1.0.9) (2023-01-30)
+## [1.0.10](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.8...v1.0.10) (2023-01-31)
+
+
+### Bug Fixes
+
+* cjs namedExports ([90f3af1](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/90f3af1224505f2b033a9ece483763362fc21fe8))
+
+
+
+## [1.0.8](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.7...v1.0.8) (2023-01-30)
 
 
 

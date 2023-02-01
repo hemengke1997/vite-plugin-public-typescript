@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-public-typescript",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "vite plugin generate public javascript from typescript",
   "keywords": [
     "vite",
