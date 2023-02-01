@@ -56,6 +56,8 @@ const defaultOptions: Required<VitePluginOptions> = {
   sideEffects: false,
 }
 
+const cache = new ManifestCache()
+
 export function publicTypescript(options: VitePluginOptions = {}) {
   const opts = {
     ...defaultOptions,
@@ -65,7 +67,6 @@ export function publicTypescript(options: VitePluginOptions = {}) {
   let config: ResolvedConfig
   let files: string[]
   let buildLength = 0
-  const cache = new ManifestCache()
 
   const plugins: PluginOption = [
     {
@@ -107,7 +108,7 @@ export function publicTypescript(options: VitePluginOptions = {}) {
         if (
           isPublicTypescript({
             filePath: ctx.file,
-            inputDir: opts.inputDir!,
+            inputDir: opts.inputDir,
             root: config.root,
           })
         ) {
