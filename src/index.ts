@@ -58,6 +58,8 @@ const defaultOptions: Required<VitePluginOptions> = {
 
 const cache = new ManifestCache()
 
+let startedFlag = false
+
 export function publicTypescript(options: VitePluginOptions = {}) {
   const opts = {
     ...defaultOptions,
@@ -71,6 +73,8 @@ export function publicTypescript(options: VitePluginOptions = {}) {
   const plugins: PluginOption = [
     {
       name: 'vite:public-typescript',
+      enforce: 'post',
+
       configResolved(c) {
         config = c
 
@@ -85,23 +89,50 @@ export function publicTypescript(options: VitePluginOptions = {}) {
       },
       configureServer(server) {
         const { watcher, ws } = server
-        watcher.on('unlink', async (f) => {
+
+        async function handleUnlink({ filePath }: { filePath: string }) {
           // ts file deleted
-          if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir })) {
-            const fileName = path.basename(f, ts)
+          if (isPublicTypescript({ filePath, root: config.root, inputDir: opts.inputDir })) {
+            debugger
+            const fileName = path.basename(filePath, ts)
             // need to delete js
             await deleteOldFiles({ ...opts, publicDir: config.publicDir, fileName, cache })
             reloadPage(ws)
           }
+        }
+
+        watcher.on('unlink', async (f) => {
+          handleUnlink({ filePath: f })
         })
+
         watcher.on('add', async (f) => {
           // ts file added
           if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
+            handleUnlink({ filePath: f })
+            debugger
             const fileName = path.basename(f, ts)
             // need to add js
             await addJsFile({ ...opts, cache, fileName, buildLength, publicDir: config.publicDir })
             reloadPage(ws)
           }
+        })
+      },
+      buildStart() {
+        if (opts.ssrBuild || config.build.ssr) return
+
+        if (startedFlag) return
+        startedFlag = true
+
+        const outDir = config.publicDir
+        files.forEach((f) => {
+          build({
+            ...opts,
+            filePath: f,
+            publicDir: outDir,
+            cache,
+            buildLength,
+            config,
+          })
         })
       },
       async handleHotUpdate(ctx) {
@@ -118,27 +149,11 @@ export function publicTypescript(options: VitePluginOptions = {}) {
             publicDir: config.publicDir,
             cache,
             buildLength,
+            config,
           })
           reloadPage(ctx.server.ws)
           return []
         }
-      },
-    },
-    {
-      name: 'vite:public-typescript_build',
-      apply: 'build',
-      buildStart() {
-        if (opts.ssrBuild || config.build.ssr) return
-        const outDir = config.publicDir
-        files.forEach((f) => {
-          build({
-            ...opts,
-            filePath: f,
-            publicDir: outDir,
-            cache,
-            buildLength,
-          })
-        })
       },
     },
   ]

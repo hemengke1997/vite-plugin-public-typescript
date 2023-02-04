@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
-import type { WebSocketServer } from 'vite'
+import type { ResolvedConfig, WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
@@ -19,6 +19,7 @@ type BuildOptions = {
   publicDir: string
   cache: ManifestCache
   buildLength: number
+  config: ResolvedConfig
 } & Required<VitePluginOptions>
 
 const noSideEffectsPlugin: Plugin = {
@@ -38,12 +39,22 @@ const noSideEffectsPlugin: Plugin = {
   },
 }
 
+function transformEnvToDefine(config: ResolvedConfig) {
+  return {
+    'import.meta.env': JSON.stringify(config.env),
+    'import.meta.hot': `false`,
+    ...config.define,
+  }
+}
+
 export async function esbuildTypescript(options: BuildOptions) {
-  const { filePath, esbuildOptions, sideEffects } = options
+  const { filePath, esbuildOptions, sideEffects, config: viteResolvedConfig } = options
 
   const { plugins = [], ...rest } = esbuildOptions
 
   const esbuildPlugins = sideEffects ? plugins : [noSideEffectsPlugin, ...plugins]
+
+  const define = transformEnvToDefine(viteResolvedConfig)
 
   let res: BuildResult
   try {
@@ -59,6 +70,7 @@ export async function esbuildTypescript(options: BuildOptions) {
       minify: true,
       plugins: esbuildPlugins,
       logLevel: sideEffects ? undefined : 'error',
+      define,
       ...rest,
     })
   } catch (e) {
@@ -98,6 +110,7 @@ type TDeleteFile = {
 export const ts = '.ts'
 
 export async function deleteOldFiles(args: TDeleteFile) {
+  debugger
   const { publicDir, outputDir, fileName, cache, inputDir, manifestName } = args
   const oldFiles = fg.sync(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
   // if exits old files
@@ -124,6 +137,7 @@ type TAddFile = {
 
 let currentBuildTimes = 0
 export async function addJsFile(args: TAddFile) {
+  debugger
   const { hash, code = '', outputDir, fileName, publicDir, cache, buildLength, manifestName, inputDir } = args
   let outPath = ''
   if (hash) {
