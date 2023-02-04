@@ -1,4 +1,13 @@
-## [1.0.10](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.8...v1.0.10) (2023-01-31)
+## [1.1.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.9...v1.1.0) (2023-02-01)
+
+
+### Bug Fixes
+
+* sync removing ts file with js ([d59abad](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/d59abadecc9391b1a80f4c0acef133f43266fbbb))
+
+
+
+## [1.0.9](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.8...v1.0.9) (2023-01-31)
 
 
 ### Bug Fixes
