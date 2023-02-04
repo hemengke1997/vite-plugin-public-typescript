@@ -89,7 +89,7 @@ export function publicTypescript(options: VitePluginOptions = {}) {
       configureServer(server) {
         const { ws } = server
 
-        const watcher = new Watcher(path.resolve(config.root, 'publicTypescript'), {
+        const watcher = new Watcher(path.resolve(config.root, opts.inputDir), {
           ignoreInitial: true,
           recursive: true,
           renameDetection: true,
