@@ -110,7 +110,6 @@ type TDeleteFile = {
 export const ts = '.ts'
 
 export async function deleteOldFiles(args: TDeleteFile) {
-  debugger
   const { publicDir, outputDir, fileName, cache, inputDir, manifestName } = args
   const oldFiles = fg.sync(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
   // if exits old files
@@ -120,7 +119,7 @@ export async function deleteOldFiles(args: TDeleteFile) {
       if (fs.existsSync(f)) {
         // and modify manifest
         cache.removeCache(fileName)
-        cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
+        await cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
         await fs.remove(f)
       }
     }
@@ -137,12 +136,11 @@ type TAddFile = {
 
 let currentBuildTimes = 0
 export async function addJsFile(args: TAddFile) {
-  debugger
   const { hash, code = '', outputDir, fileName, publicDir, cache, buildLength, manifestName, inputDir } = args
   let outPath = ''
   if (hash) {
-    const hash = getContentHash(code)
-    outPath = normalizePath(`${outputDir}/${fileName}.${hash}.js`)
+    const contentHash = getContentHash(code)
+    outPath = normalizePath(`${outputDir}/${fileName}.${contentHash}.js`)
   } else {
     outPath = normalizePath(`${outputDir}/${fileName}.js`)
   }
@@ -150,11 +148,11 @@ export async function addJsFile(args: TAddFile) {
   const fp = normalizePath(path.join(publicDir, outPath))
   await fs.ensureDir(path.dirname(fp))
   await fs.writeFile(fp, crlf(code))
-  cache.setCache({ key: fileName, value: outPath })
   // write cache
+  cache.setCache({ key: fileName, value: outPath })
   currentBuildTimes++
   if (currentBuildTimes >= buildLength) {
-    cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
+    await cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
   }
 }
 

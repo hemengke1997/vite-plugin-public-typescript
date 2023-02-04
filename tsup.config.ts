@@ -8,4 +8,5 @@ export const tsup = defineConfig((option) => ({
   minify: false,
   platform: 'node',
   sourcemap: !!option.watch,
+  tsconfig: option.watch ? './tsconfig.dev.json' : './tsconfig.json',
 }))

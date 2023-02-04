@@ -3,8 +3,9 @@ import type { PluginOption, ResolvedConfig } from 'vite'
 import { normalizePath } from 'vite'
 import fg from 'fast-glob'
 import type { BuildOptions } from 'esbuild'
-import { ensureDirSync } from 'fs-extra'
-import { addJsFile, build, deleteOldFiles, esbuildTypescript, isPublicTypescript, reloadPage, ts } from './utils'
+import Watcher from 'watcher'
+import fs from 'fs-extra'
+import { build, deleteOldFiles, esbuildTypescript, isPublicTypescript, reloadPage, ts } from './utils'
 import { ManifestCache } from './utils/manifestCache'
 
 export interface VitePluginOptions {
@@ -73,14 +74,12 @@ export function publicTypescript(options: VitePluginOptions = {}) {
   const plugins: PluginOption = [
     {
       name: 'vite:public-typescript',
-      enforce: 'post',
-
       configResolved(c) {
         config = c
+        const getInputDir = (suffix = '') => normalizePath(path.resolve(config.root, `${opts.inputDir}${suffix}`))
+        fs.ensureDirSync(getInputDir())
 
-        ensureDirSync(normalizePath(path.resolve(config.root, `${opts.inputDir}`)))
-
-        files = fg.sync(normalizePath(path.resolve(config.root, `${opts.inputDir}/*.ts`)), {
+        files = fg.sync(getInputDir(`/*${ts}`), {
           cwd: config.root,
           absolute: true,
         })
@@ -88,40 +87,63 @@ export function publicTypescript(options: VitePluginOptions = {}) {
         buildLength = files.length
       },
       configureServer(server) {
-        const { watcher, ws } = server
+        const { ws } = server
 
-        async function handleUnlink({ filePath }: { filePath: string }) {
-          // ts file deleted
-          if (isPublicTypescript({ filePath, root: config.root, inputDir: opts.inputDir })) {
-            debugger
-            const fileName = path.basename(filePath, ts)
-            // need to delete js
+        const watcher = new Watcher(path.resolve(config.root, 'publicTypescript'), {
+          ignoreInitial: true,
+          recursive: true,
+          renameDetection: true,
+          debounce: 0,
+          renameTimeout: 0,
+        })
+
+        function _isPublicTypescript(filePath: string) {
+          return isPublicTypescript({ filePath, root: config.root, inputDir: opts.inputDir })
+        }
+
+        async function handleUnlink(filePath: string) {
+          if (_isPublicTypescript(filePath)) {
+            const fileName = path.parse(filePath).name
             await deleteOldFiles({ ...opts, publicDir: config.publicDir, fileName, cache })
             reloadPage(ws)
           }
         }
 
+        async function handleFileAdded(filePath: string) {
+          if (_isPublicTypescript(filePath)) {
+            await build({ ...opts, filePath, publicDir: config.publicDir, cache, buildLength, config })
+            reloadPage(ws)
+          }
+        }
+
+        async function handleFileRenamed(filePath: string, filePathNext: string) {
+          await handleUnlink(filePath)
+          await handleFileAdded(filePathNext)
+        }
+
         watcher.on('unlink', async (f) => {
-          handleUnlink({ filePath: f })
+          handleUnlink(f)
         })
 
         watcher.on('add', async (f) => {
-          // ts file added
-          if (isPublicTypescript({ filePath: f, root: config.root, inputDir: opts.inputDir! })) {
-            handleUnlink({ filePath: f })
-            debugger
-            const fileName = path.basename(f, ts)
-            // need to add js
-            await addJsFile({ ...opts, cache, fileName, buildLength, publicDir: config.publicDir })
-            reloadPage(ws)
-          }
+          await handleFileAdded(f)
+        })
+
+        watcher.on('rename', async (f, fNext) => {
+          await handleFileRenamed(f, fNext)
         })
       },
-      buildStart() {
+      async buildStart() {
         if (opts.ssrBuild || config.build.ssr) return
 
         if (startedFlag) return
         startedFlag = true
+
+        const manifestPath = `${opts.inputDir}/${opts.manifestName}.json`
+        fs.ensureFileSync(manifestPath)
+        if (!fs.readFileSync(manifestPath, 'utf-8').length) {
+          await cache.writeManifestJSON(manifestPath)
+        }
 
         const outDir = config.publicDir
         files.forEach((f) => {
