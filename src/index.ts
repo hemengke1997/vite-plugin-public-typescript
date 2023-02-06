@@ -59,7 +59,7 @@ const defaultOptions: Required<VitePluginOptions> = {
 
 const cache = new ManifestCache()
 
-let startedFlag = false
+let startedFlag = 0
 
 export function publicTypescript(options: VitePluginOptions = {}) {
   const opts = {
@@ -137,7 +137,7 @@ export function publicTypescript(options: VitePluginOptions = {}) {
         if (opts.ssrBuild || config.build.ssr) return
 
         if (startedFlag) return
-        startedFlag = true
+        startedFlag++
 
         const manifestPath = `${opts.inputDir}/${opts.manifestName}.json`
         fs.ensureFileSync(manifestPath)
