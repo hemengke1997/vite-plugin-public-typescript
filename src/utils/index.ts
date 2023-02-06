@@ -40,10 +40,28 @@ const noSideEffectsPlugin: Plugin = {
 }
 
 function transformEnvToDefine(config: ResolvedConfig) {
+  const importMetaKeys: Record<string, string> = {}
+  const defineKeys: Record<string, string> = {}
+  const env: Record<string, any> = {
+    ...config.env,
+    SSR: !!config.build.ssr,
+  }
+
+  for (const key in env) {
+    importMetaKeys[`import.meta.env.${key}`] = JSON.stringify(env[key])
+  }
+
+  for (const key in config.define) {
+    const c = config.define[key]
+
+    defineKeys[key] = typeof c === 'string' ? c : JSON.stringify(config.define[key])
+  }
+
   return {
     'import.meta.env': JSON.stringify(config.env),
     'import.meta.hot': `false`,
-    ...config.define,
+    ...importMetaKeys,
+    ...defineKeys,
   }
 }
 

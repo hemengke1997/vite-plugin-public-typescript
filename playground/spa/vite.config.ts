@@ -9,6 +9,7 @@ import manifest from './publicTypescript/manifest.json'
 export default defineConfig({
   define: {
     haha: JSON.stringify('custom define!'),
+    app: JSON.stringify({ hello: 'world' }),
   },
   plugins: [
     react(),
