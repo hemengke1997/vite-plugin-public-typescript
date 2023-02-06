@@ -1,4 +1,4 @@
-## [1.1.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.1.0...v1.1.2) (2023-02-06)
+## [1.1.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.1.0...v1.1.3) (2023-02-06)
 
 
 ### Bug Fixes
