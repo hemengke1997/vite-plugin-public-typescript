@@ -1,4 +1,14 @@
-# [1.1.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.10...v1.1.1) (2023-02-04)
+## [1.1.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.1.0...v1.1.2) (2023-02-06)
+
+
+### Bug Fixes
+
+* legacy ([f7f1853](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/f7f185382814d081acd52d4562d7c168c5b964b6))
+* watch dir ([da2d183](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/da2d18322a0404fb2957acc5c6cb1aba5e8a013e))
+
+
+
+# [1.1.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.0.10...v1.1.0) (2023-02-04)
 
 
 
