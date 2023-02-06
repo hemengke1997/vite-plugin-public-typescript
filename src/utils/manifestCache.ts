@@ -1,6 +1,6 @@
 import path from 'node:path'
 import fs from 'fs-extra'
-import { crlf } from '.'
+import { crlf, eq, isEmptyObject } from '.'
 
 interface CacheType {
   key: string
@@ -42,6 +42,16 @@ export class ManifestCache {
       .forEach((k) => (orderdCache[k] = cacheObj[k]))
 
     await fs.ensureDir(path.dirname(targetPath))
+
+    const cacheJson = fs.readFileSync(targetPath, 'utf-8')
+
+    if (cacheJson) {
+      const parsedCacheJson = JSON.parse(cacheJson)
+      if (eq(parsedCacheJson, orderdCache) || isEmptyObject(orderdCache)) {
+        return
+      }
+    }
+
     await fs.writeFile(targetPath, crlf(`${JSON.stringify(orderdCache || {}, null, 2)}`))
   }
 }

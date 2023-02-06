@@ -136,9 +136,11 @@ export async function deleteOldFiles(args: TDeleteFile) {
     for (const f of oldFiles) {
       if (fs.existsSync(f)) {
         // and modify manifest
-        cache.removeCache(fileName)
-        await cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
-        await fs.remove(f)
+        if (cache.getCache(fileName)) {
+          cache.removeCache(fileName)
+          await cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
+          await fs.remove(f)
+        }
       }
     }
   }
@@ -197,4 +199,8 @@ export function eq<T extends Record<string, string>>(obj1: T, obj2: T): boolean 
   if (keys.length !== Object.keys(obj2).length) return false
 
   return keys.every((k) => obj1[k] === obj2[k])
+}
+
+export function isEmptyObject(o: unknown) {
+  return typeof o === 'object' && o !== null && Object.keys(o).length === 0
 }
