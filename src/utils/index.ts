@@ -6,21 +6,17 @@ import fg from 'fast-glob'
 import fs from 'fs-extra'
 import type { BuildResult, Plugin } from 'esbuild'
 import { build as esbuild } from 'esbuild'
-import type { VitePluginOptions } from '..'
 import { name } from '../../package.json'
-import type { ManifestCache } from './manifestCache'
+import { getGlobalConfig } from './globalConfig'
 
-export function getContentHash(chunk: string | Uint8Array) {
+export function getContentHash(chunk: string | Uint8Array | undefined) {
+  if (!chunk) return ''
   return createHash('sha256').update(chunk).digest('hex').substring(0, 8)
 }
 
-type BuildOptions = {
+interface IBuildOptions {
   filePath: string
-  publicDir: string
-  cache: ManifestCache
-  buildLength: number
-  config: ResolvedConfig
-} & Required<VitePluginOptions>
+}
 
 const noSideEffectsPlugin: Plugin = {
   name: 'no-side-effects',
@@ -65,8 +61,9 @@ function transformEnvToDefine(config: ResolvedConfig) {
   }
 }
 
-export async function esbuildTypescript(options: BuildOptions) {
-  const { filePath, esbuildOptions, sideEffects, config: viteResolvedConfig } = options
+export async function esbuildTypescript(buildOptions: IBuildOptions) {
+  const { filePath } = buildOptions
+  const { esbuildOptions, sideEffects, config: viteResolvedConfig } = getGlobalConfig()
 
   const { plugins = [], ...rest } = esbuildOptions
 
@@ -101,78 +98,80 @@ export async function esbuildTypescript(options: BuildOptions) {
   return code
 }
 
-export async function build(options: BuildOptions) {
-  const { filePath, publicDir, outputDir } = options
+export async function build(options: IBuildOptions) {
+  const { filePath } = options
+  const { hash } = getGlobalConfig()
 
   const fileName = path.basename(filePath, path.extname(filePath))
-
+  let contentHash = ''
+  let fileNameWithHash = fileName
   const code = await esbuildTypescript(options)
 
-  await deleteOldFiles({
-    ...options,
-    publicDir,
+  if (hash) {
+    contentHash = getContentHash(code)
+    fileNameWithHash = `${fileName}.${contentHash}`
+  }
+
+  await deleteOldJsFile({
     fileName,
-    outputDir,
+    jsFileName: fileNameWithHash,
   })
 
-  await addJsFile({ ...options, code, fileName })
+  await addJsFile({ code, fileName, contentHash })
 }
 
-type TDeleteFile = {
-  publicDir: string
-  outputDir: string
+interface IDeleteFile {
   fileName: string
-  cache: ManifestCache
-} & Required<VitePluginOptions>
+  jsFileName?: string
+  force?: boolean
+}
 
 export const ts = '.ts'
 
-export async function deleteOldFiles(args: TDeleteFile) {
-  const { publicDir, outputDir, fileName, cache, inputDir, manifestName } = args
+export async function deleteOldJsFile(args: IDeleteFile) {
+  const { fileName, jsFileName = '', force = false } = args
+
+  const { publicDir, outputDir, cache } = getGlobalConfig()
+
   const oldFiles = fg.sync(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
-  // if exits old files
+
   if (oldFiles.length) {
-    // delete old files
     for (const f of oldFiles) {
+      if (path.parse(f).name === jsFileName) continue // skip repeat js file
       if (fs.existsSync(f)) {
-        // and modify manifest
-        if (cache.getCache(fileName)) {
+        if (cache.getCache(fileName) || force) {
           cache.removeCache(fileName)
-          await cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
-          await fs.remove(f)
+          await cache.writeManifestJSON()
+          fs.removeSync(f)
         }
       }
     }
   }
 }
 
-type TAddFile = {
+interface IAddFile {
   code?: string
   fileName: string
-  publicDir: string
-  cache: ManifestCache
-  buildLength: number
-} & Required<VitePluginOptions>
+  contentHash: string
+}
 
 let currentBuildTimes = 0
-export async function addJsFile(args: TAddFile) {
-  const { hash, code = '', outputDir, fileName, publicDir, cache, buildLength, manifestName, inputDir } = args
-  let outPath = ''
-  if (hash) {
-    const contentHash = getContentHash(code)
+export async function addJsFile(args: IAddFile) {
+  const { contentHash, code = '', fileName } = args
+  const { publicDir, cache, filesGlob, outputDir } = getGlobalConfig()
+
+  let outPath = normalizePath(`${outputDir}/${fileName}.js`)
+  if (contentHash) {
     outPath = normalizePath(`${outputDir}/${fileName}.${contentHash}.js`)
-  } else {
-    outPath = normalizePath(`${outputDir}/${fileName}.js`)
   }
 
   const fp = normalizePath(path.join(publicDir, outPath))
   await fs.ensureDir(path.dirname(fp))
   await fs.writeFile(fp, crlf(code))
-  // write cache
   cache.setCache({ key: fileName, value: outPath })
   currentBuildTimes++
-  if (currentBuildTimes >= buildLength) {
-    await cache.writeManifestJSON(`${inputDir}/${manifestName}.json`)
+  if (currentBuildTimes >= filesGlob.length) {
+    await cache.writeManifestJSON()
   }
 }
 
@@ -182,8 +181,12 @@ export function reloadPage(ws: WebSocketServer) {
   })
 }
 
-export function isPublicTypescript({ filePath, root, inputDir }: { filePath: string; root: string; inputDir: string }) {
-  return path.extname(filePath) === ts && normalizePath(filePath).includes(normalizePath(path.resolve(root, inputDir)))
+export function isPublicTypescript(filePath: string) {
+  const { config, inputDir } = getGlobalConfig()
+  return (
+    path.extname(filePath) === ts &&
+    normalizePath(filePath).includes(normalizePath(path.resolve(config.root, inputDir)))
+  )
 }
 
 export function crlf(text: string) {

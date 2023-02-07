@@ -5,13 +5,15 @@ import fg from 'fast-glob'
 import type { BuildOptions } from 'esbuild'
 import Watcher from 'watcher'
 import fs from 'fs-extra'
-import { build, deleteOldFiles, esbuildTypescript, isPublicTypescript, reloadPage, ts } from './utils'
+import { build, deleteOldJsFile, esbuildTypescript, isEmptyObject, isPublicTypescript, reloadPage, ts } from './utils'
 import { ManifestCache } from './utils/manifestCache'
+import { getGlobalConfig, setGlobalConfig } from './utils/globalConfig'
 
 export interface VitePluginOptions {
   /**
    * @description vite ssrBuild
    * @see https://vitejs.dev/config/#conditional-config
+   * @default false
    */
   ssrBuild?: boolean | undefined
   /**
@@ -21,12 +23,13 @@ export interface VitePluginOptions {
   inputDir?: string
   /**
    * @description output public javascript dir, relative to `publicDir`
-   * @default /
+   * @default '/'
    */
   outputDir?: string
   /**
    * @description esbuild BuildOptions
    * @see https://esbuild.github.io/api/#build-api
+   * @default {}
    */
   esbuildOptions?: BuildOptions | undefined
   /**
@@ -41,8 +44,8 @@ export interface VitePluginOptions {
   hash?: boolean
   /**
    * @description treat `input` as sideEffect or not
-   * @default false
    * @see https://esbuild.github.io/api/#tree-shaking-and-side-effects
+   * @default false
    */
   sideEffects?: boolean
 }
@@ -68,23 +71,33 @@ export function publicTypescript(options: VitePluginOptions = {}) {
   }
 
   let config: ResolvedConfig
-  let files: string[]
-  let buildLength = 0
 
   const plugins: PluginOption = [
     {
       name: 'vite:public-typescript',
       configResolved(c) {
         config = c
-        const getInputDir = (suffix = '') => normalizePath(path.resolve(config.root, `${opts.inputDir}${suffix}`))
+
+        function getInputDir(suffix = '') {
+          return normalizePath(path.resolve(config.root, `${opts.inputDir}${suffix}`))
+        }
+
         fs.ensureDirSync(getInputDir())
 
-        files = fg.sync(getInputDir(`/*${ts}`), {
+        const filesGlob = fg.sync(getInputDir(`/*${ts}`), {
           cwd: config.root,
           absolute: true,
         })
 
-        buildLength = files.length
+        cache.setManifestPath(`${opts.inputDir}/${opts.manifestName}.json`)
+
+        setGlobalConfig({
+          publicDir: config.publicDir,
+          cache,
+          filesGlob,
+          config,
+          ...opts,
+        })
       },
       configureServer(server) {
         const { ws } = server
@@ -97,21 +110,17 @@ export function publicTypescript(options: VitePluginOptions = {}) {
           renameTimeout: 0,
         })
 
-        function _isPublicTypescript(filePath: string) {
-          return isPublicTypescript({ filePath, root: config.root, inputDir: opts.inputDir })
-        }
-
         async function handleUnlink(filePath: string) {
-          if (_isPublicTypescript(filePath)) {
+          if (isPublicTypescript(filePath)) {
             const fileName = path.parse(filePath).name
-            await deleteOldFiles({ ...opts, publicDir: config.publicDir, fileName, cache })
+            await deleteOldJsFile({ fileName })
             reloadPage(ws)
           }
         }
 
         async function handleFileAdded(filePath: string) {
-          if (_isPublicTypescript(filePath)) {
-            await build({ ...opts, filePath, publicDir: config.publicDir, cache, buildLength, config })
+          if (isPublicTypescript(filePath)) {
+            await build({ filePath })
             reloadPage(ws)
           }
         }
@@ -139,39 +148,44 @@ export function publicTypescript(options: VitePluginOptions = {}) {
         if (startedFlag) return
         startedFlag++
 
-        const manifestPath = `${opts.inputDir}/${opts.manifestName}.json`
+        const manifestPath = cache.getManifestPath()
+
         fs.ensureFileSync(manifestPath)
-        if (!fs.readFileSync(manifestPath, 'utf-8').length) {
-          await cache.writeManifestJSON(manifestPath)
+
+        const parsedCacheJson = cache.readCacheFromFile()
+
+        if (isEmptyObject(parsedCacheJson)) {
+          await cache.writeManifestJSON()
         }
 
-        const outDir = config.publicDir
-        files.forEach((f) => {
+        const { filesGlob } = getGlobalConfig()
+
+        const fileNames = filesGlob.map((file) => path.parse(file).name)
+
+        if (!isEmptyObject(parsedCacheJson)) {
+          const keys = Object.keys(parsedCacheJson)
+          keys.forEach((key) => {
+            if (fileNames.includes(key)) {
+              cache.setCache({
+                key,
+                value: parsedCacheJson[key],
+              })
+            } else {
+              deleteOldJsFile({ fileName: key, force: true })
+            }
+          })
+        }
+
+        filesGlob.forEach((f) => {
           build({
-            ...opts,
             filePath: f,
-            publicDir: outDir,
-            cache,
-            buildLength,
-            config,
           })
         })
       },
       async handleHotUpdate(ctx) {
-        if (
-          isPublicTypescript({
-            filePath: ctx.file,
-            inputDir: opts.inputDir,
-            root: config.root,
-          })
-        ) {
+        if (isPublicTypescript(ctx.file)) {
           await build({
-            ...opts,
             filePath: ctx.file,
-            publicDir: config.publicDir,
-            cache,
-            buildLength,
-            config,
           })
           reloadPage(ctx.server.ws)
           return []

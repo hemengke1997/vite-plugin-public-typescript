@@ -10,6 +10,8 @@ interface CacheType {
 export class ManifestCache {
   private cacheMap = new Map<CacheType['key'], CacheType['value']>()
 
+  manifestPath = ''
+
   setCache(c: CacheType) {
     this.removeCache(c.key)
 
@@ -34,7 +36,25 @@ export class ManifestCache {
     return this.cacheMap
   }
 
-  async writeManifestJSON(targetPath: string) {
+  readCacheFromFile(): Record<string, string> {
+    const cacheJson = fs.readFileSync(this.getManifestPath(), 'utf-8')
+
+    if (cacheJson) {
+      return JSON.parse(cacheJson)
+    }
+    return {}
+  }
+
+  setManifestPath(p: string) {
+    this.manifestPath = p
+  }
+
+  getManifestPath() {
+    return this.manifestPath
+  }
+
+  async writeManifestJSON() {
+    const targetPath = this.getManifestPath()
     const cacheObj = Object.fromEntries(this.getAll())
     const orderdCache: Record<string, string> = {}
     Object.keys(cacheObj)
@@ -43,13 +63,10 @@ export class ManifestCache {
 
     await fs.ensureDir(path.dirname(targetPath))
 
-    const cacheJson = fs.readFileSync(targetPath, 'utf-8')
+    const parsedCache = this.readCacheFromFile()
 
-    if (cacheJson) {
-      const parsedCacheJson = JSON.parse(cacheJson)
-      if (eq(parsedCacheJson, orderdCache) || isEmptyObject(orderdCache)) {
-        return
-      }
+    if (eq(parsedCache, orderdCache) || isEmptyObject(orderdCache)) {
+      return
     }
 
     await fs.writeFile(targetPath, crlf(`${JSON.stringify(orderdCache || {}, null, 2)}`))
