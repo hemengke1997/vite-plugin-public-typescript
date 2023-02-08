@@ -7,14 +7,15 @@ import fs from 'fs-extra'
 import type { BuildResult, Plugin } from 'esbuild'
 import { build as esbuild } from 'esbuild'
 import { name } from '../../package.json'
-import type { VitePluginOptions } from '..'
+import type { VPPTPluginOptions } from '..'
 import { getGlobalConfig } from './globalConfig'
 import { assert } from './assert'
 import { crlf } from '.'
 
-export function getContentHash(chunk: string | Uint8Array | undefined) {
+export function getContentHash(chunk: string | Uint8Array | undefined, hash: VPPTPluginOptions['hash']) {
   if (!chunk) return ''
-  return createHash('sha256').update(chunk).digest('hex').substring(0, 8)
+  const hashLen = typeof hash === 'number' ? hash : 8
+  return createHash('sha256').update(chunk).digest('hex').substring(0, hashLen)
 }
 
 const noSideEffectsPlugin: Plugin = {
@@ -63,7 +64,7 @@ function transformEnvToDefine(config: ResolvedConfig) {
 type IBuildOptions = {
   filePath: string
   config: ResolvedConfig
-} & Required<VitePluginOptions>
+} & Required<VPPTPluginOptions>
 
 export async function esbuildTypescript(buildOptions: IBuildOptions) {
   const { filePath, esbuildOptions, sideEffects, config } = buildOptions
@@ -113,7 +114,7 @@ export async function build(options: { filePath: string }) {
   const code = await esbuildTypescript({ filePath, ...globalConfig })
 
   if (globalConfig.hash) {
-    contentHash = getContentHash(code)
+    contentHash = getContentHash(code, globalConfig.hash)
     fileNameWithHash = `${fileName}.${contentHash}`
   }
 
@@ -154,6 +155,8 @@ export async function deleteOldJsFile(args: IDeleteFile) {
         }
       }
     }
+  } else if (force) {
+    cache.removeCache(fileName)
   }
 }
 

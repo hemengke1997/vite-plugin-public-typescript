@@ -11,7 +11,7 @@ import { ManifestCache } from './utils/manifestCache'
 import { getGlobalConfig, setGlobalConfig } from './utils/globalConfig'
 import { assert } from './utils/assert'
 
-export interface VitePluginOptions {
+export interface VPPTPluginOptions {
   /**
    * @description vite ssrBuild
    * @see https://vitejs.dev/config/#conditional-config
@@ -40,10 +40,13 @@ export interface VitePluginOptions {
    */
   manifestName?: string
   /**
-   * @description whether generate js with hash
+   * @description
+   * whether generate js with hash,
+   * if number, set hash length
+   * @type boolean | number
    * @default true
    */
-  hash?: boolean
+  hash?: boolean | number
   /**
    * @description treat `input` as sideEffect or not
    * @see https://esbuild.github.io/api/#tree-shaking-and-side-effects
@@ -52,7 +55,7 @@ export interface VitePluginOptions {
   sideEffects?: boolean
 }
 
-export const defaultOptions: Required<VitePluginOptions> = {
+export const defaultOptions: Required<VPPTPluginOptions> = {
   inputDir: 'publicTypescript',
   outputDir: '/',
   manifestName: 'manifest',
@@ -64,9 +67,9 @@ export const defaultOptions: Required<VitePluginOptions> = {
 
 const cache = new ManifestCache({ watchMode: true })
 
-let previousOpts: VitePluginOptions
+let previousOpts: VPPTPluginOptions
 
-export function publicTypescript(options: VitePluginOptions = {}) {
+export function publicTypescript(options: VPPTPluginOptions = {}) {
   const opts = {
     ...defaultOptions,
     ...options,
@@ -111,45 +114,51 @@ export function publicTypescript(options: VitePluginOptions = {}) {
       configureServer(server) {
         const { ws } = server
 
-        const watcher = new Watcher(getGlobalConfig().absInputDir, {
-          ignoreInitial: true,
-          recursive: true,
-          renameDetection: true,
-          debounce: 0,
-          renameTimeout: 0,
-        })
+        if (process.env.VITEST) return
 
-        async function handleUnlink(filePath: string) {
-          if (_isPublicTypescript(filePath)) {
-            const fileName = path.parse(filePath).name
-            await deleteOldJsFile({ fileName })
-            reloadPage(ws)
+        try {
+          const watcher = new Watcher(getGlobalConfig().absInputDir, {
+            ignoreInitial: true,
+            recursive: true,
+            renameDetection: true,
+            debounce: 0,
+            renameTimeout: 0,
+          })
+
+          async function handleUnlink(filePath: string) {
+            if (_isPublicTypescript(filePath)) {
+              const fileName = path.parse(filePath).name
+              await deleteOldJsFile({ fileName })
+              reloadPage(ws)
+            }
           }
-        }
 
-        async function handleFileAdded(filePath: string) {
-          if (_isPublicTypescript(filePath)) {
-            await build({ filePath })
-            reloadPage(ws)
+          async function handleFileAdded(filePath: string) {
+            if (_isPublicTypescript(filePath)) {
+              await build({ filePath })
+              reloadPage(ws)
+            }
           }
+
+          async function handleFileRenamed(filePath: string, filePathNext: string) {
+            await handleUnlink(filePath)
+            await handleFileAdded(filePathNext)
+          }
+
+          watcher.on('unlink', async (f) => {
+            handleUnlink(f)
+          })
+
+          watcher.on('add', async (f) => {
+            await handleFileAdded(f)
+          })
+
+          watcher.on('rename', async (f, fNext) => {
+            await handleFileRenamed(f, fNext)
+          })
+        } catch (e) {
+          console.error(e)
         }
-
-        async function handleFileRenamed(filePath: string, filePathNext: string) {
-          await handleUnlink(filePath)
-          await handleFileAdded(filePathNext)
-        }
-
-        watcher.on('unlink', async (f) => {
-          handleUnlink(f)
-        })
-
-        watcher.on('add', async (f) => {
-          await handleFileAdded(f)
-        })
-
-        watcher.on('rename', async (f, fNext) => {
-          await handleFileRenamed(f, fNext)
-        })
       },
       async buildStart() {
         if (opts.ssrBuild || config.build.ssr) return
@@ -178,11 +187,18 @@ export function publicTypescript(options: VitePluginOptions = {}) {
           const keys = Object.keys(parsedCacheJson)
           keys.forEach((key) => {
             if (fileNames.includes(key)) {
+              cache.setCache(
+                {
+                  key,
+                  value: parsedCacheJson[key],
+                },
+                { disableWatch: true },
+              )
+            } else {
               cache.setCache({
                 key,
                 value: parsedCacheJson[key],
               })
-            } else {
               deleteOldJsFile({ fileName: key, force: true })
             }
           })

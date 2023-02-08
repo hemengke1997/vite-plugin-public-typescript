@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import mock from 'mock-fs'
 import fs from 'fs-extra'
-import type { ResolvedConfig } from 'vite'
+import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createServer } from 'vite'
 import { ManifestCache } from '../src/utils/manifestCache'
 import { eq, isEmptyObject } from '../src/utils'
@@ -11,6 +11,7 @@ declare module 'vitest' {
   export interface TestContext {
     cache: ManifestCache
     vite: ResolvedConfig
+    viteDevServer: ViteDevServer
   }
 }
 
@@ -20,6 +21,7 @@ vi.mock('fs-extra', async () => {
   const actual: any = await vi.importActual('fs-extra')
   return {
     readFileSync: vi.fn(),
+    writeFile: vi.fn(),
     ...actual,
   }
 })
@@ -35,8 +37,11 @@ async function createDevServer() {
   const server = await createServer({
     define: { hahahaha: JSON.stringify('this is haha') },
     plugins: [publicTypescript()],
+    server: {
+      middlewareMode: true,
+    },
   })
-  return server.config
+  return server
 }
 
 // beforeAll(() => {
@@ -53,11 +58,14 @@ beforeEach((ctx) => {
 })
 
 beforeEach(async (ctx) => {
-  ctx.vite = await createDevServer()
+  const server = await createDevServer()
+  ctx.vite = server.config
+  ctx.viteDevServer = server
 })
 
-afterEach(() => {
+afterEach((ctx) => {
   mock.restore()
+  ctx.viteDevServer.close()
 })
 
 describe('manifestCache', () => {

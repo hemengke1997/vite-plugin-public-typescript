@@ -11,12 +11,11 @@ interface CacheType {
 export class ManifestCache {
   private cache
 
-  manifestPath = ''
+  private manifestPath = ''
 
   constructor(options?: { watchMode?: boolean }) {
     if (options?.watchMode) {
-      this.cache = onChange<Record<string, string>>({}, async (...args) => {
-        // console.log(args)
+      this.cache = onChange<Record<string, string>>({}, async () => {
         await this.writeManifestJSON()
       })
     } else {
@@ -24,9 +23,17 @@ export class ManifestCache {
     }
   }
 
-  setCache(c: CacheType) {
-    this.removeCache(c.key)
-    this.cache[c.key] = c.value
+  setCache(c: CacheType, opts?: { disableWatch?: boolean }) {
+    const cacheV = this.getCache(c.key)
+
+    if (cacheV !== c.value) {
+      if (opts?.disableWatch) {
+        onChange.target(this.cache)[c.key] = c.value
+      } else {
+        this.cache[c.key] = c.value
+      }
+    }
+    return this
   }
 
   getCache(k: CacheType['key']) {
@@ -71,8 +78,6 @@ export class ManifestCache {
     await fs.ensureDir(path.dirname(targetPath))
 
     const parsedCache = this.readCacheFromFile()
-
-    console.log(parsedCache, 'parsedCache', orderdCache, 'orderdCache')
 
     if (eq(parsedCache, orderdCache) || isEmptyObject(orderdCache)) {
       return

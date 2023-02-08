@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { ResolvedConfig } from 'vite'
-import type { VitePluginOptions } from '..'
+import type { VPPTPluginOptions } from '..'
 import type { ManifestCache } from './manifestCache'
 
 type UserConfig =
@@ -8,7 +8,7 @@ type UserConfig =
       cache: ManifestCache
       filesGlob: string[]
       config: ResolvedConfig
-    } & Required<VitePluginOptions>
+    } & Required<VPPTPluginOptions>
 
 type GlobalConfigType = UserConfig & {
   absOutputDir: string
