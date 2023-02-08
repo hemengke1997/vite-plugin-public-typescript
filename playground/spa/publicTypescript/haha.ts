@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error
 console.log(haha)
-// @ts-ignore
+// @ts-expect-error
 console.log(app)

@@ -1,25 +1,36 @@
+import path from 'node:path'
 import type { ResolvedConfig } from 'vite'
 import type { VitePluginOptions } from '..'
 import type { ManifestCache } from './manifestCache'
 
-type GlobalConfigType =
-  | ({
-      publicDir: string
+type UserConfig =
+  | {
       cache: ManifestCache
       filesGlob: string[]
       config: ResolvedConfig
-    } & Required<VitePluginOptions>)
-  | undefined
+    } & Required<VitePluginOptions>
+
+type GlobalConfigType = UserConfig & {
+  absOutputDir: string
+  absInputDir: string
+}
 
 let globalConfig: GlobalConfigType
 
-export function setGlobalConfig(c: GlobalConfigType) {
-  globalConfig = c
+export function setGlobalConfig(c: UserConfig) {
+  const root = c.config.root || process.cwd()
+  const absOutputDir = path.resolve(root, c.config.publicDir)
+  const absInputDir = path.resolve(root, c.inputDir)
+  globalConfig = {
+    ...c,
+    absOutputDir,
+    absInputDir,
+  }
 }
 
 export function getGlobalConfig() {
   if (!globalConfig) {
-    throw new Error('need init globalConfig')
+    throw new Error('need init globalConfig first')
   }
   return globalConfig
 }

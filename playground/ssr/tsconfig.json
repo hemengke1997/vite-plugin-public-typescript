@@ -20,6 +20,6 @@
     }
   },
   "include": ["src"],
-  "exclude": ["src/entry-server.ts"],
+  "exclude": ["src/entry-server.ts","**/*.js"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

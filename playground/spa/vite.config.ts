@@ -1,8 +1,9 @@
-import { defineConfig, HtmlTagDescriptor, loadEnv, PluginOption } from 'vite'
+import path from 'node:path'
+import type { HtmlTagDescriptor } from 'vite'
+import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 import react from '@vitejs/plugin-react'
 import fg from 'fast-glob'
-import path from 'path'
 import manifest from './publicTypescript/manifest.json'
 
 // https://vitejs.dev/config/

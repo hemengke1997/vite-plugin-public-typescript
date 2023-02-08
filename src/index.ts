@@ -5,9 +5,11 @@ import fg from 'fast-glob'
 import type { BuildOptions } from 'esbuild'
 import Watcher from 'watcher'
 import fs from 'fs-extra'
-import { build, deleteOldJsFile, esbuildTypescript, isEmptyObject, isPublicTypescript, reloadPage, ts } from './utils'
+import { eq, isEmptyObject, isPublicTypescript, reloadPage, ts } from './utils'
+import { build, deleteOldJsFile, esbuildTypescript } from './utils/build'
 import { ManifestCache } from './utils/manifestCache'
 import { getGlobalConfig, setGlobalConfig } from './utils/globalConfig'
+import { assert } from './utils/assert'
 
 export interface VitePluginOptions {
   /**
@@ -50,7 +52,7 @@ export interface VitePluginOptions {
   sideEffects?: boolean
 }
 
-const defaultOptions: Required<VitePluginOptions> = {
+export const defaultOptions: Required<VitePluginOptions> = {
   inputDir: 'publicTypescript',
   outputDir: '/',
   manifestName: 'manifest',
@@ -60,9 +62,9 @@ const defaultOptions: Required<VitePluginOptions> = {
   sideEffects: false,
 }
 
-const cache = new ManifestCache()
+const cache = new ManifestCache({ watchMode: true })
 
-let startedFlag = 0
+let previousOpts: VitePluginOptions
 
 export function publicTypescript(options: VitePluginOptions = {}) {
   const opts = {
@@ -71,6 +73,12 @@ export function publicTypescript(options: VitePluginOptions = {}) {
   }
 
   let config: ResolvedConfig
+
+  function _isPublicTypescript(filePath: string) {
+    const globalConfig = getGlobalConfig()
+    assert(!!globalConfig)
+    return isPublicTypescript({ filePath, inputDir: globalConfig.inputDir, root: globalConfig.config.root })
+  }
 
   const plugins: PluginOption = [
     {
@@ -89,20 +97,21 @@ export function publicTypescript(options: VitePluginOptions = {}) {
           absolute: true,
         })
 
-        cache.setManifestPath(`${opts.inputDir}/${opts.manifestName}.json`)
-
         setGlobalConfig({
-          publicDir: config.publicDir,
           cache,
           filesGlob,
           config,
           ...opts,
         })
+
+        cache.setManifestPath(normalizePath(`${getGlobalConfig().absInputDir}/${opts.manifestName}.json`))
+
+        assert(cache.getManifestPath().includes('.json'))
       },
       configureServer(server) {
         const { ws } = server
 
-        const watcher = new Watcher(path.resolve(config.root, opts.inputDir), {
+        const watcher = new Watcher(getGlobalConfig().absInputDir, {
           ignoreInitial: true,
           recursive: true,
           renameDetection: true,
@@ -111,7 +120,7 @@ export function publicTypescript(options: VitePluginOptions = {}) {
         })
 
         async function handleUnlink(filePath: string) {
-          if (isPublicTypescript(filePath)) {
+          if (_isPublicTypescript(filePath)) {
             const fileName = path.parse(filePath).name
             await deleteOldJsFile({ fileName })
             reloadPage(ws)
@@ -119,7 +128,7 @@ export function publicTypescript(options: VitePluginOptions = {}) {
         }
 
         async function handleFileAdded(filePath: string) {
-          if (isPublicTypescript(filePath)) {
+          if (_isPublicTypescript(filePath)) {
             await build({ filePath })
             reloadPage(ws)
           }
@@ -145,8 +154,11 @@ export function publicTypescript(options: VitePluginOptions = {}) {
       async buildStart() {
         if (opts.ssrBuild || config.build.ssr) return
 
-        if (startedFlag) return
-        startedFlag++
+        if (!isEmptyObject(previousOpts) && eq(previousOpts, opts)) {
+          return
+        }
+
+        previousOpts = opts
 
         const manifestPath = cache.getManifestPath()
 
@@ -176,14 +188,14 @@ export function publicTypescript(options: VitePluginOptions = {}) {
           })
         }
 
-        filesGlob.forEach((f) => {
-          build({
+        filesGlob.forEach(async (f) => {
+          await build({
             filePath: f,
           })
         })
       },
       async handleHotUpdate(ctx) {
-        if (isPublicTypescript(ctx.file)) {
+        if (_isPublicTypescript(ctx.file)) {
           await build({
             filePath: ctx.file,
           })

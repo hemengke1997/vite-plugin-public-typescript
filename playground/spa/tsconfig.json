@@ -19,5 +19,6 @@
     "types": ["vite/client"]
   },
   "include": ["src", "publicTypescript"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.node.json" }],
+  "exclude": ["**/*.js"]
 }
