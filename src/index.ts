@@ -163,7 +163,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
       async buildStart() {
         if (opts.ssrBuild || config.build.ssr) return
 
-        if (!isEmptyObject(previousOpts) && eq(previousOpts, opts)) {
+        if (eq(previousOpts, opts)) {
           return
         }
 

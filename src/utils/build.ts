@@ -12,7 +12,7 @@ import { getGlobalConfig } from './globalConfig'
 import { assert } from './assert'
 import { crlf } from '.'
 
-export function getContentHash(chunk: string | Uint8Array | undefined, hash: VPPTPluginOptions['hash']) {
+export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
   if (!chunk) return ''
   const hashLen = typeof hash === 'number' ? hash : 8
   return createHash('sha256').update(chunk).digest('hex').substring(0, hashLen)
