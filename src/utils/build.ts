@@ -10,7 +10,7 @@ import { name } from '../../package.json'
 import type { VPPTPluginOptions } from '..'
 import { getGlobalConfig } from './globalConfig'
 import { assert } from './assert'
-import { crlf } from '.'
+import { writeFile } from '.'
 
 export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
   if (!chunk) return ''
@@ -181,6 +181,6 @@ export async function addJsFile(args: IAddFile) {
 
   const fp = normalizePath(path.join(publicDir, outPath))
   await fs.ensureDir(path.dirname(fp))
-  await fs.writeFile(fp, crlf(code))
+  await writeFile(fp, code)
   cache.setCache({ key: fileName, value: outPath })
 }

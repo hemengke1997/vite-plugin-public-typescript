@@ -1,6 +1,7 @@
 import path from 'node:path'
 import type { WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
+import fs from 'fs-extra'
 
 export const ts = '.ts'
 
@@ -40,4 +41,12 @@ export function eq<T extends Record<string, any>>(obj1: T, obj2: T): boolean {
 
 export function isEmptyObject(o: unknown) {
   return isObject(o) && Object.keys(o).length === 0
+}
+
+export function writeFile(filename: string, content: string | Uint8Array): void {
+  const dir = path.dirname(filename)
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true })
+  }
+  fs.writeFileSync(filename, content)
 }

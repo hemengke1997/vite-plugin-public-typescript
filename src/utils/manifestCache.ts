@@ -1,7 +1,7 @@
 import path from 'node:path'
 import fs from 'fs-extra'
 import onChange from 'on-change'
-import { crlf, eq, isEmptyObject } from '.'
+import { eq, isEmptyObject, writeFile } from '.'
 
 interface CacheType {
   key: string
@@ -83,6 +83,6 @@ export class ManifestCache {
       return
     }
 
-    await fs.writeFile(targetPath, crlf(`${JSON.stringify(orderdCache || {}, null, 2)}`))
+    writeFile(targetPath, `${JSON.stringify(orderdCache || {}, null, 2)}`)
   }
 }
