@@ -55,6 +55,7 @@ export class ManifestCache {
     if (cacheJson) {
       return JSON.parse(cacheJson)
     }
+
     return {}
   }
 

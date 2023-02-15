@@ -104,7 +104,7 @@ import manifest from './publicTypescript/custom-manifest.json' assert { type: 'j
 
 const html = template
   // inject js
-  .replace(`<!--app-prehead-->`, `<script src=${manifest.ssr}></script>`)
+  .replace('<!--app-prehead-->', `<script src=${manifest.ssr}></script>`)
 ```
 
 ## Options

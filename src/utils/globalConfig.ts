@@ -32,5 +32,6 @@ export function getGlobalConfig() {
   if (!globalConfig) {
     throw new Error('need init globalConfig first')
   }
+
   return globalConfig
 }

@@ -29,6 +29,7 @@ function clean(errStack: string | undefined, numberOfStackTraceLinesToRemove: nu
       if (line.includes(' (internal/') || line.includes(' (node:internal')) {
         return false
       }
+
       if (linesRemoved < numberOfStackTraceLinesToRemove && isStackTraceLine(line)) {
         linesRemoved++
         return false

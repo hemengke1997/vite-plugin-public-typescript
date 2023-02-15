@@ -7,6 +7,7 @@ export default defineConfig({
       if (log.includes('Generated an empty chunk')) {
         return false
       }
+
       return undefined
     },
   },

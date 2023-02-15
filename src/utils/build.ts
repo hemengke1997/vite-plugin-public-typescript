@@ -13,7 +13,9 @@ import { assert } from './assert'
 import { writeFile } from '.'
 
 export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
-  if (!chunk) return ''
+  if (!chunk) {
+    return ''
+  }
   const hashLen = typeof hash === 'number' ? hash : 8
   return createHash('sha256').update(chunk).digest('hex').substring(0, hashLen)
 }
@@ -23,7 +25,9 @@ const noSideEffectsPlugin: Plugin = {
   setup(build) {
     // https://github.com/evanw/esbuild/issues/1895#issuecomment-1003404929
     build.onResolve({ filter: /.*/ }, async (args) => {
-      if (args.pluginData) return
+      if (args.pluginData) {
+        return
+      }
 
       const { path, ...rest } = args
       rest.pluginData = true
@@ -55,7 +59,7 @@ function transformEnvToDefine(config: ResolvedConfig) {
 
   return {
     'import.meta.env': JSON.stringify(config.env),
-    'import.meta.hot': `false`,
+    'import.meta.hot': 'false',
     ...importMetaKeys,
     ...defineKeys,
   }
@@ -147,7 +151,9 @@ export async function deleteOldJsFile(args: IDeleteFile) {
 
   if (oldFiles.length) {
     for (const f of oldFiles) {
-      if (path.parse(f).name === jsFileName) continue // skip repeat js file
+      if (path.parse(f).name === jsFileName) {
+        continue
+      } // skip repeat js file
       if (fs.existsSync(f)) {
         if (cache.getCache(fileName) || force) {
           cache.removeCache(fileName)

@@ -27,14 +27,18 @@ export function isObject(o: unknown): o is Object {
 }
 
 export function eq<T extends Record<string, any>>(obj1: T, obj2: T): boolean {
-  if (!obj1 || !obj2) return false
+  if (!obj1 || !obj2) {
+    return false
+  }
 
   if (!isObject(obj1) || !isObject(obj2)) {
     return false
   }
 
   const keys = Object.keys(obj1)
-  if (keys.length !== Object.keys(obj2).length) return false
+  if (keys.length !== Object.keys(obj2).length) {
+    return false
+  }
 
   return keys.every((k) => obj1[k] === obj2[k])
 }
@@ -48,5 +52,6 @@ export function writeFile(filename: string, content: string | Uint8Array): void 
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true })
   }
+
   fs.writeFileSync(filename, content)
 }

@@ -8,7 +8,7 @@ beforeAll(() => {})
 
 describe('vite-plugin-public-typescript', () => {
   test('should hash stable', () => {
-    const code = `export const t = { hello: 'world' }`
+    const code = "export const t = { hello: 'world' }"
     const a = getContentHash(code)
     const b = getContentHash(code)
 
@@ -39,7 +39,7 @@ describe('vite-plugin-public-typescript', () => {
     const json = JSON.stringify({ a: 'b' }, null, 2)
     const crlfJson = crlf(json)
     expect(json).not.eq(crlfJson)
-    expect(crlfJson).toEqual(`{\r\n  "a": "b"\r\n}`)
+    expect(crlfJson).toEqual('{\r\n  "a": "b"\r\n}')
   })
 
   test('should obj eq', () => {

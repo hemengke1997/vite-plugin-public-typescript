@@ -114,7 +114,9 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
       configureServer(server) {
         const { ws } = server
 
-        if (process.env.VITEST) return
+        if (process.env.VITEST) {
+          return
+        }
 
         try {
           const watcher = new Watcher(getGlobalConfig().absInputDir, {
@@ -161,7 +163,9 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
         }
       },
       async buildStart() {
-        if (opts.ssrBuild || config.build.ssr) return
+        if (opts.ssrBuild || config.build.ssr) {
+          return
+        }
 
         if (eq(previousOpts, opts)) {
           return
