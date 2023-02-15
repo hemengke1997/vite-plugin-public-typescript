@@ -52,9 +52,8 @@
     "watcher": "^2.2.2"
   },
   "devDependencies": {
-    "@minko-fe/commitlint-config": "^1.2.7",
-    "@minko-fe/eslint-config": "^1.2.7",
-    "@minko-fe/tsconfig": "^1.2.7",
+    "@minko-fe/eslint-config": "^1.2.9",
+    "@minko-fe/tsconfig": "^1.2.9",
     "@types/fs-extra": "^11.0.1",
     "@types/mock-fs": "^4.13.1",
     "@types/node": "^18.13.0",

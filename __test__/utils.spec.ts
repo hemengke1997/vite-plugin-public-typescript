@@ -8,7 +8,7 @@ beforeAll(() => {})
 
 describe('vite-plugin-public-typescript', () => {
   test('should hash stable', () => {
-    const code = "export const t = { hello: 'world' }"
+    const code = 'export const t = { hello: "world" }'
     const a = getContentHash(code)
     const b = getContentHash(code)
 

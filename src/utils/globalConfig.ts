@@ -5,10 +5,10 @@ import type { ManifestCache } from './manifestCache'
 
 type UserConfig =
   | {
-      cache: ManifestCache
-      filesGlob: string[]
-      config: ResolvedConfig
-    } & Required<VPPTPluginOptions>
+    cache: ManifestCache
+    filesGlob: string[]
+    config: ResolvedConfig
+  } & Required<VPPTPluginOptions>
 
 type GlobalConfigType = UserConfig & {
   absOutputDir: string
