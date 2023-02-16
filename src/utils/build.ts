@@ -187,6 +187,6 @@ export async function addJsFile(args: IAddFile) {
 
   const fp = normalizePath(path.join(publicDir, outPath))
   await fs.ensureDir(path.dirname(fp))
-  await writeFile(fp, code)
+  writeFile(fp, code)
   cache.setCache({ key: fileName, value: outPath })
 }

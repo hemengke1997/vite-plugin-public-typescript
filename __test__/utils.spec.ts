@@ -1,10 +1,8 @@
 import path from 'node:path'
-import { beforeAll, describe, expect, test } from 'vitest'
-import { crlf, eq, isPublicTypescript } from '../src/utils'
+import { describe, expect, test } from 'vitest'
+import { eol, eq, isPublicTypescript, linebreak } from '../src/utils'
 import { getContentHash } from '../src/utils/build'
 import { getGlobalConfig, setGlobalConfig } from '../src/utils/globalConfig'
-
-beforeAll(() => {})
 
 describe('vite-plugin-public-typescript', () => {
   test('should hash stable', () => {
@@ -35,11 +33,11 @@ describe('vite-plugin-public-typescript', () => {
     expect(res2).toBe(false)
   })
 
-  test('should crlf', () => {
+  test('should eol', () => {
     const json = JSON.stringify({ a: 'b' }, null, 2)
-    const crlfJson = crlf(json)
-    expect(json).not.eq(crlfJson)
-    expect(crlfJson).toEqual('{\r\n  "a": "b"\r\n}')
+    const eolJson = eol(json)
+    expect(json).not.eq(eolJson)
+    expect(eolJson).toEqual(`{${linebreak}  "a": "b"${linebreak}}`)
   })
 
   test('should obj eq', () => {

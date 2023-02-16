@@ -84,6 +84,6 @@ export class ManifestCache {
       return
     }
 
-    writeFile(targetPath, `${JSON.stringify(orderdCache || {}, null, 2)}`)
+    writeFile(targetPath, JSON.stringify(orderdCache || {}, null, 2))
   }
 }
