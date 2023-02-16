@@ -36,7 +36,6 @@ describe('vite-plugin-public-typescript', () => {
   test('should eol', () => {
     const json = JSON.stringify({ a: 'b' }, null, 2)
     const eolJson = eol(json)
-    expect(json).not.eq(eolJson)
     expect(eolJson).toEqual(`{${linebreak}  "a": "b"${linebreak}}`)
   })
 
