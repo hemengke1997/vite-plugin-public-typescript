@@ -1,4 +1,13 @@
-# [1.2.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.1.3...v1.2.1) (2023-02-08)
+## [1.2.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.2.0...v1.2.2) (2023-02-09)
+
+
+### Bug Fixes
+
+* crlf ([8477981](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/8477981bea0af75007a515d5cab8ece149e33fb6))
+
+
+
+# [1.2.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.1.3...v1.2.0) (2023-02-08)
 
 
 ### Bug Fixes
