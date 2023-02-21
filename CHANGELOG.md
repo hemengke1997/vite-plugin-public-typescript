@@ -1,4 +1,13 @@
-## [1.2.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.2.0...v1.2.2) (2023-02-09)
+## [1.2.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.2.1...v1.2.3) (2023-02-16)
+
+
+### Bug Fixes
+
+* eol ([05d422c](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/05d422c08aba1596511122b5c34328ccb28ae325))
+
+
+
+## [1.2.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.2.0...v1.2.1) (2023-02-09)
 
 
 ### Bug Fixes
