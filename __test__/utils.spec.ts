@@ -33,10 +33,10 @@ describe('vite-plugin-public-typescript', () => {
     expect(res2).toBe(false)
   })
 
-  test('should eol', () => {
+  test('should add eol', () => {
     const json = JSON.stringify({ a: 'b' }, null, 2)
     const eolJson = eol(json)
-    expect(eolJson).toEqual(`{${linebreak}  "a": "b"${linebreak}}`)
+    expect(eolJson).toEqual(`{${linebreak}  "a": "b"${linebreak}}${linebreak}`)
   })
 
   test('should obj eq', () => {

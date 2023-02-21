@@ -22,24 +22,19 @@ export function isWindows() {
 
 export const linebreak = isWindows() ? '\r\n' : '\n'
 
-export function detectNewline(string: string) {
-  const newlines = string.match(/(?:\r?\n)/g) || []
+export function detectLastLine(string: string) {
+  const last = string[string.length - 1]
 
-  if (newlines.length === 0) {
-    return
-  }
-
-  const crlf = newlines.filter((newline) => newline === '\r\n').length
-  const lf = newlines.length - crlf
-
-  return crlf > lf ? '\r\n' : '\n'
+  return /(?:\r?\n)/g.test(last)
 }
 
 export function eol(text: string) {
   const newline = /\r\n|\r|\n/g
-  if (!detectNewline(text)) {
+
+  if (!detectLastLine(text)) {
     text += linebreak
   }
+
   return text.replaceAll(newline, linebreak)
 }
 
