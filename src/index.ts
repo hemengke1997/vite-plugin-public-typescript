@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { PluginOption, ResolvedConfig } from 'vite'
 import { normalizePath } from 'vite'
-import fg from 'fast-glob'
+import tg from 'tiny-glob'
 import type { BuildOptions } from 'esbuild'
 import Watcher from 'watcher'
 import fs from 'fs-extra'
@@ -86,7 +86,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
   const plugins: PluginOption = [
     {
       name: 'vite:public-typescript',
-      configResolved(c) {
+      async configResolved(c) {
         config = c
 
         function getInputDir(suffix = '') {
@@ -95,7 +95,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
         fs.ensureDirSync(getInputDir())
 
-        const filesGlob = fg.sync(getInputDir(`/*${ts}`), {
+        const filesGlob = await tg(getInputDir(`/*${ts}`), {
           cwd: config.root,
           absolute: true,
         })

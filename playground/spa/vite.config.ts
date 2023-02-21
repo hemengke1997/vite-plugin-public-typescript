@@ -3,7 +3,7 @@ import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 import react from '@vitejs/plugin-react'
-import fg from 'fast-glob'
+import tg from 'tiny-glob'
 import manifest from './publicTypescript/manifest.json'
 
 // https://vitejs.dev/config/
@@ -24,7 +24,7 @@ export default defineConfig({
     {
       name: 'add-script',
       async transformIndexHtml(html) {
-        const scripts = fg.sync('./public/*.js')
+        const scripts = await tg('./public/*.js')
         const tags: HtmlTagDescriptor[] = scripts.map((s) => {
           return {
             tag: 'script',

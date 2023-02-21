@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import type { ResolvedConfig } from 'vite'
 import { normalizePath } from 'vite'
-import fg from 'fast-glob'
+import tg from 'tiny-glob'
 import fs from 'fs-extra'
 import type { BuildResult, Plugin } from 'esbuild'
 import { build as esbuild } from 'esbuild'
@@ -145,7 +145,7 @@ export async function deleteOldJsFile(args: IDeleteFile) {
     config: { publicDir },
   } = getGlobalConfig()
 
-  const oldFiles = fg.sync(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
+  const oldFiles = await tg(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
 
   assert(Array.isArray(oldFiles))
 
