@@ -80,7 +80,7 @@ export class ManifestCache {
 
     const parsedCache = this.readCacheFromFile()
 
-    if (eq(parsedCache, orderdCache) || isEmptyObject(orderdCache)) {
+    if (!isEmptyObject(parsedCache) && eq(parsedCache, orderdCache)) {
       return
     }
 
