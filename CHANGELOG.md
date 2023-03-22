@@ -1,4 +1,22 @@
-## [1.2.4](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.2.2...v1.2.4) (2023-02-21)
+# [1.3.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.2.4...v1.3.0) (2023-03-22)
+
+
+### Features
+
+* introduce debug mode ([08db699](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/08db69946f5165010219670f275f818ba5834446))
+
+
+
+## [1.2.4](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.2.3...v1.2.4) (2023-03-01)
+
+
+### Bug Fixes
+
+* write empty manifestjson on init ([18fd608](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/18fd60876591a4d5d39e4eb74ca7bb640ae60e18))
+
+
+
+## [1.2.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.2.2...v1.2.3) (2023-02-21)
 
 
 ### Bug Fixes
