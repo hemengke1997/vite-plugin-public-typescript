@@ -1,4 +1,4 @@
-import path from 'node:path'
+import path from 'path'
 import type { ResolvedConfig } from 'vite'
 import type { VPPTPluginOptions } from '..'
 import type { ManifestCache } from './manifestCache'

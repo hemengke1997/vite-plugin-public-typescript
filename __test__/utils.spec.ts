@@ -1,4 +1,4 @@
-import path from 'node:path'
+import path from 'path'
 import { describe, expect, test } from 'vitest'
 import { eol, eq, isPublicTypescript, linebreak } from '../src/utils'
 import { getContentHash } from '../src/utils/build'

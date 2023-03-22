@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises'
+import fs from 'fs/promises'
 import express from 'express'
 import manifest from './publicTypescript/custom-manifest.json' assert { type: 'json' }
 

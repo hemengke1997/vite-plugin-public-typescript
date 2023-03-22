@@ -1,11 +1,11 @@
-import path from 'node:path'
+import path from 'path'
 import type { PluginOption, ResolvedConfig } from 'vite'
 import { normalizePath } from 'vite'
-import tg from 'tiny-glob'
+import glob from 'tiny-glob'
 import type { BuildOptions } from 'esbuild'
 import Watcher from 'watcher'
 import fs from 'fs-extra'
-import { eq, isEmptyObject, isPublicTypescript, reloadPage, ts } from './utils'
+import { debug, eq, isEmptyObject, isPublicTypescript, reloadPage, ts } from './utils'
 import { build, deleteOldJsFile, esbuildTypescript } from './utils/build'
 import { ManifestCache } from './utils/manifestCache'
 import { getGlobalConfig, setGlobalConfig } from './utils/globalConfig'
@@ -75,6 +75,8 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
     ...options,
   }
 
+  debug('options:', opts)
+
   let config: ResolvedConfig
 
   function _isPublicTypescript(filePath: string) {
@@ -95,7 +97,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
         fs.ensureDirSync(getInputDir())
 
-        const filesGlob = await tg(getInputDir(`/*${ts}`), {
+        const filesGlob = await glob(getInputDir(`/*${ts}`), {
           cwd: config.root,
           absolute: true,
         })
@@ -109,12 +111,14 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
         cache.setManifestPath(normalizePath(`${getGlobalConfig().absInputDir}/${opts.manifestName}.json`))
 
+        debug('cache manifestPath:', cache.getManifestPath())
+
         assert(cache.getManifestPath().includes('.json'))
       },
       configureServer(server) {
         const { ws } = server
 
-        if (process.env.VITEST) {
+        if (process.env.VITEST || process.env.CI) {
           return
         }
 
@@ -130,6 +134,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
           async function handleUnlink(filePath: string) {
             if (_isPublicTypescript(filePath)) {
               const fileName = path.parse(filePath).name
+              debug('unlink:', fileName)
               await deleteOldJsFile({ fileName })
               reloadPage(ws)
             }
@@ -137,14 +142,18 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
           async function handleFileAdded(filePath: string) {
             if (_isPublicTypescript(filePath)) {
+              debug('file added:', filePath)
               await build({ filePath })
               reloadPage(ws)
             }
           }
 
           async function handleFileRenamed(filePath: string, filePathNext: string) {
-            await handleUnlink(filePath)
-            await handleFileAdded(filePathNext)
+            if (_isPublicTypescript(filePath)) {
+              debug('file renamed:', filePath, '==>', filePathNext)
+              await handleUnlink(filePath)
+              await handleFileAdded(filePathNext)
+            }
           }
 
           watcher.on('unlink', async (f) => {
@@ -179,6 +188,8 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
         const parsedCacheJson = cache.readCacheFromFile()
 
+        debug('buildStart - parsedCacheJson:', parsedCacheJson)
+
         if (isEmptyObject(parsedCacheJson)) {
           await cache.writeManifestJSON()
         }
@@ -186,6 +197,9 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
         const { filesGlob } = getGlobalConfig()
 
         const fileNames = filesGlob.map((file) => path.parse(file).name)
+
+        debug('buildStart - filesGlob:', filesGlob)
+        debug('buildStart - fileNames:', fileNames)
 
         if (!isEmptyObject(parsedCacheJson)) {
           const keys = Object.keys(parsedCacheJson)
@@ -208,6 +222,8 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
           })
         }
 
+        debug('buildStart - cache:', cache.getAll())
+
         filesGlob.forEach(async (f) => {
           await build({
             filePath: f,
@@ -216,6 +232,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
       },
       async handleHotUpdate(ctx) {
         if (_isPublicTypescript(ctx.file)) {
+          debug('hmr:', ctx.file)
           await build({
             filePath: ctx.file,
           })

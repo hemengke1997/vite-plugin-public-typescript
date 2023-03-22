@@ -1,4 +1,4 @@
-// https://github.com/brillout/vite-plugin-ssr/blob/main/vite-plugin-ssr/utils/assert.ts
+// Taken from https://github.com/brillout/vite-plugin-ssr/blob/main/vite-plugin-ssr/utils/assert.ts
 export { createErrorWithCleanStackTrace }
 
 function createErrorWithCleanStackTrace(errorMessage: string, numberOfStackTraceLinesToRemove: number) {
@@ -26,7 +26,7 @@ function clean(errStack: string | undefined, numberOfStackTraceLinesToRemove: nu
 
   const stackLine__cleaned = stackLines
     .filter((line) => {
-      if (line.includes(' (internal/') || line.includes(' (node:internal')) {
+      if (line.includes(' (internal/') || line.includes(' (internal')) {
         return false
       }
 

@@ -1,12 +1,17 @@
-import path from 'node:path'
+import path from 'path'
 import type { WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
 import fs from 'fs-extra'
+import createDebug from 'debug'
+import { name } from '../../package.json'
+
+export const debug = createDebug(name)
 
 export const ts = '.ts'
 
 export function reloadPage(ws: WebSocketServer) {
   ws.send({
+    path: '*',
     type: 'full-reload',
   })
 }
@@ -28,9 +33,8 @@ export function detectLastLine(string: string) {
   return /(?:\r?\n)/g.test(last)
 }
 
+const newline = /\r\n|\r|\n/g
 export function eol(text: string) {
-  const newline = /\r\n|\r|\n/g
-
   if (!detectLastLine(text)) {
     text += linebreak
   }
@@ -69,5 +73,19 @@ export function writeFile(filename: string, content: string): void {
     fs.mkdirSync(dir, { recursive: true })
   }
 
-  fs.writeFileSync(filename, eol(content))
+  const newContent = eol(content)
+
+  if (fs.existsSync(filename)) {
+    // Read content first
+    // if content is same, skip write file
+    const oldContent = fs.readFileSync(filename, 'utf-8')
+    if (oldContent && newContent === oldContent) {
+      debug('skip writeFile, content is same with old content')
+      return
+    }
+  }
+
+  fs.writeFileSync(filename, newContent)
+
+  debug('writeFile success:', filename)
 }

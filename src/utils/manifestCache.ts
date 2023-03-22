@@ -1,4 +1,4 @@
-import path from 'node:path'
+import path from 'path'
 import fs from 'fs-extra'
 import onChange from 'on-change'
 import { eq, isEmptyObject, writeFile } from '.'
@@ -9,7 +9,7 @@ interface CacheType {
 }
 
 export class ManifestCache {
-  private cache
+  private cache: Record<string, string>
 
   private manifestPath = ''
 

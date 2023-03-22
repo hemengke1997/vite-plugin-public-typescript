@@ -1,16 +1,16 @@
-import { createHash } from 'node:crypto'
-import path from 'node:path'
+import { createHash } from 'crypto'
+import path from 'path'
 import type { ResolvedConfig } from 'vite'
 import { normalizePath } from 'vite'
-import tg from 'tiny-glob'
+import glob from 'tiny-glob'
 import fs from 'fs-extra'
 import type { BuildResult, Plugin } from 'esbuild'
 import { build as esbuild } from 'esbuild'
-import { name } from '../../package.json'
 import type { VPPTPluginOptions } from '..'
+import { name } from '../../package.json'
 import { getGlobalConfig } from './globalConfig'
 import { assert } from './assert'
-import { writeFile } from '.'
+import { debug, writeFile } from '.'
 
 export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
   if (!chunk) {
@@ -79,6 +79,8 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
   const define = transformEnvToDefine(config)
 
+  debug('esbuild define:', define)
+
   let res: BuildResult
   try {
     res = await esbuild({
@@ -96,6 +98,8 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
       define,
       ...rest,
     })
+
+    debug('esbuild success:', filePath)
   } catch (e) {
     console.error(`[${name}]`, e)
     return
@@ -145,24 +149,30 @@ export async function deleteOldJsFile(args: IDeleteFile) {
     config: { publicDir },
   } = getGlobalConfig()
 
-  const oldFiles = await tg(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
+  const oldFiles = await glob(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
+
+  debug('deleteOldJsFile - oldFiles:', oldFiles)
 
   assert(Array.isArray(oldFiles))
 
   if (oldFiles.length) {
     for (const f of oldFiles) {
       if (path.parse(f).name === jsFileName) {
+        debug('deleteOldJsFile - skip file:', jsFileName)
         continue
       } // skip repeat js file
       if (fs.existsSync(f)) {
         if (cache.getCache(fileName) || force) {
           cache.removeCache(fileName)
+          debug('deleteOldJsFile - cache removed:', fileName)
           fs.removeSync(f)
+          debug('deleteOldJsFile -file removed:', f)
         }
       }
     }
   } else if (force) {
     cache.removeCache(fileName)
+    debug('cache force removed:', fileName)
   }
 }
 
@@ -189,4 +199,6 @@ export async function addJsFile(args: IAddFile) {
   await fs.ensureDir(path.dirname(fp))
   writeFile(fp, code)
   cache.setCache({ key: fileName, value: outPath })
+
+  debug('addJsFile cache seted:', fileName, outPath)
 }
