@@ -3,11 +3,11 @@ import type { WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
 import fs from 'fs-extra'
 import createDebug from 'debug'
-import { name } from '../../package.json'
+import { name as PKGNAME } from '../../package.json'
 
-export const debug = createDebug(name)
+export const debug = createDebug(PKGNAME)
 
-export const ts = '.ts'
+export const TS_EXT = '.ts'
 
 export function reloadPage(ws: WebSocketServer) {
   ws.send({
@@ -18,7 +18,11 @@ export function reloadPage(ws: WebSocketServer) {
 
 export function isPublicTypescript(args: { filePath: string; inputDir: string; root: string }) {
   const { filePath, root, inputDir } = args
-  return path.extname(filePath) === ts && normalizePath(filePath).includes(normalizePath(path.resolve(root, inputDir)))
+
+  return (
+    path.extname(filePath) === TS_EXT &&
+    normalizePath(path.resolve(root, inputDir)).endsWith(normalizePath(path.dirname(filePath)))
+  )
 }
 
 export function isWindows() {
@@ -34,7 +38,7 @@ export function detectLastLine(string: string) {
 }
 
 const newline = /\r\n|\r|\n/g
-export function eol(text: string) {
+export function setEol(text: string) {
   if (!detectLastLine(text)) {
     text += linebreak
   }
@@ -73,7 +77,7 @@ export function writeFile(filename: string, content: string): void {
     fs.mkdirSync(dir, { recursive: true })
   }
 
-  const newContent = eol(content)
+  const newContent = setEol(content)
 
   if (fs.existsSync(filename)) {
     // Read content first

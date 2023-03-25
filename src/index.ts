@@ -5,7 +5,7 @@ import glob from 'tiny-glob'
 import type { BuildOptions } from 'esbuild'
 import Watcher from 'watcher'
 import fs from 'fs-extra'
-import { debug, eq, isEmptyObject, isPublicTypescript, reloadPage, ts } from './utils'
+import { TS_EXT, debug, eq, isEmptyObject, isPublicTypescript, reloadPage } from './utils'
 import { build, deleteOldJsFile, esbuildTypescript } from './utils/build'
 import { ManifestCache } from './utils/manifestCache'
 import { getGlobalConfig, setGlobalConfig } from './utils/globalConfig'
@@ -97,7 +97,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
         fs.ensureDirSync(getInputDir())
 
-        const filesGlob = await glob(getInputDir(`/*${ts}`), {
+        const filesGlob = await glob(getInputDir(`/*${TS_EXT}`), {
           cwd: config.root,
           absolute: true,
         })

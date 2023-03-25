@@ -1,16 +1,22 @@
 import path from 'path'
-import { describe, expect, test } from 'vitest'
-import { eol, eq, isPublicTypescript, linebreak } from '../src/utils'
+import { describe, expect, it, test } from 'vitest'
+import { eq, isPublicTypescript, linebreak, setEol } from '../src/utils'
 import { getContentHash } from '../src/utils/build'
 import { getGlobalConfig, setGlobalConfig } from '../src/utils/globalConfig'
 
 describe('vite-plugin-public-typescript', () => {
-  test('should hash stable', () => {
-    const code = 'export const t = { hello: "world" }'
-    const a = getContentHash(code)
-    const b = getContentHash(code)
+  it('should return true when filePath is a public typescript file', () => {
+    const filePath = 'src/foo/bar.ts'
+    const root = 'src'
+    const inputDir = 'foo'
+    expect(isPublicTypescript({ filePath, root, inputDir })).toBe(true)
+  })
 
-    expect(a).toBe(b)
+  it('should return false when filePath is not a public typescript file', () => {
+    const filePath = 'src/foo/bar.js'
+    const root = 'src'
+    const inputDir = 'foo'
+    expect(isPublicTypescript({ filePath, root, inputDir })).toBe(false)
   })
 
   test('should be typescript file', () => {
@@ -35,7 +41,7 @@ describe('vite-plugin-public-typescript', () => {
 
   test('should add eol', () => {
     const json = JSON.stringify({ a: 'b' }, null, 2)
-    const eolJson = eol(json)
+    const eolJson = setEol(json)
     expect(eolJson).toEqual(`{${linebreak}  "a": "b"${linebreak}}${linebreak}`)
   })
 
@@ -47,6 +53,14 @@ describe('vite-plugin-public-typescript', () => {
   test('should obj not eq', () => {
     expect(eq([], {})).toBe(false)
     expect(eq({ a: 1 }, { a: 2 })).toBe(false)
+  })
+
+  test('should hash stable', () => {
+    const code = 'export const t = { hello: "world" }'
+    const a = getContentHash(code)
+    const b = getContentHash(code)
+
+    expect(a).toBe(b)
   })
 
   test('should getGlobalConfig throw error', () => {
