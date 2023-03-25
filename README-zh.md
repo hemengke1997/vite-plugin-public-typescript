@@ -15,12 +15,6 @@
 pnpm add vite-plugin-public-typescript -D
 ```
 
-or
-
-```bash
-npm i vite-plugin-public-typescript -D
-```
-
 ## Preview
 
 <img src="./screenshots/ts-new.gif" />

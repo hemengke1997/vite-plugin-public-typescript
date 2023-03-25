@@ -7,7 +7,7 @@
 - Transform typescript to javascript at runtime and build time
 - Support HMR
 - Output js with hash, no worry about cache
-- Customize esbuild build options, specify target browsers range
+- Customize esbuild build options, specify target browser ranges
 
 ## Install
 
@@ -15,11 +15,6 @@
 pnpm add vite-plugin-public-typescript -D
 ```
 
-or
-
-```bash
-npm i vite-plugin-public-typescript -D
-```
 
 ## Preview
 
