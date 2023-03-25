@@ -156,13 +156,9 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
             }
           }
 
-          watcher.on('unlink', async (f) => {
-            handleUnlink(f)
-          })
+          watcher.on('unlink', handleUnlink)
 
-          watcher.on('add', async (f) => {
-            await handleFileAdded(f)
-          })
+          watcher.on('add', handleFileAdded)
 
           watcher.on('rename', async (f, fNext) => {
             await handleFileRenamed(f, fNext)
