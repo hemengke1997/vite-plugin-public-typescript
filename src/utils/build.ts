@@ -17,6 +17,7 @@ export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VP
     return ''
   }
   const hashLen = typeof hash === 'number' ? hash : 8
+
   return createHash('sha256').update(chunk).digest('hex').substring(0, hashLen)
 }
 
@@ -165,7 +166,7 @@ export async function deleteOldJsFile(args: IDeleteFile) {
         if (cache.getCache(fileName) || force) {
           cache.removeCache(fileName)
           debug('deleteOldJsFile - cache removed:', fileName)
-          fs.removeSync(f)
+          fs.remove(f)
           debug('deleteOldJsFile -file removed:', f)
         }
       }

@@ -19,7 +19,7 @@ export class ManifestCache {
         await this.writeManifestJSON()
       })
     } else {
-      this.cache = {}
+      this.cache = Object.create(null)
     }
   }
 
@@ -70,11 +70,7 @@ export class ManifestCache {
   async writeManifestJSON() {
     const targetPath = this.getManifestPath()
     const cacheObj = this.getAll()
-    const orderdCache: Record<string, string> = {}
-
-    Object.keys(cacheObj)
-      .sort()
-      .forEach((k) => (orderdCache[k] = cacheObj[k]))
+    const orderdCache: Record<string, string> = Object.assign({}, cacheObj)
 
     await fs.ensureDir(path.dirname(targetPath))
 

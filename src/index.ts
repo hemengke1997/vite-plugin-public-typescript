@@ -224,8 +224,8 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
         debug('buildStart - cache:', cache.getAll())
 
-        filesGlob.forEach(async (f) => {
-          await build({
+        filesGlob.forEach((f) => {
+          build({
             filePath: f,
           })
         })
