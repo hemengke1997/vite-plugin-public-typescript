@@ -6,6 +6,7 @@ import fs from 'fs-extra'
 import createDebug from 'debug'
 import { name as PKGNAME } from '../../package.json'
 import type { VPPTPluginOptions } from '..'
+import { getGlobalConfig } from './globalConfig'
 
 export const debug = createDebug(PKGNAME)
 
@@ -82,7 +83,8 @@ export function writeFile(filename: string, content: string): void {
   const newContent = setEol(content)
 
   if (fs.existsSync(filename)) {
-    if (extractHashFromFileName(filename)) {
+    const { hash } = getGlobalConfig()
+    if (extractHashFromFileName(filename, hash)) {
       // if filename has hash, skip write file
       debug('skip writeFile, filename has hash')
       return
@@ -101,17 +103,21 @@ export function writeFile(filename: string, content: string): void {
   debug('writeFile success:', filename)
 }
 
+function getHashLen(hash: VPPTPluginOptions['hash']) {
+  return typeof hash === 'number' ? hash : HASH_LEN
+}
+
 const HASH_LEN = 8
 export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
   if (!chunk) {
     return ''
   }
-  const hashLen = typeof hash === 'number' ? hash : HASH_LEN
-
+  const hashLen = getHashLen(hash)
   return createHash('md5').update(chunk).digest('hex').substring(0, hashLen)
 }
 
-export function extractHashFromFileName(filename: string, hashLen = HASH_LEN) {
+export function extractHashFromFileName(filename: string, hash: VPPTPluginOptions['hash']) {
+  const hashLen = getHashLen(hash)
   const regex = new RegExp(`\\.([\\w\\d]{${hashLen}})\\.?`)
   const match = filename.match(regex)
   if (match) {
