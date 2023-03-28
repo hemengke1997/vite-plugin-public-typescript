@@ -18,7 +18,7 @@ pnpm add vite-plugin-public-typescript -D
 
 ## Preview
 
-<img src="./screenshots/ts-new.gif" />
+<img src="./screenshots/ts.gif" />
 
 ## Usage
 
