@@ -1,9 +1,11 @@
 import path from 'path'
+import { createHash } from 'crypto'
 import type { WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
 import fs from 'fs-extra'
 import createDebug from 'debug'
 import { name as PKGNAME } from '../../package.json'
+import type { VPPTPluginOptions } from '..'
 
 export const debug = createDebug(PKGNAME)
 
@@ -80,6 +82,11 @@ export function writeFile(filename: string, content: string): void {
   const newContent = setEol(content)
 
   if (fs.existsSync(filename)) {
+    if (extractHashFromFileName(filename)) {
+      // if filename has hash, skip write file
+      debug('skip writeFile, filename has hash')
+      return
+    }
     // Read content first
     // if content is same, skip write file
     const oldContent = fs.readFileSync(filename, 'utf-8')
@@ -92,4 +99,23 @@ export function writeFile(filename: string, content: string): void {
   fs.writeFileSync(filename, newContent)
 
   debug('writeFile success:', filename)
+}
+
+const HASH_LEN = 8
+export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
+  if (!chunk) {
+    return ''
+  }
+  const hashLen = typeof hash === 'number' ? hash : HASH_LEN
+
+  return createHash('md5').update(chunk).digest('hex').substring(0, hashLen)
+}
+
+export function extractHashFromFileName(filename: string, hashLen = HASH_LEN) {
+  const regex = new RegExp(`\\.([\\w\\d]{${hashLen}})\\.?`)
+  const match = filename.match(regex)
+  if (match) {
+    return match[1]
+  }
+  return ''
 }

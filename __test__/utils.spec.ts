@@ -1,7 +1,6 @@
 import path from 'path'
 import { describe, expect, it, test } from 'vitest'
-import { eq, isPublicTypescript, linebreak, setEol } from '../src/utils'
-import { getContentHash } from '../src/utils/build'
+import { eq, extractHashFromFileName, getContentHash, isPublicTypescript, linebreak, setEol } from '../src/utils'
 import { getGlobalConfig, setGlobalConfig } from '../src/utils/globalConfig'
 
 describe('vite-plugin-public-typescript', () => {
@@ -71,5 +70,12 @@ describe('vite-plugin-public-typescript', () => {
     // @ts-expect-error
     setGlobalConfig({ config: { publicDir: 'public' }, inputDir: 'publicTypescript' })
     expect(() => getGlobalConfig()).not.toThrowError()
+  })
+
+  test('should extract hash', () => {
+    const hash1 = extractHashFromFileName('dir/hello.1234.js', 4)
+    const hash2 = extractHashFromFileName('hello.1234', 4)
+    expect(hash1).toBe('1234')
+    expect(hash2).toBe('1234')
   })
 })

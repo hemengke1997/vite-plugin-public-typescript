@@ -1,4 +1,3 @@
-import { createHash } from 'crypto'
 import path from 'path'
 import type { ResolvedConfig } from 'vite'
 import { normalizePath } from 'vite'
@@ -10,16 +9,7 @@ import type { VPPTPluginOptions } from '..'
 import { name } from '../../package.json'
 import { getGlobalConfig } from './globalConfig'
 import { assert } from './assert'
-import { debug, writeFile } from '.'
-
-export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
-  if (!chunk) {
-    return ''
-  }
-  const hashLen = typeof hash === 'number' ? hash : 8
-
-  return createHash('sha256').update(chunk).digest('hex').substring(0, hashLen)
-}
+import { debug, getContentHash, writeFile } from '.'
 
 const noSideEffectsPlugin: Plugin = {
   name: 'no-side-effects',
