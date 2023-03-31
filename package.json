@@ -48,9 +48,7 @@
     "debug": "^4.3.4",
     "esbuild": "^0.17.12",
     "fs-extra": "^11.1.1",
-    "on-change": "^4.0.2",
-    "tiny-glob": "^0.2.9",
-    "watcher": "^2.2.2"
+    "tiny-glob": "^0.2.9"
   },
   "devDependencies": {
     "@minko-fe/eslint-config": "^1.2.31",
@@ -63,9 +61,11 @@
     "conventional-changelog-cli": "^2.2.2",
     "eslint": "^8.36.0",
     "mock-fs": "^5.2.0",
+    "on-change": "^4.0.2",
     "tsup": "^6.7.0",
     "typescript": "^5.0.2",
     "vite": "^4.2.1",
-    "vitest": "^0.29.7"
+    "vitest": "^0.29.7",
+    "watcher": "^2.2.2"
   }
 }

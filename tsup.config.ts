@@ -9,4 +9,9 @@ export const tsup = defineConfig((option) => ({
   platform: 'node',
   sourcemap: !!option.watch,
   tsconfig: option.watch ? './tsconfig.dev.json' : './tsconfig.json',
+  esbuildOptions(opts, { format }) {
+    if (format === 'esm') {
+      opts.external = ['watcher', 'on-change']
+    }
+  },
 }))
