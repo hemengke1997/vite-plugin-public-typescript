@@ -18,7 +18,7 @@ export default defineConfig({
       inputDir: 'publicTypescript',
       manifestName: 'manifest',
       hash: true,
-      outputDir: 'js',
+      outputDir: '/',
     }),
 
     {

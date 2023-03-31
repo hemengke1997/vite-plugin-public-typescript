@@ -5,7 +5,7 @@ import glob from 'tiny-glob'
 import type { BuildOptions } from 'esbuild'
 import Watcher from 'watcher'
 import fs from 'fs-extra'
-import { TS_EXT, debug, eq, isEmptyObject, isPublicTypescript, reloadPage } from './utils'
+import { TS_EXT, debug, eq, isEmptyObject, isPublicTypescript, reloadPage, validateOptions } from './utils'
 import { build, deleteOldJsFile, esbuildTypescript } from './utils/build'
 import { ManifestCache } from './utils/manifestCache'
 import { getGlobalConfig, setGlobalConfig } from './utils/globalConfig'
@@ -25,6 +25,7 @@ export interface VPPTPluginOptions {
   inputDir?: string
   /**
    * @description output public javascript dir, relative to `publicDir`
+   * @note outputDir should start with '/'
    * @default '/'
    */
   outputDir?: string
@@ -74,6 +75,8 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
     ...defaultOptions,
     ...options,
   }
+
+  validateOptions(opts)
 
   debug('options:', opts)
 

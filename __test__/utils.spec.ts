@@ -1,6 +1,14 @@
 import path from 'path'
 import { describe, expect, it, test } from 'vitest'
-import { eq, extractHashFromFileName, getContentHash, isPublicTypescript, linebreak, setEol } from '../src/utils'
+import {
+  eq,
+  extractHashFromFileName,
+  getContentHash,
+  isPublicTypescript,
+  linebreak,
+  setEol,
+  validateOptions,
+} from '../src/utils'
 import { getGlobalConfig, setGlobalConfig } from '../src/utils/globalConfig'
 
 describe('vite-plugin-public-typescript', () => {
@@ -77,5 +85,33 @@ describe('vite-plugin-public-typescript', () => {
     const hash2 = extractHashFromFileName('hello.1234', 4)
     expect(hash1).toBe('1234')
     expect(hash2).toBe('1234')
+  })
+
+  test('should validate options success', () => {
+    const opts = {
+      inputDir: 'publicTypescript',
+      outputDir: '/',
+      manifestName: 'manifest',
+      hash: true,
+      ssrBuild: false,
+      esbuildOptions: {},
+      sideEffects: false,
+    }
+
+    expect(() => validateOptions(opts)).not.toThrowError()
+  })
+
+  test('should validate options throw error', () => {
+    const opts = {
+      inputDir: '/publicTypescript/foo',
+      outputDir: 'js',
+      manifestName: 'manifest',
+      hash: true,
+      ssrBuild: false,
+      esbuildOptions: {},
+      sideEffects: false,
+    }
+
+    expect(() => validateOptions(opts)).toThrowError('dir')
   })
 })

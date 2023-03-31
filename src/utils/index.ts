@@ -125,3 +125,27 @@ export function extractHashFromFileName(filename: string, hash: VPPTPluginOption
   }
   return ''
 }
+
+export function validateOptions(options: Required<VPPTPluginOptions>) {
+  const { outputDir } = options
+  // ensure outputDir is Dir
+  if (!/^\/([a-zA-Z0-9]+\/)*[a-zA-Z0-9]*$/.test(outputDir)) {
+    throw new Error(`outputDir must be a directory, but got ${outputDir}`)
+  } else {
+    if (outputDir.length > 1 && outputDir.endsWith('/')) {
+      // remove last slash
+      options.outputDir = outputDir.replace(/\/$/, '')
+    }
+  }
+
+  // ensure inputDir is Dir
+  const { inputDir } = options
+  if (!/^([a-zA-Z0-9]+\/)*[a-zA-Z0-9]*$/.test(inputDir)) {
+    throw new Error(`inputDir must be a directory, but got ${inputDir}`)
+  } else {
+    if (inputDir.endsWith('/')) {
+      // remove last slash
+      options.inputDir = inputDir.replace(/\/$/, '')
+    }
+  }
+}
