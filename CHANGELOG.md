@@ -1,3 +1,20 @@
+## [1.3.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.3.0...v1.3.1) (2023-03-31)
+
+
+### Bug Fixes
+
+* ensure output dir ([dc63f66](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/dc63f66f3c2a21f70fad1baf0dd192bcf88b790e))
+* get hash length from user options first ([fb32e48](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/fb32e484475e37cfbf999957f35cdf6ebbd30f1b))
+
+
+### Performance Improvements
+
+* code optimization ([3a0fb44](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/3a0fb442d2b83699e9c7329ebc713b6e490ec0fc))
+* code optimization ([7de4898](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/7de4898b54a8e730a2c634f53a95ac4f4fae7e83))
+* improve speed ([740b038](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/740b0387a5c81d4d712c92d40ac77a1521ec86a2))
+
+
+
 # [1.3.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.2.4...v1.3.0) (2023-03-22)
 
 
