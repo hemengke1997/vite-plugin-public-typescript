@@ -1,3 +1,13 @@
+## [1.3.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.3.1...v1.3.2) (2023-03-31)
+
+
+### Features
+
+* support cjs ([17e390a](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/17e390af27a5c1159c53c64e088543a16af193e8))
+* validate options ([e2d074f](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e2d074f512c4ddf78074fc038f97ec2c1cc47938))
+
+
+
 ## [1.3.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.3.0...v1.3.1) (2023-03-31)
 
 
