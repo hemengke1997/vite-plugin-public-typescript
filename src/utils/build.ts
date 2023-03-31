@@ -140,7 +140,13 @@ export async function deleteOldJsFile(args: IDeleteFile) {
     config: { publicDir },
   } = getGlobalConfig()
 
-  const oldFiles = await glob(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
+  let oldFiles: string[] = []
+  try {
+    fs.ensureDirSync(path.join(publicDir, outputDir))
+    oldFiles = await glob(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
+  } catch (e) {
+    console.error(e)
+  }
 
   debug('deleteOldJsFile - oldFiles:', oldFiles)
 
