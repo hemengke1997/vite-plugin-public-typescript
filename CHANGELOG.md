@@ -1,3 +1,12 @@
+## [1.3.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.3.2...v1.3.3) (2023-04-04)
+
+
+### Bug Fixes
+
+* build only-esm lib to cjs ([ffd6020](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/ffd60201533739cef39c210d818f6a22d16fc9b4))
+
+
+
 ## [1.3.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.3.1...v1.3.2) (2023-03-31)
 
 
