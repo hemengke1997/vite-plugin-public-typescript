@@ -44,10 +44,6 @@ export default defineConfig({
 })
 ```
 
-## 例子
-
-示例请参考 [playground](playground/spa/vite.config.ts)
-
 
 ### SPA
 
