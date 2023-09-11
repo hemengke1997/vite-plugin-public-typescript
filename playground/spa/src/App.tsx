@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import manifest from '../publicTypescript/manifest.json'
 import reactLogo from './assets/react.svg'
 import './App.css'
+
+// const a = manifest.haha
 
 function App() {
   const [count, setCount] = useState(0)

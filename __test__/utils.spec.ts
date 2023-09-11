@@ -8,8 +8,8 @@ import {
   linebreak,
   setEol,
   validateOptions,
-} from '../src/utils'
-import { getGlobalConfig, setGlobalConfig } from '../src/utils/globalConfig'
+} from '../src/helper/utils'
+import { getGlobalConfig, setGlobalConfig } from '../src/helper/GlobalConfigBuilder'
 
 describe('vite-plugin-public-typescript', () => {
   it('should return true when filePath is a public typescript file', () => {

@@ -3,8 +3,8 @@ import mock from 'mock-fs'
 import fs from 'fs-extra'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createServer } from 'vite'
-import { ManifestCache } from '../src/utils/manifestCache'
-import { eq, isEmptyObject } from '../src/utils'
+import { ManifestCache } from '../src/helper/ManifestCache'
+import { eq, isEmptyObject } from '../src/helper/utils'
 import { publicTypescript } from '../src'
 
 declare module 'vitest' {

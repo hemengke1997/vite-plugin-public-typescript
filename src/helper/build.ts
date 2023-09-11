@@ -1,15 +1,14 @@
 import path from 'path'
 import type { ResolvedConfig } from 'vite'
-import { normalizePath } from 'vite'
-import glob from 'tiny-glob'
-import fs from 'fs-extra'
 import type { BuildResult, Plugin } from 'esbuild'
 import { build as esbuild } from 'esbuild'
+import createDebug from 'debug'
 import type { VPPTPluginOptions } from '..'
 import { name } from '../../package.json'
-import { getGlobalConfig } from './globalConfig'
-import { assert } from './assert'
-import { debug, getContentHash, writeFile } from '.'
+import { globalConfigBuilder } from './GlobalConfigBuilder'
+import { getContentHash } from './utils'
+
+const debug = createDebug('build ===> ')
 
 const noSideEffectsPlugin: Plugin = {
   name: 'no-side-effects',
@@ -103,7 +102,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
 export async function build(options: { filePath: string }) {
   const { filePath } = options
-  const globalConfig = getGlobalConfig()
+  const globalConfig = globalConfigBuilder.get()
 
   const fileName = path.basename(filePath, path.extname(filePath))
 
@@ -112,90 +111,14 @@ export async function build(options: { filePath: string }) {
 
   const code = await esbuildTypescript({ filePath, ...globalConfig })
 
+  debug('cacheManifest:', globalConfig.cache.getAll())
+
   if (globalConfig.hash) {
     contentHash = getContentHash(code, globalConfig.hash)
     fileNameWithHash = `${fileName}.${contentHash}`
   }
 
-  await deleteOldJsFile({
-    fileName,
-    jsFileName: fileNameWithHash,
-  })
+  await globalConfig.cacheProcessor.deleteOldJs({ fileName, jsFileName: fileNameWithHash })
 
-  await addJsFile({ code, fileName, contentHash })
-}
-
-interface IDeleteFile {
-  fileName: string
-  jsFileName?: string
-  force?: boolean
-}
-
-export async function deleteOldJsFile(args: IDeleteFile) {
-  const { fileName, jsFileName = '', force = false } = args
-
-  const {
-    outputDir,
-    cache,
-    config: { publicDir },
-  } = getGlobalConfig()
-
-  let oldFiles: string[] = []
-  try {
-    fs.ensureDirSync(path.join(publicDir, outputDir))
-    oldFiles = await glob(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
-  } catch (e) {
-    console.error(e)
-  }
-
-  debug('deleteOldJsFile - oldFiles:', oldFiles)
-
-  assert(Array.isArray(oldFiles))
-
-  if (oldFiles.length) {
-    for (const f of oldFiles) {
-      if (path.parse(f).name === jsFileName) {
-        debug('deleteOldJsFile - skip file:', jsFileName)
-        continue
-      } // skip repeat js file
-      if (fs.existsSync(f)) {
-        if (cache.getCache(fileName) || force) {
-          cache.removeCache(fileName)
-          debug('deleteOldJsFile - cache removed:', fileName)
-          fs.remove(f)
-          debug('deleteOldJsFile -file removed:', f)
-        }
-      }
-    }
-  } else if (force) {
-    cache.removeCache(fileName)
-    debug('cache force removed:', fileName)
-  }
-}
-
-interface IAddFile {
-  code?: string
-  fileName: string
-  contentHash: string
-}
-
-export async function addJsFile(args: IAddFile) {
-  const { contentHash, code = '', fileName } = args
-  const {
-    cache,
-    outputDir,
-    config: { publicDir },
-  } = getGlobalConfig()
-
-  let outPath = normalizePath(`${outputDir}/${fileName}.js`)
-  if (contentHash) {
-    outPath = normalizePath(`${outputDir}/${fileName}.${contentHash}.js`)
-  }
-
-  const fp = normalizePath(path.join(publicDir, outPath))
-  await fs.ensureDir(path.dirname(fp))
-  writeFile(fp, code)
-  cache.setCache({ key: fileName, value: outPath })
-
-  debug('addJsFile cache seted:', fileName, outPath)
+  await globalConfig.cacheProcessor.addNewJs({ code, fileName, contentHash })
 }

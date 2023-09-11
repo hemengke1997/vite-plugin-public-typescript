@@ -4,11 +4,11 @@ import type { WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
 import fs from 'fs-extra'
 import createDebug from 'debug'
-import { name as PKGNAME } from '../../package.json'
 import type { VPPTPluginOptions } from '..'
-import { getGlobalConfig } from './globalConfig'
+import { globalConfigBuilder } from './GlobalConfigBuilder'
+import { assert } from './assert'
 
-export const debug = createDebug(PKGNAME)
+const debug = createDebug('util ===> ')
 
 export const TS_EXT = '.ts'
 
@@ -26,6 +26,12 @@ export function isPublicTypescript(args: { filePath: string; inputDir: string; r
     path.extname(filePath) === TS_EXT &&
     normalizePath(path.resolve(root, inputDir)).endsWith(normalizePath(path.dirname(filePath)))
   )
+}
+
+export function _isPublicTypescript(filePath: string) {
+  const globalConfig = globalConfigBuilder.get()
+  assert(!!globalConfig)
+  return isPublicTypescript({ filePath, inputDir: globalConfig.inputDir, root: globalConfig.config.root })
 }
 
 export function isWindows() {
@@ -83,7 +89,7 @@ export function writeFile(filename: string, content: string): void {
   const newContent = setEol(content)
 
   if (fs.existsSync(filename)) {
-    const { hash } = getGlobalConfig()
+    const { hash } = globalConfigBuilder.get()
     if (extractHashFromFileName(filename, hash)) {
       // if filename has hash, skip write file
       debug('skip writeFile, filename has hash')

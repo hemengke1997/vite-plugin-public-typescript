@@ -5,11 +5,15 @@ import glob from 'tiny-glob'
 import type { BuildOptions } from 'esbuild'
 import Watcher from 'watcher'
 import fs from 'fs-extra'
-import { TS_EXT, debug, eq, isEmptyObject, isPublicTypescript, reloadPage, validateOptions } from './utils'
-import { build, deleteOldJsFile, esbuildTypescript } from './utils/build'
-import { ManifestCache } from './utils/manifestCache'
-import { getGlobalConfig, setGlobalConfig } from './utils/globalConfig'
-import { assert } from './utils/assert'
+import createDebug from 'debug'
+import { TS_EXT, _isPublicTypescript, eq, isEmptyObject, reloadPage, validateOptions } from './helper/utils'
+import { build, esbuildTypescript } from './helper/build'
+import { assert } from './helper/assert'
+import { globalConfigBuilder } from './helper/GlobalConfigBuilder'
+import { initCacheProcessor } from './helper/processor'
+import { ManifestCache } from './helper/ManifestCache'
+
+const debug = createDebug('index ===> ')
 
 export interface VPPTPluginOptions {
   /**
@@ -54,9 +58,15 @@ export interface VPPTPluginOptions {
    * @default false
    */
   sideEffects?: boolean
+
+  /**
+   * @description build output type
+   * @default 'file'
+   */
+  buildDestination?: 'file' | 'memory'
 }
 
-export const defaultOptions: Required<VPPTPluginOptions> = {
+export const DEFAULT_OPTIONS: Required<VPPTPluginOptions> = {
   inputDir: 'publicTypescript',
   outputDir: '/',
   manifestName: 'manifest',
@@ -64,29 +74,24 @@ export const defaultOptions: Required<VPPTPluginOptions> = {
   ssrBuild: false,
   esbuildOptions: {},
   sideEffects: false,
+  buildDestination: 'file',
 }
-
-const cache = new ManifestCache({ watchMode: true })
 
 let previousOpts: VPPTPluginOptions
 
 export function publicTypescript(options: VPPTPluginOptions = {}) {
   const opts = {
-    ...defaultOptions,
+    ...DEFAULT_OPTIONS,
     ...options,
   }
 
   validateOptions(opts)
 
+  const cache = new ManifestCache({ watchMode: true })
+
   debug('options:', opts)
 
   let config: ResolvedConfig
-
-  function _isPublicTypescript(filePath: string) {
-    const globalConfig = getGlobalConfig()
-    assert(!!globalConfig)
-    return isPublicTypescript({ filePath, inputDir: globalConfig.inputDir, root: globalConfig.config.root })
-  }
 
   const plugins: PluginOption = [
     {
@@ -105,14 +110,17 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
           absolute: true,
         })
 
-        setGlobalConfig({
+        const cacheProcessor = initCacheProcessor(opts.buildDestination)
+
+        globalConfigBuilder.init({
           cache,
           filesGlob,
           config,
+          cacheProcessor,
           ...opts,
         })
 
-        cache.setManifestPath(normalizePath(`${getGlobalConfig().absInputDir}/${opts.manifestName}.json`))
+        cache.setManifestPath(normalizePath(`${globalConfigBuilder.get().absInputDir}/${opts.manifestName}.json`))
 
         debug('cache manifestPath:', cache.getManifestPath())
 
@@ -126,7 +134,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
         }
 
         try {
-          const watcher = new Watcher(getGlobalConfig().absInputDir, {
+          const watcher = new Watcher(globalConfigBuilder.get().absInputDir, {
             ignoreInitial: true,
             recursive: true,
             renameDetection: true,
@@ -138,7 +146,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
             if (_isPublicTypescript(filePath)) {
               const fileName = path.parse(filePath).name
               debug('unlink:', fileName)
-              await deleteOldJsFile({ fileName })
+              await globalConfigBuilder.get().cacheProcessor.deleteOldJs({ fileName })
               reloadPage(ws)
             }
           }
@@ -185,15 +193,16 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
         fs.ensureFileSync(manifestPath)
 
-        const parsedCacheJson = cache.readCacheFromFile()
+        const parsedCacheJson = cache.readManifestFromFile()
 
         debug('buildStart - parsedCacheJson:', parsedCacheJson)
 
         if (isEmptyObject(parsedCacheJson)) {
+          // write empty json object to manifest.json
           await cache.writeManifestJSON()
         }
 
-        const { filesGlob } = getGlobalConfig()
+        const { filesGlob } = globalConfigBuilder.get()
 
         const fileNames = filesGlob.map((file) => path.parse(file).name)
 
@@ -204,19 +213,10 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
           const keys = Object.keys(parsedCacheJson)
           keys.forEach((key) => {
             if (fileNames.includes(key)) {
-              cache.setCache(
-                {
-                  key,
-                  value: parsedCacheJson[key],
-                },
-                { disableWatch: true },
-              )
+              cache.setCache({ [key]: parsedCacheJson[key] }, { disableWatch: true })
             } else {
-              cache.setCache({
-                key,
-                value: parsedCacheJson[key],
-              })
-              deleteOldJsFile({ fileName: key, force: true })
+              cache.setCache({ [key]: parsedCacheJson[key] })
+              globalConfigBuilder.get().cacheProcessor.deleteOldJs({ fileName: key, force: true })
             }
           })
         }
@@ -224,17 +224,13 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
         debug('buildStart - cache:', cache.getAll())
 
         filesGlob.forEach((f) => {
-          build({
-            filePath: f,
-          })
+          build({ filePath: f })
         })
       },
       async handleHotUpdate(ctx) {
         if (_isPublicTypescript(ctx.file)) {
           debug('hmr:', ctx.file)
-          await build({
-            filePath: ctx.file,
-          })
+          await build({ filePath: ctx.file })
           reloadPage(ctx.server.ws)
           return []
         }
