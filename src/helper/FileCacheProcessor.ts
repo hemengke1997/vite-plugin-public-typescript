@@ -5,8 +5,8 @@ import { normalizePath } from 'vite'
 import createDebug from 'debug'
 import { assert } from './assert'
 import { globalConfigBuilder } from './GlobalConfigBuilder'
-import type { IAddFile, IDeleteFile } from './AbsCacheProcessor'
 import { AbsCacheProcessor } from './AbsCacheProcessor'
+import type { IAddFile, IDeleteFile } from './AbsCacheProcessor'
 import { writeFile } from './utils'
 
 const debug = createDebug('FileCacheProcessor ===> ')
@@ -24,6 +24,7 @@ export class FileCacheProcessor extends AbsCacheProcessor {
     let oldFiles: string[] = []
     try {
       fs.ensureDirSync(path.join(publicDir, outputDir))
+
       oldFiles = await glob(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
     } catch (e) {
       console.error(e)
@@ -33,6 +34,8 @@ export class FileCacheProcessor extends AbsCacheProcessor {
 
     assert(Array.isArray(oldFiles))
 
+    debug('cache:', cache.get())
+
     if (oldFiles.length) {
       for (const f of oldFiles) {
         if (path.parse(f).name === jsFileName) {
@@ -40,8 +43,9 @@ export class FileCacheProcessor extends AbsCacheProcessor {
           continue
         } // skip repeat js file
         if (fs.existsSync(f)) {
-          if (cache.getCache(fileName) || force) {
-            cache.removeCache(fileName)
+          debug('deleteOldJsFile - file exists:', f, fileName)
+          if (cache.getByKey(fileName) || force) {
+            cache.remove(fileName)
             debug('deleteOldJsFile - cache removed:', fileName)
             fs.remove(f)
             debug('deleteOldJsFile -file removed:', f)
@@ -49,35 +53,23 @@ export class FileCacheProcessor extends AbsCacheProcessor {
         }
       }
     } else if (force) {
-      cache.removeCache(fileName)
+      cache.remove(fileName)
       debug('cache force removed:', fileName)
     }
   }
 
   async addNewJs(args: IAddFile): Promise<void> {
-    const { contentHash, code = '', fileName } = args
+    const { code = '' } = args
     const {
-      cache,
-      outputDir,
       config: { publicDir },
     } = globalConfigBuilder.get()
 
-    let outPath = normalizePath(`${outputDir}/${fileName}.js`)
-    if (contentHash) {
-      outPath = normalizePath(`${outputDir}/${fileName}.${contentHash}.js`)
-    }
+    const outPath = this.setCache(args, globalConfigBuilder.get())
 
     const fp = normalizePath(path.join(publicDir, outPath))
+
     await fs.ensureDir(path.dirname(fp))
 
     writeFile(fp, code)
-
-    cache.setCache({
-      [fileName]: {
-        path: outPath,
-      },
-    })
-
-    debug('addJsFile cache seted:', fileName, outPath)
   }
 }

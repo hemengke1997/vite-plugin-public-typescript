@@ -1,6 +1,6 @@
 import fs from 'fs/promises'
 import express from 'express'
-import manifest from './publicTypescript/custom-manifest.json' assert { type: 'json' }
+import manifest from './public-typescript/manifest.json' assert { type: 'json' }
 
 // Constants
 const isProduction = process.env.NODE_ENV === 'production'

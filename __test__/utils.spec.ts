@@ -9,7 +9,7 @@ import {
   setEol,
   validateOptions,
 } from '../src/helper/utils'
-import { getGlobalConfig, setGlobalConfig } from '../src/helper/GlobalConfigBuilder'
+import { globalConfigBuilder } from '../src/helper/GlobalConfigBuilder'
 
 describe('vite-plugin-public-typescript', () => {
   it('should return true when filePath is a public typescript file', () => {
@@ -70,14 +70,8 @@ describe('vite-plugin-public-typescript', () => {
     expect(a).toBe(b)
   })
 
-  test('should getGlobalConfig throw error', () => {
-    expect(() => getGlobalConfig()).toThrowError('init')
-  })
-
   test('should get globalConfig', () => {
-    // @ts-expect-error
-    setGlobalConfig({ config: { publicDir: 'public' }, inputDir: 'publicTypescript' })
-    expect(() => getGlobalConfig()).not.toThrowError()
+    expect(() => globalConfigBuilder.get()).not.toThrowError()
   })
 
   test('should extract hash', () => {
@@ -96,22 +90,9 @@ describe('vite-plugin-public-typescript', () => {
       ssrBuild: false,
       esbuildOptions: {},
       sideEffects: false,
-    }
+      destination: 'file',
+    } as const
 
     expect(() => validateOptions(opts)).not.toThrowError()
-  })
-
-  test('should validate options throw error', () => {
-    const opts = {
-      inputDir: '/publicTypescript/foo',
-      outputDir: 'js',
-      manifestName: 'manifest',
-      hash: true,
-      ssrBuild: false,
-      esbuildOptions: {},
-      sideEffects: false,
-    }
-
-    expect(() => validateOptions(opts)).toThrowError('dir')
   })
 })

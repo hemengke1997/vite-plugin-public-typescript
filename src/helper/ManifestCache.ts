@@ -12,12 +12,8 @@ export interface IManifestConstructor<ValueType = any> {
   onChange?: (path: string, value: ValueType, previousValue: ValueType, applyData: ApplyData) => void
 }
 
-type TCacheValue = {
-  path: string
-  _code?: string
-} & Partial<{ [_key: string]: string }>
-
 /**
+ * @example
  * {
  *   fileName: {
  *    path: '/some-path',
@@ -26,6 +22,12 @@ type TCacheValue = {
  *   }
  * }
  */
+type TCacheValue = {
+  path: string
+  _code?: string
+  _hash?: string
+} & Partial<{ [_key: string]: string }>
+
 type TDefaultCache = {
   [fileName in string]: TCacheValue
 }
@@ -47,11 +49,11 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
     }
   }
 
-  setCache(c: T, opts?: { disableWatch?: boolean }) {
+  set(c: T, opts?: { disableWatch?: boolean }) {
     const keys = Object.keys(c)
 
     keys.forEach((k) => {
-      const cacheV = this.getCache(k)
+      const cacheV = this.getByKey(k)
       if (cacheV !== c[k]) {
         if (opts?.disableWatch) {
           ;(onChange.target(this.cache) as TDefaultCache)[k] = c[k]
@@ -64,18 +66,18 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
     return this
   }
 
-  getCache(k: keyof T) {
+  getByKey(k: keyof T) {
     return this.cache[k]
   }
 
-  removeCache(k: keyof T) {
+  remove(k: keyof T) {
     if (this.cache[k]) {
       delete this.cache[k]
     }
     return this
   }
 
-  getAll() {
+  get() {
     return Object.assign({}, this.cache)
   }
 
@@ -96,7 +98,7 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
     return this.manifestPath
   }
 
-  private extractPath(c: T) {
+  extractPath(c: T) {
     const cache = Object.assign({}, c)
     const pathOnlyCache: Record<string, string> = {}
     for (const key in cache) {
@@ -107,16 +109,19 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
 
   async writeManifestJSON() {
     const targetPath = this.getManifestPath()
-    const cacheObj = this.extractPath(this.getAll())
-    const orderdCache = Object.assign({}, cacheObj)
 
     await fs.ensureDir(path.dirname(targetPath))
+
+    const cacheObj = this.extractPath(this.get())
+    const orderdCache = Object.assign({}, cacheObj)
 
     const parsedCache = this.readManifestFromFile()
 
     if (!isEmptyObject(parsedCache) && eq(parsedCache, orderdCache)) {
       return
     }
+
+    debug('write manifest json:', JSON.stringify(orderdCache || {}, null, 2))
     writeFile(targetPath, JSON.stringify(orderdCache || {}, null, 2))
   }
 }

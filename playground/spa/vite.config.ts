@@ -1,18 +1,11 @@
-import path from 'path'
 import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 import react from '@vitejs/plugin-react'
-import glob from 'tiny-glob'
-import manifest from './publicTypescript/manifest.json'
+import manifest from './public-typescript/manifest.json'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  build: {
-    rollupOptions: {
-      external: ['virtual:my-module'],
-    },
-  },
   define: {
     haha: JSON.stringify('custom define!'),
     app: JSON.stringify({ hello: 'world' }),
@@ -20,26 +13,25 @@ export default defineConfig({
   plugins: [
     react(),
     publicTypescript({
-      inputDir: 'publicTypescript',
+      inputDir: 'public-typescript',
       manifestName: 'manifest',
       hash: true,
-      outputDir: '/',
-      buildDestination: 'memory',
+      outputDir: '/js',
+      destination: 'memory',
     }),
 
     {
       name: 'add-script',
       async transformIndexHtml(html) {
-        const scripts = await glob('./public/*.js')
-        const tags: HtmlTagDescriptor[] = scripts.map((s) => {
-          return {
+        const tags: HtmlTagDescriptor[] = [
+          {
             tag: 'script',
             attrs: {
-              src: manifest[path.parse(s).name.split('.')[0]],
+              src: manifest.test,
             },
-            injectTo: 'head-prepend',
-          }
-        })
+            injectTo: 'body',
+          },
+        ]
 
         return {
           html,

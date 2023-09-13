@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import manifest from '../publicTypescript/manifest.json'
+import manifest from '../public-typescript/manifest.json'
 import reactLogo from './assets/react.svg'
 import './App.css'
 

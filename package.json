@@ -50,6 +50,7 @@
     "esbuild": "^0.17.12",
     "fs-extra": "^11.1.1",
     "on-change": "^4.0.2",
+    "sirv": "^2.0.3",
     "tiny-glob": "^0.2.9",
     "watcher": "^2.2.2"
   },

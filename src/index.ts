@@ -1,12 +1,20 @@
 import path from 'path'
 import type { PluginOption, ResolvedConfig } from 'vite'
-import { normalizePath } from 'vite'
+import { normalizePath, send } from 'vite'
 import glob from 'tiny-glob'
 import type { BuildOptions } from 'esbuild'
 import Watcher from 'watcher'
 import fs from 'fs-extra'
 import createDebug from 'debug'
-import { TS_EXT, _isPublicTypescript, eq, isEmptyObject, reloadPage, validateOptions } from './helper/utils'
+import {
+  TS_EXT,
+  _isPublicTypescript,
+  eq,
+  isEmptyObject,
+  normalizeDirPath,
+  reloadPage,
+  validateOptions,
+} from './helper/utils'
 import { build, esbuildTypescript } from './helper/build'
 import { assert } from './helper/assert'
 import { globalConfigBuilder } from './helper/GlobalConfigBuilder'
@@ -17,19 +25,20 @@ const debug = createDebug('index ===> ')
 
 export interface VPPTPluginOptions {
   /**
-   * @description vite ssrBuild
-   * @see https://vitejs.dev/config/#conditional-config
-   * @default false
-   */
-  ssrBuild?: boolean | undefined
-  /**
    * @description input public typescript dir
-   * @default 'publicTypescript'
+   * @default 'public-typescript'
    */
   inputDir?: string
   /**
-   * @description output public javascript dir, relative to `publicDir`
-   * @note outputDir should start with '/'
+   * @description output public javascript dir after build
+   * @note relative with vite.config.ts `publicDir`
+   * @example
+   * ```ts
+   * // vite.config.ts
+   * export default defineConfig({
+   *  publicDir: 'some-public-dir', // outputDir will be '/some-public-dir'
+   * })
+   * ```
    * @default '/'
    */
   outputDir?: string
@@ -58,26 +67,29 @@ export interface VPPTPluginOptions {
    * @default false
    */
   sideEffects?: boolean
-
   /**
-   * @description build output type
-   * @default 'file'
+   * @description vite ssrBuild
+   * @see https://vitejs.dev/config/#conditional-config
+   * @default false
    */
-  buildDestination?: 'file' | 'memory'
+  ssrBuild?: boolean | undefined
+  destination?: 'file' | 'memory'
 }
 
 export const DEFAULT_OPTIONS: Required<VPPTPluginOptions> = {
-  inputDir: 'publicTypescript',
+  inputDir: 'public-typescript',
   outputDir: '/',
   manifestName: 'manifest',
   hash: true,
   ssrBuild: false,
   esbuildOptions: {},
   sideEffects: false,
-  buildDestination: 'file',
+  destination: 'memory',
 }
 
 let previousOpts: VPPTPluginOptions
+
+const cache = new ManifestCache({ watchMode: true })
 
 export function publicTypescript(options: VPPTPluginOptions = {}) {
   const opts = {
@@ -87,8 +99,6 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
   validateOptions(opts)
 
-  const cache = new ManifestCache({ watchMode: true })
-
   debug('options:', opts)
 
   let config: ResolvedConfig
@@ -96,21 +106,24 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
   const plugins: PluginOption = [
     {
       name: 'vite:public-typescript',
+
       async configResolved(c) {
         config = c
 
+        const resolvedRoot = normalizePath(config.root ? path.resolve(config.root) : process.cwd())
+
         function getInputDir(suffix = '') {
-          return normalizePath(path.resolve(config.root, `${opts.inputDir}${suffix}`))
+          return normalizePath(path.resolve(resolvedRoot, `${opts.inputDir}${suffix}`))
         }
 
         fs.ensureDirSync(getInputDir())
 
         const filesGlob = await glob(getInputDir(`/*${TS_EXT}`), {
-          cwd: config.root,
+          cwd: resolvedRoot,
           absolute: true,
         })
 
-        const cacheProcessor = initCacheProcessor(opts.buildDestination)
+        const cacheProcessor = initCacheProcessor(opts.destination)
 
         globalConfigBuilder.init({
           cache,
@@ -209,23 +222,39 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
         debug('buildStart - filesGlob:', filesGlob)
         debug('buildStart - fileNames:', fileNames)
 
-        if (!isEmptyObject(parsedCacheJson)) {
-          const keys = Object.keys(parsedCacheJson)
-          keys.forEach((key) => {
-            if (fileNames.includes(key)) {
-              cache.setCache({ [key]: parsedCacheJson[key] }, { disableWatch: true })
-            } else {
-              cache.setCache({ [key]: parsedCacheJson[key] })
-              globalConfigBuilder.get().cacheProcessor.deleteOldJs({ fileName: key, force: true })
-            }
-          })
+        if (opts.destination === 'file') {
+          if (!isEmptyObject(parsedCacheJson)) {
+            const keys = Object.keys(parsedCacheJson)
+            keys.forEach((key) => {
+              if (fileNames.includes(key)) {
+                cache.set({ [key]: parsedCacheJson[key] }, { disableWatch: true })
+              } else {
+                cache.set({ [key]: parsedCacheJson[key] })
+                globalConfigBuilder.get().cacheProcessor.deleteOldJs({ fileName: key, force: true })
+              }
+            })
+          }
         }
-
-        debug('buildStart - cache:', cache.getAll())
 
         filesGlob.forEach((f) => {
           build({ filePath: f })
         })
+      },
+      generateBundle() {
+        if (opts.ssrBuild || config.build.ssr) {
+          return
+        }
+
+        if (opts.destination === 'memory') {
+          const c = cache.get()
+          Object.keys(c).forEach((key) => {
+            this.emitFile({
+              type: 'asset',
+              fileName: normalizeDirPath(`${c[key].path}`),
+              source: c[key]._code,
+            })
+          })
+        }
       },
       async handleHotUpdate(ctx) {
         if (_isPublicTypescript(ctx.file)) {
@@ -234,6 +263,35 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
           reloadPage(ctx.server.ws)
           return []
         }
+      },
+    },
+    {
+      name: 'vite:public-typescript-server',
+      enforce: 'post',
+      apply: 'serve',
+      configureServer(server) {
+        function addHeader(code: string) {
+          return `// gen via vite-plugin-public-typescript (only show in serve mode);
+          ${code}`
+        }
+        server.middlewares.use((req, res, next) => {
+          try {
+            if (req?.url?.endsWith('.js')) {
+              const c = cache.get()
+              const fileName = path.basename(req.url).split('.')[0]
+              if (fileName && c[fileName]) {
+                return send(req, res, addHeader(c[fileName]._code || ''), 'js', {
+                  cacheControl: 'no-cache',
+                  headers: server.config.server.headers,
+                  map: null,
+                })
+              }
+            }
+          } catch (e) {
+            return next(e)
+          }
+          next()
+        })
       },
     },
   ]

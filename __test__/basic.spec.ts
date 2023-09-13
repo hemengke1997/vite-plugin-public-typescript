@@ -28,8 +28,16 @@ vi.mock('fs-extra', async () => {
 
 function initCache() {
   const cache = new ManifestCache()
-  cache.setCache({ key: 'name', value: 'value' })
-  cache.setCache({ key: 'typescript', value: 'powerful' })
+  cache.set({
+    x: {
+      path: 'x.js',
+      _code: 'console.log("x")',
+    },
+    y: {
+      path: 'y.js',
+      _code: 'console.log("y")',
+    },
+  })
   return cache
 }
 
@@ -70,17 +78,17 @@ afterEach((ctx) => {
 
 describe('manifestCache', () => {
   test('should set cache and get cache right', ({ cache }) => {
-    expect(cache.getCache('name')).toBe('value')
+    expect(cache.getByKey('x')).toStrictEqual({ path: 'x.js', _code: 'console.log("x")' })
   })
 
   test('should remove cache', ({ cache }) => {
-    cache.removeCache('name')
+    cache.remove('x')
 
-    expect(cache.getCache('name')).toBeFalsy()
+    expect(cache.getByKey('x')).toBeFalsy()
   })
 
   test('should get all', ({ cache }) => {
-    const v = cache.getAll()
+    const v = cache.get()
     expect(Object.keys(v).length === 2).toBe(true)
   })
 
@@ -102,7 +110,7 @@ describe('manifestCache', () => {
     {
       const content = fs.readFileSync(manifestPath, 'utf-8')
       const c = initCache()
-      expect(eq(JSON.parse(content), c.getAll())).toBe(true)
+      expect(eq(JSON.parse(content), c.extractPath(c.get()))).toBe(true)
     }
   })
 })

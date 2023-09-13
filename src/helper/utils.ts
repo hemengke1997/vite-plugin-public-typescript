@@ -133,25 +133,33 @@ export function extractHashFromFileName(filename: string, hash: VPPTPluginOption
 }
 
 export function validateOptions(options: Required<VPPTPluginOptions>) {
-  const { outputDir } = options
+  let { outputDir } = options
   // ensure outputDir is Dir
-  if (!/^\/([a-zA-Z0-9]+\/)*[a-zA-Z0-9]*$/.test(outputDir)) {
-    throw new Error(`outputDir must be a directory, but got ${outputDir}`)
+  if (!outputDir.startsWith('/')) {
+    outputDir = `/${outputDir}`
   } else {
     if (outputDir.length > 1 && outputDir.endsWith('/')) {
       // remove last slash
       options.outputDir = outputDir.replace(/\/$/, '')
     }
   }
+  options.outputDir = outputDir
 
   // ensure inputDir is Dir
   const { inputDir } = options
-  if (!/^([a-zA-Z0-9]+\/)*[a-zA-Z0-9]*$/.test(inputDir)) {
-    throw new Error(`inputDir must be a directory, but got ${inputDir}`)
-  } else {
-    if (inputDir.endsWith('/')) {
-      // remove last slash
-      options.inputDir = inputDir.replace(/\/$/, '')
-    }
+  if (inputDir.endsWith('/')) {
+    // remove last slash
+    options.inputDir = inputDir.replace(/\/$/, '')
   }
+}
+
+// normalize dir path
+export function normalizeDirPath(dir: string) {
+  if (dir.startsWith('/')) {
+    dir = dir.slice(1)
+  }
+  if (dir.endsWith('/')) {
+    dir = dir.slice(0, -1)
+  }
+  return dir
 }

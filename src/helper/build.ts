@@ -111,8 +111,6 @@ export async function build(options: { filePath: string }) {
 
   const code = await esbuildTypescript({ filePath, ...globalConfig })
 
-  debug('cacheManifest:', globalConfig.cache.getAll())
-
   if (globalConfig.hash) {
     contentHash = getContentHash(code, globalConfig.hash)
     fileNameWithHash = `${fileName}.${contentHash}`
@@ -121,4 +119,6 @@ export async function build(options: { filePath: string }) {
   await globalConfig.cacheProcessor.deleteOldJs({ fileName, jsFileName: fileNameWithHash })
 
   await globalConfig.cacheProcessor.addNewJs({ code, fileName, contentHash })
+
+  debug('cacheManifest:', globalConfig.cache.get())
 }
