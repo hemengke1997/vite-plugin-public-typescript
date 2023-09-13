@@ -1,3 +1,12 @@
+## [1.4.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.4.0...v1.4.1) (2023-09-13)
+
+
+### Bug Fixes
+
+* vite load js error ([4effcbd](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/4effcbd6d98652d457170f6ba2ae9a1813b1f989))
+
+
+
 # [1.4.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.3.3...v1.4.0) (2023-09-13)
 
 
