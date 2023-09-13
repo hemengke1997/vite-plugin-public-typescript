@@ -22,13 +22,13 @@ export interface IManifestConstructor<ValueType = any> {
  *   }
  * }
  */
-type TCacheValue = {
+export type TCacheValue = {
   path: string
   _code?: string
   _hash?: string
 } & Partial<{ [_key: string]: string }>
 
-type TDefaultCache = {
+export type TDefaultCache = {
   [fileName in string]: TCacheValue
 }
 

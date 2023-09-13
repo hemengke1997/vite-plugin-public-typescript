@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "debug": "cross-env DEBUG='MemoryCacheProcessor*,index*,ManifestCache*' vite",
+    "debug": "cross-env DEBUG=vite* vite",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -14,12 +14,13 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11",
-    "@vitejs/plugin-react": "^3.1.0",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.4",
     "cross-env": "^7.0.3",
     "typescript": "^4.9.5",
-    "vite": "4.2.1",
+    "vite": "4.4.9",
+    "vite-plugin-html": "^3.2.0",
     "vite-plugin-public-typescript": "workspace:*"
   }
 }

@@ -9,7 +9,9 @@ import createDebug from 'debug'
 import {
   TS_EXT,
   _isPublicTypescript,
+  addCodeHeader,
   eq,
+  findCacheItemByPath,
   isEmptyObject,
   normalizeDirPath,
   reloadPage,
@@ -267,20 +269,28 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
     },
     {
       name: 'vite:public-typescript-server',
-      enforce: 'post',
       apply: 'serve',
-      configureServer(server) {
-        function addHeader(code: string) {
-          return `// gen via vite-plugin-public-typescript (only show in serve mode);
-          ${code}`
+      enforce: 'post',
+      load(id) {
+        const c = cache.get()
+
+        const cacheItem = findCacheItemByPath(c, id)
+
+        if (cacheItem) {
+          return {
+            code: addCodeHeader(cacheItem._code || ''),
+            map: null,
+          }
         }
+      },
+      async configureServer(server) {
         server.middlewares.use((req, res, next) => {
           try {
-            if (req?.url?.endsWith('.js')) {
+            if (req?.url?.endsWith('.js') && req.url.startsWith('/')) {
               const c = cache.get()
-              const fileName = path.basename(req.url).split('.')[0]
-              if (fileName && c[fileName]) {
-                return send(req, res, addHeader(c[fileName]._code || ''), 'js', {
+              const cacheItem = findCacheItemByPath(c, req.url)
+              if (cacheItem) {
+                return send(req, res, addCodeHeader(cacheItem._code || ''), 'js', {
                   cacheControl: 'no-cache',
                   headers: server.config.server.headers,
                   map: null,

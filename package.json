@@ -39,6 +39,7 @@
     "lint": "eslint .",
     "preinstall": "npx only-allow pnpm",
     "up": "pnpm update --i --L",
+    "taze": "taze -I -r -w",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "bump": "bumpp package.json -c --all -p -t"
   },
@@ -65,6 +66,7 @@
     "conventional-changelog-cli": "^2.2.2",
     "eslint": "^8.49.0",
     "mock-fs": "^5.2.0",
+    "taze": "^0.11.2",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",

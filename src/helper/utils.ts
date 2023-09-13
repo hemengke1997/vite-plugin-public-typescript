@@ -7,6 +7,7 @@ import createDebug from 'debug'
 import type { VPPTPluginOptions } from '..'
 import { globalConfigBuilder } from './GlobalConfigBuilder'
 import { assert } from './assert'
+import type { TDefaultCache } from './ManifestCache'
 
 const debug = createDebug('util ===> ')
 
@@ -162,4 +163,19 @@ export function normalizeDirPath(dir: string) {
     dir = dir.slice(0, -1)
   }
   return dir
+}
+
+export function findCacheItemByPath(cache: TDefaultCache, id: string) {
+  const k = Object.keys(cache).find((key) => {
+    if (cache[key].path === id) {
+      return true
+    }
+    return false
+  })
+  return k ? cache[k] : null
+}
+
+export function addCodeHeader(code: string) {
+  return `// gen via vite-plugin-public-typescript (only show in serve mode);
+  ${code}`
 }
