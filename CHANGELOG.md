@@ -1,3 +1,12 @@
+# [1.4.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.3.3...v1.4.0) (2023-09-13)
+
+
+### Features
+
+* support memory destination ([b5c2c23](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/b5c2c235fc15224afefec46b166700645a629602))
+
+
+
 ## [1.3.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.3.2...v1.3.3) (2023-04-04)
 
 
