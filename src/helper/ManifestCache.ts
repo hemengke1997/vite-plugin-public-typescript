@@ -5,7 +5,7 @@ import onChange from 'on-change'
 import createDebug from 'debug'
 import { eq, isEmptyObject, writeFile } from './utils'
 
-const debug = createDebug('ManifestCache ===> ')
+const debug = createDebug('vite-plugin-public-typescript:ManifestCache ===> ')
 
 export interface IManifestConstructor<ValueType = any> {
   watchMode?: boolean

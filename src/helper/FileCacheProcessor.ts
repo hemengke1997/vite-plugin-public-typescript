@@ -11,6 +11,8 @@ import { writeFile } from './utils'
 
 const debug = createDebug('FileCacheProcessor ===> ')
 
+// file-based processor
+// the final output dir is base on `publicDir`
 export class FileCacheProcessor extends AbsCacheProcessor {
   async deleteOldJs(args: IDeleteFile): Promise<void> {
     const { fileName, jsFileName = '', force = false } = args
@@ -18,7 +20,7 @@ export class FileCacheProcessor extends AbsCacheProcessor {
     const {
       outputDir,
       cache,
-      config: { publicDir },
+      viteConfig: { publicDir },
     } = globalConfigBuilder.get()
 
     let oldFiles: string[] = []
@@ -61,7 +63,7 @@ export class FileCacheProcessor extends AbsCacheProcessor {
   async addNewJs(args: IAddFile): Promise<void> {
     const { code = '' } = args
     const {
-      config: { publicDir },
+      viteConfig: { publicDir },
     } = globalConfigBuilder.get()
 
     const outPath = this.setCache(args, globalConfigBuilder.get())

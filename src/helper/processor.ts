@@ -3,8 +3,8 @@ import type { AbsCacheProcessor } from './AbsCacheProcessor'
 import { FileCacheProcessor } from './FileCacheProcessor'
 import { MemoryCacheProcessor } from './MemoryCacheProcessor'
 
-export function initCacheProcessor(destination: VPPTPluginOptions['destination']): AbsCacheProcessor {
-  switch (destination) {
+export function initCacheProcessor(options: Required<VPPTPluginOptions>): AbsCacheProcessor {
+  switch (options.destination) {
     case 'file':
       return new FileCacheProcessor()
     case 'memory':

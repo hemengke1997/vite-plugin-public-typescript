@@ -12,6 +12,7 @@ import {
   addCodeHeader,
   eq,
   findCacheItemByPath,
+  getInputDir,
   isEmptyObject,
   normalizeDirPath,
   reloadPage,
@@ -23,7 +24,7 @@ import { globalConfigBuilder } from './helper/GlobalConfigBuilder'
 import { initCacheProcessor } from './helper/processor'
 import { ManifestCache } from './helper/ManifestCache'
 
-const debug = createDebug('index ===> ')
+const debug = createDebug('vite-plugin-public-typescript:index ===> ')
 
 export interface VPPTPluginOptions {
   /**
@@ -103,34 +104,30 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
   debug('options:', opts)
 
-  let config: ResolvedConfig
+  let viteConfig: ResolvedConfig
 
   const plugins: PluginOption = [
     {
       name: 'vite:public-typescript',
 
       async configResolved(c) {
-        config = c
+        viteConfig = c
 
-        const resolvedRoot = normalizePath(config.root ? path.resolve(config.root) : process.cwd())
+        const resolvedRoot = normalizePath(viteConfig.root ? path.resolve(viteConfig.root) : process.cwd())
 
-        function getInputDir(suffix = '') {
-          return normalizePath(path.resolve(resolvedRoot, `${opts.inputDir}${suffix}`))
-        }
+        fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
 
-        fs.ensureDirSync(getInputDir())
-
-        const filesGlob = await glob(getInputDir(`/*${TS_EXT}`), {
+        const tsFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*${TS_EXT}`), {
           cwd: resolvedRoot,
           absolute: true,
         })
 
-        const cacheProcessor = initCacheProcessor(opts.destination)
+        const cacheProcessor = initCacheProcessor(opts)
 
         globalConfigBuilder.init({
           cache,
-          filesGlob,
-          config,
+          tsFilesGlob,
+          viteConfig,
           cacheProcessor,
           ...opts,
         })
@@ -194,7 +191,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
         }
       },
       async buildStart() {
-        if (opts.ssrBuild || config.build.ssr) {
+        if (opts.ssrBuild || viteConfig.build.ssr) {
           return
         }
 
@@ -217,11 +214,11 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
           await cache.writeManifestJSON()
         }
 
-        const { filesGlob } = globalConfigBuilder.get()
+        const { tsFilesGlob } = globalConfigBuilder.get()
 
-        const fileNames = filesGlob.map((file) => path.parse(file).name)
+        const fileNames = tsFilesGlob.map((file) => path.parse(file).name)
 
-        debug('buildStart - filesGlob:', filesGlob)
+        debug('buildStart - tsFilesGlob:', tsFilesGlob)
         debug('buildStart - fileNames:', fileNames)
 
         if (opts.destination === 'file') {
@@ -238,12 +235,12 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
           }
         }
 
-        filesGlob.forEach((f) => {
+        tsFilesGlob.forEach((f) => {
           build({ filePath: f })
         })
       },
       generateBundle() {
-        if (opts.ssrBuild || config.build.ssr) {
+        if (opts.ssrBuild || viteConfig.build.ssr) {
           return
         }
 

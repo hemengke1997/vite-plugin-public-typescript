@@ -8,7 +8,7 @@ import { name } from '../../package.json'
 import { globalConfigBuilder } from './GlobalConfigBuilder'
 import { getContentHash } from './utils'
 
-const debug = createDebug('build ===> ')
+const debug = createDebug('vite-plugin-public-typescript:build ===> ')
 
 const noSideEffectsPlugin: Plugin = {
   name: 'no-side-effects',
@@ -29,26 +29,26 @@ const noSideEffectsPlugin: Plugin = {
   },
 }
 
-function transformEnvToDefine(config: ResolvedConfig) {
+function transformEnvToDefine(viteConfig: ResolvedConfig) {
   const importMetaKeys: Record<string, string> = {}
   const defineKeys: Record<string, string> = {}
   const env: Record<string, any> = {
-    ...config.env,
-    SSR: !!config.build.ssr,
+    ...viteConfig.env,
+    SSR: !!viteConfig.build.ssr,
   }
 
   for (const key in env) {
     importMetaKeys[`import.meta.env.${key}`] = JSON.stringify(env[key])
   }
 
-  for (const key in config.define) {
-    const c = config.define[key]
+  for (const key in viteConfig.define) {
+    const c = viteConfig.define[key]
 
-    defineKeys[key] = typeof c === 'string' ? c : JSON.stringify(config.define[key])
+    defineKeys[key] = typeof c === 'string' ? c : JSON.stringify(viteConfig.define[key])
   }
 
   return {
-    'import.meta.env': JSON.stringify(config.env),
+    'import.meta.env': JSON.stringify(viteConfig.env),
     'import.meta.hot': 'false',
     ...importMetaKeys,
     ...defineKeys,
@@ -57,17 +57,17 @@ function transformEnvToDefine(config: ResolvedConfig) {
 
 type IBuildOptions = {
   filePath: string
-  config: ResolvedConfig
+  viteConfig: ResolvedConfig
 } & Required<VPPTPluginOptions>
 
 export async function esbuildTypescript(buildOptions: IBuildOptions) {
-  const { filePath, esbuildOptions, sideEffects, config } = buildOptions
+  const { filePath, esbuildOptions, sideEffects, viteConfig } = buildOptions
 
   const { plugins = [], ...rest } = esbuildOptions
 
   const esbuildPlugins = sideEffects ? plugins : [noSideEffectsPlugin, ...plugins]
 
-  const define = transformEnvToDefine(config)
+  const define = transformEnvToDefine(viteConfig)
 
   debug('esbuild define:', define)
 

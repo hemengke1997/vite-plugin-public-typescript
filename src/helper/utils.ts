@@ -9,7 +9,7 @@ import { globalConfigBuilder } from './GlobalConfigBuilder'
 import { assert } from './assert'
 import type { TDefaultCache } from './ManifestCache'
 
-const debug = createDebug('util ===> ')
+const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
 export const TS_EXT = '.ts'
 
@@ -32,7 +32,7 @@ export function isPublicTypescript(args: { filePath: string; inputDir: string; r
 export function _isPublicTypescript(filePath: string) {
   const globalConfig = globalConfigBuilder.get()
   assert(!!globalConfig)
-  return isPublicTypescript({ filePath, inputDir: globalConfig.inputDir, root: globalConfig.config.root })
+  return isPublicTypescript({ filePath, inputDir: globalConfig.inputDir, root: globalConfig.viteConfig.root })
 }
 
 export function isWindows() {
@@ -178,4 +178,8 @@ export function findCacheItemByPath(cache: TDefaultCache, id: string) {
 export function addCodeHeader(code: string) {
   return `// gen via vite-plugin-public-typescript (only show in serve mode);
   ${code}`
+}
+
+export function getInputDir(resolvedRoot: string, originInputDir: string, suffix = '') {
+  return normalizePath(path.resolve(resolvedRoot, `${originInputDir}${suffix}`))
 }

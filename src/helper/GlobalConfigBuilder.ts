@@ -4,11 +4,11 @@ import type { VPPTPluginOptions } from '..'
 import type { AbsCacheProcessor } from './AbsCacheProcessor'
 import type { ManifestCache } from './ManifestCache'
 
-type UserConfig =
+export type UserConfig =
   | {
       cache: ManifestCache
-      filesGlob: string[]
-      config: ResolvedConfig
+      tsFilesGlob: string[]
+      viteConfig: ResolvedConfig
       cacheProcessor: AbsCacheProcessor
     } & Required<VPPTPluginOptions>
 
@@ -25,7 +25,7 @@ class GlobalConfigBuilder {
   }
 
   init(c: UserConfig) {
-    const root = c.config.root || process.cwd()
+    const root = c.viteConfig.root || process.cwd()
     const absOutputDir = path.join(root, c.outputDir)
     const absInputDir = path.join(root, c.inputDir)
     this.globalConfig = {

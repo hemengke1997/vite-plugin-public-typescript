@@ -25,19 +25,19 @@ export abstract class AbsCacheProcessor {
       return normalizePath(`${p}/${fileName}${hash}.js`)
     }
 
-    let outPath = getOutputPath(outputDir)
+    let outputPath = getOutputPath(outputDir)
     if (contentHash) {
-      outPath = getOutputPath(outputDir, contentHash)
+      outputPath = getOutputPath(outputDir, contentHash)
     }
 
     cache.set({
       [fileName]: {
-        path: outPath,
+        path: outputPath,
         _code: code,
         _hash: contentHash,
       },
     })
 
-    return outPath
+    return outputPath
   }
 }
