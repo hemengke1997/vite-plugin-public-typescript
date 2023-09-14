@@ -16,7 +16,6 @@ import {
   getInputDir,
   isEmptyObject,
   normalizeDirPath,
-  reloadPage,
   validateOptions,
 } from './helper/utils'
 import { build, buildAll, esbuildTypescript } from './helper/build'
