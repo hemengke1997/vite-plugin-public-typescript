@@ -12,7 +12,6 @@ import {
   _isPublicTypescript,
   addCodeHeader,
   eq,
-  findCacheItemByPath,
   getInputDir,
   isEmptyObject,
   normalizeDirPath,
@@ -274,7 +273,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
               if (vppt?.value && src?.value) {
                 const c = cache.get()
-                let cacheItem = findCacheItemByPath(c, src.value)
+                let cacheItem = cache.findCacheItemByPath(src.value)
 
                 if (!cacheItem) {
                   const fileName = path.basename(src.value).split('.')[0]
@@ -312,8 +311,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
       apply: 'serve',
       enforce: 'post',
       load(id) {
-        const c = cache.get()
-        const cacheItem = findCacheItemByPath(c, id)
+        const cacheItem = cache.findCacheItemByPath(id)
         if (cacheItem) {
           return {
             code: '',
@@ -325,8 +323,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         server.middlewares.use((req, res, next) => {
           try {
             if (req?.url?.endsWith('.js') && req.url.startsWith('/')) {
-              const c = cache.get()
-              const cacheItem = findCacheItemByPath(c, req.url)
+              const cacheItem = cache.findCacheItemByPath(req.url)
               if (cacheItem) {
                 return send(req, res, addCodeHeader(cacheItem._code || ''), 'js', {
                   cacheControl: 'no-cache',

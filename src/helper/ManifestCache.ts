@@ -180,4 +180,14 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
 
     return orderdCache
   }
+
+  findCacheItemByPath(path: string) {
+    const k = Object.keys(this.cache).find((key) => {
+      if (this.cache[key].path === path) {
+        return true
+      }
+      return false
+    })
+    return k ? this.cache[k] : null
+  }
 }
