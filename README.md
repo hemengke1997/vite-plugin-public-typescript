@@ -2,7 +2,7 @@
 
 ![npm][npm-img]
 
-**中文** | [English](./README.md)
+<!-- **中文** | [English](./README.md) -->
 
 **在vite的运行时或构建时打包指定目录下的typescript文件，供开发者独立使用**
 
@@ -120,14 +120,16 @@ const html = template
 
 ## 配置项
 
-| 参数           | 类型           | 默认值             | 描述                                           |
-| -------------- | -------------- | ------------------ | ---------------------------------------------- |
-| ssrBuild       | `boolean`      | `false`            | 当前打包环境是否是 ssr                         |
-| inputDir       | `string`       | `publicTypescript` | 存放公共 typescript 的目录                     |
-| outputDir      | `string`       | `/`                | 输出公共 javascript 的目录，相对于 `publicDir` |
-| manifestName   | `string`       | `manifest`         | manifest 的文件名                              |
-| hash           | `boolean`      | `true`             | js 是否生成 hash                               |
-| esbuildOptions | `BuildOptions` | `{}`               | esbuild 构建选项                               |
+| 参数           | 类型           | 默认值              | 描述                                           |
+| -------------- | -------------- | ------------------- | ---------------------------------------------- |
+| inputDir       | `string`       | `public-typescript` | 存放需要编译的 `typescript` 的目录             |
+| outputDir      | `string`       | `/`                 | 输出公共 javascript 的目录，相对于 `publicDir` |
+| manifestName   | `string`       | `manifest`          | `manifest` 的文件名                            |
+| hash           | `boolean`      | `true`              | 编译后的 `js` 是否生成 `hash `                 |
+| esbuildOptions | `BuildOptions` | `{}`                | esbuild 构建选项                               |
+| ssrBuild       | `boolean`      | `false`             | 当前打包环境是否是 ssr                         |
+| sideEffects    | `boolean`      | `false`             | 若 `typescript` 文件中有导入第三方库，则开启   |
+| destination    | `string`       | `memory`            | 输出模式：内存模式 \| 文件模式                 |
 
 ## License
 

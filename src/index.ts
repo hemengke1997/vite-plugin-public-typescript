@@ -78,7 +78,11 @@ export interface VPPTPluginOptions {
    * @default false
    */
   ssrBuild?: boolean | undefined
-  destination?: 'file' | 'memory'
+  /**
+   * @description build-out destination
+   * @default 'memory'
+   */
+  destination?: 'memory' | 'file'
 }
 
 export const DEFAULT_OPTIONS: Required<VPPTPluginOptions> = {

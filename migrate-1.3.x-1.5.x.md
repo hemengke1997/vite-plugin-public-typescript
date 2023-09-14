@@ -27,4 +27,10 @@
 `vite-plugin-public-typescript` 的 `sideEffects` 设置为 `true`
 
 ## 参考
+
+### with vite-config
+[playground]([./playground/spa/vite.config.ts](https://github.com/hemengke1997/util/blob/master/playground/spa/vite.config.ts))
+
+
+### only with vite
 [playground](./playground/spa/vite.config.ts)
