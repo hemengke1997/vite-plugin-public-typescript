@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-public-typescript",
   "type": "module",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "A vite plugin that compiles typescript to javascript for direct use in the browser. 编译typescript至javascript，供浏览器直接使用",
   "author": "hemengke <https://github.com/hemengke1997>",
   "license": "MIT",

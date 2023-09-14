@@ -1,3 +1,12 @@
+# [1.5.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.4.1...v1.5.0) (2023-09-14)
+
+
+### Features
+
+* export `inject-script` plugin ([e6f96ac](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e6f96ac75261ea3c17035b5ddda26ac74989ac07))
+
+
+
 ## [1.4.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.4.0...v1.4.1) (2023-09-13)
 
 
