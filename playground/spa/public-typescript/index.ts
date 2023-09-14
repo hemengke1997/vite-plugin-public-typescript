@@ -1,3 +1,1 @@
-console.log(import.meta.env, 'env-')
-
-export {}
+console.log(import.meta.env)

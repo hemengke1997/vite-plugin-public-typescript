@@ -7,8 +7,11 @@ import { eq, isEmptyObject, writeFile } from './utils'
 
 const debug = createDebug('vite-plugin-public-typescript:ManifestCache ===> ')
 
+type PathOnlyCache = Record<string, string>
+
 export interface IManifestConstructor<ValueType = any> {
   watchMode?: boolean
+  write?: boolean
   onChange?: (path: string, value: ValueType, previousValue: ValueType, applyData: ApplyData) => void
 }
 
@@ -32,17 +35,31 @@ export type TDefaultCache = {
   [fileName in string]: TCacheValue
 }
 
+const DEFAULT_OPTIONS: IManifestConstructor = {
+  watchMode: true,
+  write: true,
+}
+
 export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
   private cache: T
 
   private manifestPath = ''
 
-  constructor(options?: IManifestConstructor<unknown>) {
+  private inited = false
+
+  constructor(options?: IManifestConstructor) {
+    options = {
+      ...DEFAULT_OPTIONS,
+      ...options,
+    }
+
     if (options?.watchMode) {
-      this.cache = onChange<T>({} as T, async (...args) => {
-        options.onChange?.(...args)
-        await this.writeManifestJSON()
+      this.cache = onChange<T>({} as T, (...args) => {
         debug('cache changed:', this.cache)
+        options!.onChange?.(...args)
+        if (options!.write) {
+          this.writeManifestJSON()
+        }
       })
     } else {
       this.cache = Object.create(null)
@@ -70,10 +87,15 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
     return this.cache[k]
   }
 
-  remove(k: keyof T) {
-    if (this.cache[k]) {
-      delete this.cache[k]
+  remove(k: keyof T, opts?: { disableWatch?: boolean }) {
+    if (opts?.disableWatch) {
+      delete onChange.target(this.cache)[k]
+    } else {
+      if (this.cache[k]) {
+        delete this.cache[k]
+      }
     }
+
     return this
   }
 
@@ -82,6 +104,10 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
   }
 
   readManifestFromFile() {
+    if (!fs.existsSync(this.getManifestPath())) {
+      return {}
+    }
+
     const cacheJson = fs.readFileSync(this.getManifestPath(), 'utf-8')
     if (cacheJson) {
       return JSON.parse(cacheJson)
@@ -92,6 +118,7 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
 
   setManifestPath(p: string) {
     this.manifestPath = p
+    fs.ensureDirSync(path.dirname(p))
   }
 
   getManifestPath() {
@@ -100,19 +127,45 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
 
   extractPath(c: T) {
     const cache = Object.assign({}, c)
-    const pathOnlyCache: Record<string, string> = {}
+    const pathOnlyCache: PathOnlyCache = {}
     for (const key in cache) {
       pathOnlyCache[key] = cache[key].path
     }
     return pathOnlyCache
   }
 
-  async writeManifestJSON() {
+  recoverPath(c: PathOnlyCache) {
+    const cache = Object.assign({}, c)
+    const recoveredCache = {} as TDefaultCache
+    for (const key in cache) {
+      recoveredCache[key] = {
+        path: cache[key],
+        _code: '',
+      }
+    }
+    return recoveredCache as T
+  }
+
+  getManifestJson() {
+    return this.extractPath(this.get())
+  }
+
+  initCacheFromFile() {
+    if (this.inited) return
+    this.inited = true
+
+    const parsedCache = this.readManifestFromFile()
+
+    if (!isEmptyObject(parsedCache)) {
+      const cache = this.recoverPath(parsedCache)
+      this.set(cache, { disableWatch: true })
+    }
+  }
+
+  writeManifestJSON() {
     const targetPath = this.getManifestPath()
 
-    await fs.ensureDir(path.dirname(targetPath))
-
-    const cacheObj = this.extractPath(this.get())
+    const cacheObj = this.getManifestJson()
     const orderdCache = Object.assign({}, cacheObj)
 
     const parsedCache = this.readManifestFromFile()
@@ -121,7 +174,10 @@ export class ManifestCache<T extends TDefaultCache = TDefaultCache> {
       return
     }
 
-    debug('write manifest json:', JSON.stringify(orderdCache || {}, null, 2))
     writeFile(targetPath, JSON.stringify(orderdCache || {}, null, 2))
+
+    debug('write manifest json:', JSON.stringify(orderdCache || {}, null, 2))
+
+    return orderdCache
   }
 }

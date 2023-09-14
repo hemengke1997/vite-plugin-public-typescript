@@ -4,51 +4,63 @@
 
 **中文** | [English](./README.md)
 
-**在vite的运行时或构建时打包指定目录下的typescript文件，供独立使用**
+**在vite的运行时或构建时打包指定目录下的typescript文件，供开发者独立使用**
 
 > 如果你希望项目中所有脚本都使用typescript编写，那么你应该试试此插件
 
 ## 应用场景
 
-- 独立的第三方脚本，如 `sentry`，`google analytics`，百度统计等
+- 独立的第三方脚本，如 `sentry`，`google analytics`，`百度统计` 等
 - 希望在页面完全加载前就执行的脚本，如 `modern-flexible` 等
 - 初始化全局函数
 
 ## 功能
 
-- 运行时和构建时，把指定文件夹中的`typescript`文件编译为`javascript`，浏览器可直接使用
-- 输出带有`hash`的js文件，无需担心缓存
+- 运行时和构建时，把指定文件夹中的`typescript`文件编译为`javascript`，供浏览器直接使用
+- 输出带有 `hash` 的js文件，无需担心缓存
 - 自定义编译选项，指定目标浏览器范围，无需担心兼容性
 - 支持vite环境变量
-- 支持`HMR`
+- 支持 `HMR`
 - 生产可用
 
-## Install
+## 安装
 
 ```bash
 pnpm add vite-plugin-public-typescript -D
 ```
 
-## Preview
-
-<img src="./screenshots/ts.gif" />
-
 ## 用法
 
 ```typescript
 import { defineConfig } from 'vite'
-import { publicTypescript } from 'vite-plugin-public-typescript'
+import { publicTypescript, injectScripts } from 'vite-plugin-public-typescript'
+import manifest from './public-typescript/manifest.json'
 
 export default defineConfig({
-  plugins: [publicTypescript()],
+  plugins: [
+    publicTypescript({
+      inputDir: 'public-typescript',
+      manifestName: 'manifest',
+      hash: true,
+      outputDir: '/out',
+      destination: 'memory',
+    }),
+    injectScripts([
+      {
+        attrs: {
+          src: manifest.script,
+        },
+        injectTo: 'head',
+      },
+    ])
+  ]
 })
 ```
 
 
 ### SPA
 
-在 `SPA` 应用中，我们可以通过 vite 的 `transformIndexHtml` hook 注入 script
-你也可以使用 [`vite-plugin-html`](https://github.com/vbenjs/vite-plugin-html)，这会使得注入更加简单
+在 `SPA` 应用中，我们可以通过 `injectScripts` 插件往 `index.html` 中注入 script
 
 完整示例请参考：[spa playground](./playground/spa/vite.config.ts)
 
@@ -57,30 +69,20 @@ export default defineConfig({
 ```typescript
 import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
-import { publicTypescript } from 'vite-plugin-public-typescript'
-import manifest from './publicTypescript/manifest.json'
+import { publicTypescript, injectScripts } from 'vite-plugin-public-typescript'
+import manifest from './public-typescript/manifest.json'
 
 export default defineConfig({
   plugins: [
     publicTypescript(),
-    {
-      name: 'add-script',
-      async transformIndexHtml(html) {
-        const tags: HtmlTagDescriptor[] = [
-          {
-            tag: 'script',
-            attrs: {
-              src: manifest.spa,
-            },
-            injectTo: 'head-prepend',
-          },
-        ]
-        return {
-          html,
-          tags,
-        }
-      },
-    },
+    injectScripts([
+      {
+        attrs: {
+          src: manifest.spa,
+        },
+        injectTo: 'head-prepend',
+      }
+    ])
   ],
 })
 ```
@@ -109,7 +111,7 @@ export default defineConfig({
 #### server.js
 
 ```js
-import manifest from './publicTypescript/custom-manifest.json' assert { type: 'json' }
+import manifest from './public-typescript/custom-manifest.json' assert { type: 'json' }
 
 const html = template
   // inject js

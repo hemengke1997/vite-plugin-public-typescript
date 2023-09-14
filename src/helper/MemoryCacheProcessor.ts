@@ -1,13 +1,16 @@
 import { AbsCacheProcessor } from './AbsCacheProcessor'
 import type { IAddFile, IDeleteFile } from './AbsCacheProcessor'
 import { globalConfigBuilder } from './GlobalConfigBuilder'
+import type { ManifestCache } from './ManifestCache'
 
 export class MemoryCacheProcessor extends AbsCacheProcessor {
-  async deleteOldJs(args: IDeleteFile): Promise<void> {
-    const { fileName } = args
-    const { cache } = globalConfigBuilder.get()
+  constructor(cache: ManifestCache) {
+    super(cache)
+  }
 
-    cache.remove(fileName)
+  async deleteOldJs(args: IDeleteFile): Promise<void> {
+    const { tsFileName, silent } = args
+    this.cache.remove(tsFileName, { disableWatch: silent })
   }
 
   async addNewJs(args: IAddFile): Promise<void> {

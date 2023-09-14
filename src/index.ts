@@ -6,6 +6,7 @@ import type { BuildOptions } from 'esbuild'
 import Watcher from 'watcher'
 import fs from 'fs-extra'
 import createDebug from 'debug'
+import MagicString from 'magic-string'
 import {
   TS_EXT,
   _isPublicTypescript,
@@ -18,11 +19,13 @@ import {
   reloadPage,
   validateOptions,
 } from './helper/utils'
-import { build, esbuildTypescript } from './helper/build'
+import { build, buildAll, esbuildTypescript } from './helper/build'
 import { assert } from './helper/assert'
 import { globalConfigBuilder } from './helper/GlobalConfigBuilder'
 import { initCacheProcessor } from './helper/processor'
 import { ManifestCache } from './helper/ManifestCache'
+import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
+import { injectScripts } from './plugins/inject-script'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
 
@@ -92,9 +95,9 @@ export const DEFAULT_OPTIONS: Required<VPPTPluginOptions> = {
 
 let previousOpts: VPPTPluginOptions
 
-const cache = new ManifestCache({ watchMode: true })
+const cache = new ManifestCache()
 
-export function publicTypescript(options: VPPTPluginOptions = {}) {
+export default function publicTypescript(options: VPPTPluginOptions = {}) {
   const opts = {
     ...DEFAULT_OPTIONS,
     ...options,
@@ -109,7 +112,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
   const plugins: PluginOption = [
     {
       name: 'vite:public-typescript',
-
+      enforce: 'post',
       async configResolved(c) {
         viteConfig = c
 
@@ -122,7 +125,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
           absolute: true,
         })
 
-        const cacheProcessor = initCacheProcessor(opts)
+        const cacheProcessor = initCacheProcessor(opts, cache)
 
         globalConfigBuilder.init({
           cache,
@@ -134,13 +137,15 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
         cache.setManifestPath(normalizePath(`${globalConfigBuilder.get().absInputDir}/${opts.manifestName}.json`))
 
+        cache.initCacheFromFile()
+
         debug('cache manifestPath:', cache.getManifestPath())
+
+        debug('cache:', cache.get())
 
         assert(cache.getManifestPath().includes('.json'))
       },
-      configureServer(server) {
-        const { ws } = server
-
+      configureServer() {
         if (process.env.VITEST || process.env.CI) {
           return
         }
@@ -158,16 +163,20 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
             if (_isPublicTypescript(filePath)) {
               const fileName = path.parse(filePath).name
               debug('unlink:', fileName)
-              await globalConfigBuilder.get().cacheProcessor.deleteOldJs({ fileName })
-              reloadPage(ws)
+              await globalConfigBuilder.get().cacheProcessor.deleteOldJs({ tsFileName: fileName })
+              // TODO: fix hmr
+              // reloadPage(ws)
+              // server.restart()
             }
           }
 
           async function handleFileAdded(filePath: string) {
             if (_isPublicTypescript(filePath)) {
               debug('file added:', filePath)
-              await build({ filePath })
-              reloadPage(ws)
+              await build({ filePath }, (args) => globalConfigBuilder.get().cacheProcessor.onTsBuildEnd(args))
+              // TODO: fix hmr
+              // reloadPage(ws)
+              // server.restart()
             }
           }
 
@@ -211,7 +220,7 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
 
         if (isEmptyObject(parsedCacheJson)) {
           // write empty json object to manifest.json
-          await cache.writeManifestJSON()
+          cache.writeManifestJSON()
         }
 
         const { tsFilesGlob } = globalConfigBuilder.get()
@@ -221,23 +230,15 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
         debug('buildStart - tsFilesGlob:', tsFilesGlob)
         debug('buildStart - fileNames:', fileNames)
 
-        if (opts.destination === 'file') {
-          if (!isEmptyObject(parsedCacheJson)) {
-            const keys = Object.keys(parsedCacheJson)
-            keys.forEach((key) => {
-              if (fileNames.includes(key)) {
-                cache.set({ [key]: parsedCacheJson[key] }, { disableWatch: true })
-              } else {
-                cache.set({ [key]: parsedCacheJson[key] })
-                globalConfigBuilder.get().cacheProcessor.deleteOldJs({ fileName: key, force: true })
-              }
-            })
+        if (opts.destination === 'memory') {
+          // delete output dir
+          const dir = path.join(viteConfig.publicDir, opts.outputDir)
+          if (fs.existsSync(dir)) {
+            fs.removeSync(dir)
           }
         }
 
-        tsFilesGlob.forEach((f) => {
-          build({ filePath: f })
-        })
+        await buildAll(tsFilesGlob)
       },
       generateBundle() {
         if (opts.ssrBuild || viteConfig.build.ssr) {
@@ -255,27 +256,64 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
           })
         }
       },
+      transformIndexHtml: {
+        order: 'post',
+        async handler(html, { filename }) {
+          const s = new MagicString(html)
+
+          await traverseHtml(html, filename, (node) => {
+            if (!nodeIsElement(node)) {
+              return
+            }
+            // script tags
+            if (node.nodeName === 'script') {
+              const { src, vppt } = getScriptInfo(node)
+
+              if (vppt?.value && src?.value) {
+                const c = cache.get()
+                let cacheItem = findCacheItemByPath(c, src.value)
+
+                if (!cacheItem) {
+                  const fileName = path.basename(src.value).split('.')[0]
+                  cacheItem = c[fileName]
+                }
+                if (cacheItem) {
+                  s.update(
+                    node.sourceCodeLocation!.startOffset,
+                    node.sourceCodeLocation!.endOffset,
+                    `<script src="${cacheItem?.path}"></script>`,
+                  )
+                } else {
+                  s.remove(node.sourceCodeLocation!.startOffset, node.sourceCodeLocation!.endOffset)
+                }
+              }
+            }
+          })
+          return s.toString()
+        },
+      },
       async handleHotUpdate(ctx) {
-        if (_isPublicTypescript(ctx.file)) {
-          debug('hmr:', ctx.file)
-          await build({ filePath: ctx.file })
-          reloadPage(ctx.server.ws)
+        const { file } = ctx
+
+        if (_isPublicTypescript(file)) {
+          debug('hmr:', file)
+          await build({ filePath: file }, (args) => globalConfigBuilder.get().cacheProcessor.onTsBuildEnd(args))
+          // TODO: fix hmr
+          // ctx.server.restart()
           return []
         }
       },
     },
     {
-      name: 'vite:public-typescript-server',
+      name: 'vite:public-typescript:server',
       apply: 'serve',
       enforce: 'post',
       load(id) {
         const c = cache.get()
-
         const cacheItem = findCacheItemByPath(c, id)
-
         if (cacheItem) {
           return {
-            code: addCodeHeader(cacheItem._code || ''),
+            code: '',
             map: null,
           }
         }
@@ -307,4 +345,4 @@ export function publicTypescript(options: VPPTPluginOptions = {}) {
   return plugins as any
 }
 
-export { esbuildTypescript }
+export { publicTypescript, injectScripts, esbuildTypescript }

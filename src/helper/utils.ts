@@ -81,6 +81,13 @@ export function isEmptyObject(o: unknown) {
   return isObject(o) && Object.keys(o).length === 0
 }
 
+export function converEmptyObjectToNull(obj: unknown) {
+  if (isEmptyObject(obj)) {
+    return null
+  }
+  return obj
+}
+
 export function writeFile(filename: string, content: string): void {
   const dir = path.dirname(filename)
   if (!fs.existsSync(dir)) {

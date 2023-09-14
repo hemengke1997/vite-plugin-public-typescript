@@ -1,35 +1,11 @@
-import type { HtmlTagDescriptor, PluginOption } from 'vite'
+import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
-import { publicTypescript } from 'vite-plugin-public-typescript'
+import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
 import react from '@vitejs/plugin-react'
-import { createHtmlPlugin } from 'vite-plugin-html'
 import manifest from './public-typescript/manifest.json'
 
-function setupHtml() {
-  const tags: Parameters<typeof createHtmlPlugin>[0] = {
-    minify: false,
-    inject: {
-      tags: [],
-    },
-  }
-
-  tags.inject?.tags?.push(
-    ...([
-      {
-        tag: 'script',
-        attrs: {
-          src: manifest.index,
-        },
-        injectTo: 'head-prepend',
-      },
-    ] as HtmlTagDescriptor[]),
-  )
-  const htmlPlugin: PluginOption[] = createHtmlPlugin(tags)
-  return htmlPlugin
-}
-
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig((env) => ({
   define: {
     haha: JSON.stringify('custom define!'),
     app: JSON.stringify({ hello: 'world' }),
@@ -37,35 +13,47 @@ export default defineConfig({
   plugins: [
     react(),
     {
-      name: 'add-script',
-      transformIndexHtml: {
-        order: 'pre',
-        handler(html) {
-          const tags: HtmlTagDescriptor[] = [
-            {
-              tag: 'script',
-              attrs: {
-                src: manifest.test,
-              },
-              injectTo: 'head-prepend',
+      name: 'transform-demo',
+      async transformIndexHtml(html) {
+        const tags: HtmlTagDescriptor[] = [
+          {
+            tag: 'script',
+            attrs: {
+              'src': manifest.test,
+              'data-vppt': 'true',
             },
-          ]
+            injectTo: 'head-prepend',
+          },
+        ]
 
-          return {
-            html,
-            tags,
-          }
-        },
+        html = html.replace('Vite + React + TS', env.command === 'build' ? 'build' : 'serve')
+
+        return {
+          html,
+          tags,
+        }
       },
     },
-    setupHtml(),
     publicTypescript({
       inputDir: 'public-typescript',
       manifestName: 'manifest',
       hash: true,
       outputDir: '/out',
-      destination: 'file',
     }),
+    injectScripts([
+      {
+        attrs: {
+          src: manifest.haha,
+        },
+        injectTo: 'head',
+      },
+      {
+        attrs: {
+          src: manifest.index,
+        },
+        injectTo: 'head-prepend',
+      },
+    ]),
   ],
   clearScreen: true,
-})
+}))

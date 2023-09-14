@@ -11,4 +11,5 @@ export default defineConfig({
       return undefined
     },
   },
+  optimizeDeps: { disabled: true },
 })

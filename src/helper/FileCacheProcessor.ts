@@ -8,14 +8,19 @@ import { globalConfigBuilder } from './GlobalConfigBuilder'
 import { AbsCacheProcessor } from './AbsCacheProcessor'
 import type { IAddFile, IDeleteFile } from './AbsCacheProcessor'
 import { writeFile } from './utils'
+import type { ManifestCache } from './ManifestCache'
 
 const debug = createDebug('FileCacheProcessor ===> ')
 
 // file-based processor
 // the final output dir is base on `publicDir`
 export class FileCacheProcessor extends AbsCacheProcessor {
+  constructor(cache: ManifestCache) {
+    super(cache)
+  }
+
   async deleteOldJs(args: IDeleteFile): Promise<void> {
-    const { fileName, jsFileName = '', force = false } = args
+    const { tsFileName, jsFileName = '' } = args
 
     const {
       outputDir,
@@ -27,7 +32,7 @@ export class FileCacheProcessor extends AbsCacheProcessor {
     try {
       fs.ensureDirSync(path.join(publicDir, outputDir))
 
-      oldFiles = await glob(normalizePath(path.join(publicDir, `${outputDir}/${fileName}.?(*.)js`)))
+      oldFiles = await glob(normalizePath(path.join(publicDir, `${outputDir}/${tsFileName}.?(*.)js`)))
     } catch (e) {
       console.error(e)
     }
@@ -45,18 +50,16 @@ export class FileCacheProcessor extends AbsCacheProcessor {
           continue
         } // skip repeat js file
         if (fs.existsSync(f)) {
-          debug('deleteOldJsFile - file exists:', f, fileName)
-          if (cache.getByKey(fileName) || force) {
-            cache.remove(fileName)
-            debug('deleteOldJsFile - cache removed:', fileName)
-            fs.remove(f)
-            debug('deleteOldJsFile -file removed:', f)
-          }
+          debug('deleteOldJsFile - file exists:', f, tsFileName)
+          cache.remove(tsFileName)
+          debug('deleteOldJsFile - cache removed:', tsFileName)
+          fs.remove(f)
+          debug('deleteOldJsFile -file removed:', f)
         }
       }
-    } else if (force) {
-      cache.remove(fileName)
-      debug('cache force removed:', fileName)
+    } else {
+      cache.remove(tsFileName)
+      debug('cache removed:', tsFileName)
     }
   }
 

@@ -7,6 +7,7 @@ import type { VPPTPluginOptions } from '..'
 import { name } from '../../package.json'
 import { globalConfigBuilder } from './GlobalConfigBuilder'
 import { getContentHash } from './utils'
+import type { BuildEndArgs } from './AbsCacheProcessor'
 
 const debug = createDebug('vite-plugin-public-typescript:build ===> ')
 
@@ -100,25 +101,38 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   return code
 }
 
-export async function build(options: { filePath: string }) {
+export async function build(options: { filePath: string }, onBuildEnd?: (args: BuildEndArgs) => Promise<void>) {
   const { filePath } = options
   const globalConfig = globalConfigBuilder.get()
 
-  const fileName = path.basename(filePath, path.extname(filePath))
+  const originFileName = path.basename(filePath, path.extname(filePath))
 
   let contentHash = ''
-  let fileNameWithHash = fileName
+  let fileNameWithHash = originFileName
 
-  const code = await esbuildTypescript({ filePath, ...globalConfig })
+  const code = (await esbuildTypescript({ filePath, ...globalConfig })) || ''
 
   if (globalConfig.hash) {
     contentHash = getContentHash(code, globalConfig.hash)
-    fileNameWithHash = `${fileName}.${contentHash}`
+    fileNameWithHash = `${originFileName}.${contentHash}`
   }
 
-  await globalConfig.cacheProcessor.deleteOldJs({ fileName, jsFileName: fileNameWithHash })
+  debug('before onBuildEnd cache:', globalConfig.cache.get())
 
-  await globalConfig.cacheProcessor.addNewJs({ code, fileName, contentHash })
+  await onBuildEnd?.({
+    tsFileName: originFileName,
+    jsFileNameWithHash: fileNameWithHash,
+    code,
+    contentHash,
+  })
 
-  debug('cacheManifest:', globalConfig.cache.get())
+  debug('after onBuildEnd cache:', globalConfig.cache.get())
+}
+
+export async function buildAll(tsFilesGlob: string[]) {
+  const { cacheProcessor } = globalConfigBuilder.get()
+
+  for (const file of tsFilesGlob) {
+    await build({ filePath: file }, (args) => cacheProcessor.onTsBuildEnd(args))
+  }
 }

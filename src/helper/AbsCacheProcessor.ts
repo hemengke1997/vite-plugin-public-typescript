@@ -1,28 +1,59 @@
 import { normalizePath } from 'vite'
-import type { TGlobalConfig } from './GlobalConfigBuilder'
+import createDebug from 'debug'
+import type { ManifestCache } from './ManifestCache'
+
+const debug = createDebug('vite-plugin-public-typescript:AbsCacheProcessor ===> ')
+
+export type BuildEndArgs = {
+  tsFileName: string
+  jsFileNameWithHash: string
+  code: string
+  contentHash: string
+}
 
 export interface IDeleteFile {
-  fileName: string
+  tsFileName: string
   jsFileName?: string
-  force?: boolean
+  silent?: boolean
 }
 
 export interface IAddFile {
   code?: string
-  fileName: string
+  tsFileName: string
   contentHash: string
 }
 
 export abstract class AbsCacheProcessor {
+  cache: ManifestCache
   abstract deleteOldJs(args: IDeleteFile): Promise<void>
   abstract addNewJs(args: IAddFile): Promise<void>
-  setCache(args: IAddFile, globalConfig: TGlobalConfig) {
-    const { contentHash, code = '', fileName } = args
-    const { cache, outputDir } = globalConfig
+
+  constructor(cache: ManifestCache) {
+    this.cache = cache
+  }
+
+  async onTsBuildEnd(args: BuildEndArgs) {
+    const { tsFileName, jsFileNameWithHash, code, contentHash } = args
+
+    debug('onTsBuildEnd:', args)
+
+    await this.deleteOldJs({ tsFileName, jsFileName: jsFileNameWithHash, silent: true })
+
+    await this.addNewJs({ code, tsFileName, contentHash })
+  }
+
+  setCache(
+    args: IAddFile,
+    config: {
+      outputDir: string
+    },
+  ) {
+    const { contentHash, code = '', tsFileName } = args
+    const { outputDir } = config
 
     function getOutputPath(p: string, hash?: string) {
       hash = hash ? `.${hash}` : ''
-      return normalizePath(`${p}/${fileName}${hash}.js`)
+      return normalizePath(`${p}/${tsFileName}${hash}.js`)
     }
 
     let outputPath = getOutputPath(outputDir)
@@ -30,8 +61,8 @@ export abstract class AbsCacheProcessor {
       outputPath = getOutputPath(outputDir, contentHash)
     }
 
-    cache.set({
-      [fileName]: {
+    this.cache.set({
+      [tsFileName]: {
         path: outputPath,
         _code: code,
         _hash: contentHash,
