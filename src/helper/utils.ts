@@ -4,6 +4,7 @@ import type { WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
 import fs from 'fs-extra'
 import createDebug from 'debug'
+import glob from 'tiny-glob'
 import type { VPPTPluginOptions } from '..'
 import { globalConfigBuilder } from './GlobalConfigBuilder'
 import { assert } from './assert'
@@ -178,4 +179,19 @@ export function addCodeHeader(code: string) {
 
 export function getInputDir(resolvedRoot: string, originInputDir: string, suffix = '') {
   return normalizePath(path.resolve(resolvedRoot, `${originInputDir}${suffix}`))
+}
+
+export async function findAllOldJsFile(args: { publicDir: string; outputDir: string; tsFileNames: string[] }) {
+  const { publicDir, outputDir, tsFileNames } = args
+  const dir = path.join(publicDir, outputDir)
+  const oldFiles: string[] = []
+  if (fs.existsSync(dir)) {
+    for (const tsFileName of tsFileNames) {
+      const old = await glob(normalizePath(path.join(publicDir, `${outputDir}/${tsFileName}.?(*.)js`)))
+      if (old.length) {
+        oldFiles.push(...old)
+      }
+    }
+  }
+  return oldFiles
 }

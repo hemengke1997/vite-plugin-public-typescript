@@ -12,6 +12,7 @@ import {
   _isPublicTypescript,
   addCodeHeader,
   eq,
+  findAllOldJsFile,
   getInputDir,
   isEmptyObject,
   normalizeDirPath,
@@ -227,16 +228,23 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         const { tsFilesGlob } = globalConfigBuilder.get()
 
-        const fileNames = tsFilesGlob.map((file) => path.parse(file).name)
+        const tsFileNames = tsFilesGlob.map((file) => path.parse(file).name)
 
         debug('buildStart - tsFilesGlob:', tsFilesGlob)
-        debug('buildStart - fileNames:', fileNames)
+        debug('buildStart - tsFileNames:', tsFileNames)
 
         if (opts.destination === 'memory') {
-          // delete output dir
-          const dir = path.join(viteConfig.publicDir, opts.outputDir)
-          if (fs.existsSync(dir)) {
-            fs.removeSync(dir)
+          const oldFiles = await findAllOldJsFile({
+            outputDir: opts.outputDir,
+            publicDir: viteConfig.publicDir,
+            tsFileNames,
+          })
+          if (oldFiles.length) {
+            for (const f of oldFiles) {
+              if (fs.existsSync(f)) {
+                fs.removeSync(f)
+              }
+            }
           }
         }
 

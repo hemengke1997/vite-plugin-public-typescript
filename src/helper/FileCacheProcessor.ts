@@ -1,13 +1,12 @@
 import path from 'path'
 import fs from 'fs-extra'
-import glob from 'tiny-glob'
 import { normalizePath } from 'vite'
 import createDebug from 'debug'
 import { assert } from './assert'
 import { globalConfigBuilder } from './GlobalConfigBuilder'
 import { AbsCacheProcessor } from './AbsCacheProcessor'
 import type { IAddFile, IDeleteFile } from './AbsCacheProcessor'
-import { writeFile } from './utils'
+import { findAllOldJsFile, writeFile } from './utils'
 import type { ManifestCache } from './ManifestCache'
 
 const debug = createDebug('FileCacheProcessor ===> ')
@@ -20,19 +19,21 @@ export class FileCacheProcessor extends AbsCacheProcessor {
   }
 
   async deleteOldJs(args: IDeleteFile): Promise<void> {
-    const { tsFileName, jsFileName = '' } = args
+    const { tsFileName, jsFileName = '', silent } = args
 
     const {
       outputDir,
-      cache,
       viteConfig: { publicDir },
     } = globalConfigBuilder.get()
 
     let oldFiles: string[] = []
     try {
       fs.ensureDirSync(path.join(publicDir, outputDir))
-
-      oldFiles = await glob(normalizePath(path.join(publicDir, `${outputDir}/${tsFileName}.?(*.)js`)))
+      oldFiles = await findAllOldJsFile({
+        outputDir,
+        publicDir,
+        tsFileNames: [tsFileName],
+      })
     } catch (e) {
       console.error(e)
     }
@@ -41,7 +42,7 @@ export class FileCacheProcessor extends AbsCacheProcessor {
 
     assert(Array.isArray(oldFiles))
 
-    debug('cache:', cache.get())
+    debug('cache:', this.cache.get())
 
     if (oldFiles.length) {
       for (const f of oldFiles) {
@@ -51,14 +52,14 @@ export class FileCacheProcessor extends AbsCacheProcessor {
         } // skip repeat js file
         if (fs.existsSync(f)) {
           debug('deleteOldJsFile - file exists:', f, tsFileName)
-          cache.remove(tsFileName)
+          this.cache.remove(tsFileName, { disableWatch: silent })
           debug('deleteOldJsFile - cache removed:', tsFileName)
           fs.remove(f)
           debug('deleteOldJsFile -file removed:', f)
         }
       }
     } else {
-      cache.remove(tsFileName)
+      this.cache.remove(tsFileName, { disableWatch: silent })
       debug('cache removed:', tsFileName)
     }
   }

@@ -38,7 +38,8 @@ export default defineConfig((env) => ({
       inputDir: 'public-typescript',
       manifestName: 'manifest',
       hash: true,
-      outputDir: '/out',
+      outputDir: 'out',
+      destination: 'memory',
     }),
     injectScripts([
       {
