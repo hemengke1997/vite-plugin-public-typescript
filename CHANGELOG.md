@@ -1,3 +1,12 @@
+## [1.5.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.0...v1.5.1) (2023-09-15)
+
+
+### Bug Fixes
+
+* auto remove `outuputDir` error ([f42879e](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/f42879e63ae81c373a1f884c5bfb2989a00ab2c8))
+
+
+
 # [1.5.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.4.1...v1.5.0) (2023-09-14)
 
 
