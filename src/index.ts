@@ -23,7 +23,7 @@ import { assert } from './helper/assert'
 import { globalConfigBuilder } from './helper/GlobalConfigBuilder'
 import { initCacheProcessor } from './helper/processor'
 import { ManifestCache } from './helper/ManifestCache'
-import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
+import { VPPT_DATA_ATTR, getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
 import { injectScripts } from './plugins/inject-script'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
@@ -288,10 +288,20 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
                   cacheItem = c[fileName]
                 }
                 if (cacheItem) {
+                  const attrs = node.attrs
+                    .reduce((acc, attr) => {
+                      if (attr.name === VPPT_DATA_ATTR) {
+                        return acc
+                      }
+                      acc += ` ${attr.name}="${attr.value}"`
+                      return acc
+                    }, '')
+                    .trim()
+
                   s.update(
                     node.sourceCodeLocation!.startOffset,
                     node.sourceCodeLocation!.endOffset,
-                    `<script src="${cacheItem?.path}"></script>`,
+                    `<script ${attrs}></script>`,
                   )
                 } else {
                   s.remove(node.sourceCodeLocation!.startOffset, node.sourceCodeLocation!.endOffset)

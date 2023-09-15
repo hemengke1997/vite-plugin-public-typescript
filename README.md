@@ -4,9 +4,16 @@
 
 <!-- **中文** | [English](./README.md) -->
 
-**在vite的运行时或构建时打包指定目录下的typescript文件，供开发者独立使用**
+**在vite的运行时或构建时编译指定目录下的typescript文件，供开发者独立使用**
 
-> 如果你希望项目中所有脚本都使用typescript编写，那么你应该试试此插件
+## 为什么要使用此插件
+
+- 假设你想在页面渲染之前就执行一些js代码，应该怎么办？
+- 假设你不想在硬编码式地在 `index.html` 中注入 `script` 代码，应该怎么办？
+- 假设你希望第三方脚本也有hash缓存，应该怎么办？
+- ...
+
+**`vite-plugin-public-typescript` 为优雅解决这些问题而生**
 
 ## 应用场景
 
@@ -28,6 +35,20 @@
 ```bash
 pnpm add vite-plugin-public-typescript -D
 ```
+
+## 配置项
+
+| 参数           | 类型           | 默认值              | 描述                                           |
+| -------------- | -------------- | ------------------- | ---------------------------------------------- |
+| inputDir       | `string`       | `public-typescript` | 存放需要编译的 `typescript` 的目录             |
+| outputDir      | `string`       | `/`                 | 输出公共 javascript 的目录，相对于 `publicDir` |
+| manifestName   | `string`       | `manifest`          | `manifest` 的文件名                            |
+| hash           | `boolean`      | `true`              | 编译后的 `js` 是否生成 `hash `                 |
+| esbuildOptions | `BuildOptions` | `{}`                | esbuild 构建选项                               |
+| ssrBuild       | `boolean`      | `false`             | 当前打包环境是否是 ssr                         |
+| sideEffects    | `boolean`      | `false`             | 若 `typescript` 文件中有导入第三方库，则开启   |
+| destination    | `string`       | `memory`            | 输出模式：内存模式 \| 文件模式                 |
+
 
 ## 用法
 
@@ -118,18 +139,6 @@ const html = template
   .replace('<!--app-prehead-->', `<script src=${manifest.ssr}></script>`)
 ```
 
-## 配置项
-
-| 参数           | 类型           | 默认值              | 描述                                           |
-| -------------- | -------------- | ------------------- | ---------------------------------------------- |
-| inputDir       | `string`       | `public-typescript` | 存放需要编译的 `typescript` 的目录             |
-| outputDir      | `string`       | `/`                 | 输出公共 javascript 的目录，相对于 `publicDir` |
-| manifestName   | `string`       | `manifest`          | `manifest` 的文件名                            |
-| hash           | `boolean`      | `true`              | 编译后的 `js` 是否生成 `hash `                 |
-| esbuildOptions | `BuildOptions` | `{}`                | esbuild 构建选项                               |
-| ssrBuild       | `boolean`      | `false`             | 当前打包环境是否是 ssr                         |
-| sideEffects    | `boolean`      | `false`             | 若 `typescript` 文件中有导入第三方库，则开启   |
-| destination    | `string`       | `memory`            | 输出模式：内存模式 \| 文件模式                 |
 
 ## License
 

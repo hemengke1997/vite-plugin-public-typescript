@@ -44,7 +44,8 @@ export default defineConfig((env) => ({
     injectScripts([
       {
         attrs: {
-          src: manifest.haha,
+          'src': manifest.haha,
+          'data-n': '1',
         },
         injectTo: 'head',
       },
