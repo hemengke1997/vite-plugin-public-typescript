@@ -1,3 +1,12 @@
+## [1.5.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.1...v1.5.2) (2023-09-15)
+
+
+### Bug Fixes
+
+* hmr error when server restart ([187f0d4](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/187f0d40d7737ab07bd85bafcb9c2dd97c509f3c))
+
+
+
 ## [1.5.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.0...v1.5.1) (2023-09-15)
 
 
