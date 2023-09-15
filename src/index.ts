@@ -23,7 +23,7 @@ import { assert } from './helper/assert'
 import { globalConfigBuilder } from './helper/GlobalConfigBuilder'
 import { initCacheProcessor } from './helper/processor'
 import { ManifestCache } from './helper/ManifestCache'
-import { VPPT_DATA_ATTR, getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
+import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
 import { injectScripts } from './plugins/inject-script'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
@@ -287,10 +287,15 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
                   const fileName = path.basename(src.value).split('.')[0]
                   cacheItem = c[fileName]
                 }
-                if (cacheItem) {
+
+                if (cacheItem.path) {
                   const attrs = node.attrs
                     .reduce((acc, attr) => {
-                      if (attr.name === VPPT_DATA_ATTR) {
+                      if (attr.name === vppt.name) {
+                        return acc
+                      }
+                      if (attr.name === src.name) {
+                        acc += ` ${attr.name}="${cacheItem!.path}"`
                         return acc
                       }
                       acc += ` ${attr.name}="${attr.value}"`
