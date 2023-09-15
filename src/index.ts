@@ -11,11 +11,13 @@ import {
   TS_EXT,
   _isPublicTypescript,
   addCodeHeader,
+  disableManifestHmr,
   eq,
   findAllOldJsFile,
   getInputDir,
   isEmptyObject,
   normalizeDirPath,
+  reloadPage,
   validateOptions,
 } from './helper/utils'
 import { build, buildAll, esbuildTypescript } from './helper/build'
@@ -142,16 +144,21 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         cache.initCacheFromFile()
 
+        disableManifestHmr(c, cache.getManifestPath())
+
         debug('cache manifestPath:', cache.getManifestPath())
 
         debug('cache:', cache.get())
 
         assert(cache.getManifestPath().includes('.json'))
       },
-      configureServer() {
+
+      configureServer(server) {
         if (process.env.VITEST || process.env.CI) {
           return
         }
+
+        const { ws } = server
 
         try {
           const watcher = new Watcher(globalConfigBuilder.get().absInputDir, {
@@ -167,9 +174,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
               const fileName = path.parse(filePath).name
               debug('unlink:', fileName)
               await globalConfigBuilder.get().cacheProcessor.deleteOldJs({ tsFileName: fileName })
-              // TODO: fix hmr
-              // reloadPage(ws)
-              // server.restart()
+              reloadPage(ws)
             }
           }
 
@@ -177,9 +182,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
             if (_isPublicTypescript(filePath)) {
               debug('file added:', filePath)
               await build({ filePath }, (args) => globalConfigBuilder.get().cacheProcessor.onTsBuildEnd(args))
-              // TODO: fix hmr
-              // reloadPage(ws)
-              // server.restart()
+              reloadPage(ws)
             }
           }
 
@@ -207,6 +210,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           return
         }
 
+        // skip server restart when options not changed
         if (eq(previousOpts, opts)) {
           return
         }
@@ -288,7 +292,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
                   cacheItem = c[fileName]
                 }
 
-                if (cacheItem.path) {
+                if (cacheItem) {
                   const attrs = node.attrs
                     .reduce((acc, attr) => {
                       if (attr.name === vppt.name) {
@@ -318,13 +322,15 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         },
       },
       async handleHotUpdate(ctx) {
-        const { file } = ctx
+        const { file, server } = ctx
 
         if (_isPublicTypescript(file)) {
           debug('hmr:', file)
+
           await build({ filePath: file }, (args) => globalConfigBuilder.get().cacheProcessor.onTsBuildEnd(args))
-          // TODO: fix hmr
-          // ctx.server.restart()
+
+          reloadPage(server.ws)
+
           return []
         }
       },
@@ -349,7 +355,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
               const cacheItem = cache.findCacheItemByPath(req.url)
               if (cacheItem) {
                 return send(req, res, addCodeHeader(cacheItem._code || ''), 'js', {
-                  cacheControl: 'no-cache',
+                  cacheControl: 'max-age=31536000,immutable',
                   headers: server.config.server.headers,
                   map: null,
                 })

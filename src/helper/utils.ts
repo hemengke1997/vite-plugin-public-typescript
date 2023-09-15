@@ -1,6 +1,6 @@
 import path from 'path'
 import { createHash } from 'crypto'
-import type { WebSocketServer } from 'vite'
+import type { ResolvedConfig, WebSocketServer } from 'vite'
 import { normalizePath } from 'vite'
 import fs from 'fs-extra'
 import createDebug from 'debug'
@@ -173,8 +173,7 @@ export function normalizeDirPath(dir: string) {
 }
 
 export function addCodeHeader(code: string) {
-  return `// gen via vite-plugin-public-typescript (only show in serve mode);
-  ${code}`
+  return `// gen via vite-plugin-public-typescript (show in serve mode only)\n${code}`
 }
 
 export function getInputDir(resolvedRoot: string, originInputDir: string, suffix = '') {
@@ -194,4 +193,13 @@ export async function findAllOldJsFile(args: { publicDir: string; outputDir: str
     }
   }
   return oldFiles
+}
+
+export function disableManifestHmr(config: ResolvedConfig, manifestPath: string) {
+  if (config.command === 'serve') {
+    const index = config.configFileDependencies.indexOf(manifestPath)
+    if (index !== -1) {
+      config.configFileDependencies.splice(index, 1)
+    }
+  }
 }

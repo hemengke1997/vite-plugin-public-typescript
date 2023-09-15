@@ -14,6 +14,9 @@ export type BuildEndArgs = {
 export interface IDeleteFile {
   tsFileName: string
   jsFileName?: string
+  /**
+   * if true, will not write file to disk
+   */
   silent?: boolean
 }
 
