@@ -47,13 +47,11 @@
     "vite": "3 || 4"
   },
   "dependencies": {
-    "debug": "^4.3.4",
     "esbuild": "^0.19.2",
     "fs-extra": "^11.1.1",
     "magic-string": "^0.30.3",
     "on-change": "^4.0.2",
     "parse5": "^7.1.2",
-    "sirv": "^2.0.3",
     "tiny-glob": "^0.2.9",
     "watcher": "^2.3.0"
   },
@@ -66,8 +64,10 @@
     "@types/node": "^20.6.0",
     "bumpp": "^9.2.0",
     "conventional-changelog-cli": "^2.2.2",
+    "debug": "^4.3.4",
     "eslint": "^8.49.0",
     "mock-fs": "^5.2.0",
+    "sirv": "^2.0.3",
     "taze": "^0.11.2",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
