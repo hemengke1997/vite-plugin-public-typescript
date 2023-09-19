@@ -8,10 +8,6 @@ import fs from 'fs-extra'
 import createDebug from 'debug'
 import MagicString from 'magic-string'
 import {
-  JSON_EXT,
-  JS_EXT,
-  SCRIPT_TAG,
-  TS_EXT,
   _isPublicTypescript,
   addCodeHeader,
   disableManifestHmr,
@@ -21,6 +17,7 @@ import {
   isEmptyObject,
   normalizeDirPath,
   reloadPage,
+  removeOldJsFiles,
   validateOptions,
 } from './helper/utils'
 import { build, buildAll, esbuildTypescript } from './helper/build'
@@ -128,7 +125,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
 
-        const tsFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*${TS_EXT}`), {
+        const tsFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*.ts`), {
           cwd: resolvedRoot,
           absolute: true,
         })
@@ -143,7 +140,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           ...opts,
         })
 
-        cache.setManifestPath(normalizePath(`${globalConfigBuilder.get().absInputDir}/${opts.manifestName}${JSON_EXT}`))
+        cache.setManifestPath(normalizePath(`${globalConfigBuilder.get().absInputDir}/${opts.manifestName}.json`))
 
         cache.initCacheFromFile()
 
@@ -153,7 +150,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         debug('cache:', cache.get())
 
-        assert(cache.getManifestPath().includes(JSON_EXT))
+        assert(cache.getManifestPath().includes('.json'))
       },
 
       configureServer(server) {
@@ -246,13 +243,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
             publicDir: viteConfig.publicDir,
             tsFileNames,
           })
-          if (oldFiles.length) {
-            for (const f of oldFiles) {
-              if (fs.existsSync(f)) {
-                fs.removeSync(f)
-              }
-            }
-          }
+          removeOldJsFiles(oldFiles)
         }
 
         await buildAll(tsFilesGlob)
@@ -283,7 +274,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
               return
             }
             // script tags
-            if (node.nodeName === SCRIPT_TAG) {
+            if (node.nodeName === 'script') {
               const { src, vppt } = getScriptInfo(node)
 
               if (vppt?.value && src?.value) {
@@ -313,7 +304,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
                   s.update(
                     node.sourceCodeLocation!.startOffset,
                     node.sourceCodeLocation!.endOffset,
-                    `<${SCRIPT_TAG} ${attrs}></${SCRIPT_TAG}>`,
+                    `<script ${attrs}></script>`,
                   )
                 } else {
                   s.remove(node.sourceCodeLocation!.startOffset, node.sourceCodeLocation!.endOffset)
@@ -354,7 +345,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
       async configureServer(server) {
         server.middlewares.use((req, res, next) => {
           try {
-            if (req?.url?.startsWith('/') && req?.url?.endsWith(JS_EXT)) {
+            if (req?.url?.startsWith('/') && req?.url?.endsWith('.js')) {
               const cacheItem = cache.findCacheItemByPath(req.url)
               if (cacheItem) {
                 return send(req, res, addCodeHeader(cacheItem._code || ''), 'js', {

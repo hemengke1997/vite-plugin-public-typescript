@@ -13,6 +13,7 @@ export function injectScripts(scripts: Scripts) {
           ...s,
           tag: 'script',
           attrs: {
+            crossorigin: true,
             ...s.attrs,
             [VPPT_DATA_ATTR]: 'true',
           },

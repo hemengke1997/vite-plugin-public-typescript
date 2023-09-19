@@ -11,11 +11,6 @@ import { assert } from './assert'
 
 const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
-export const TS_EXT = '.ts'
-export const JSON_EXT = '.json'
-export const JS_EXT = '.js'
-export const SCRIPT_TAG = 'script'
-
 export function reloadPage(ws: WebSocketServer) {
   ws.send({
     path: '*',
@@ -27,7 +22,7 @@ export function isPublicTypescript(args: { filePath: string; inputDir: string; r
   const { filePath, root, inputDir } = args
 
   return (
-    path.extname(filePath) === TS_EXT &&
+    path.extname(filePath) === '.ts' &&
     normalizePath(path.resolve(root, inputDir)).endsWith(normalizePath(path.dirname(filePath)))
   )
 }
@@ -196,6 +191,16 @@ export async function findAllOldJsFile(args: { publicDir: string; outputDir: str
     }
   }
   return oldFiles
+}
+
+export function removeOldJsFiles(oldFiles: string[]) {
+  if (oldFiles.length) {
+    for (const f of oldFiles) {
+      if (fs.existsSync(f)) {
+        fs.removeSync(f)
+      }
+    }
+  }
 }
 
 export function disableManifestHmr(config: ResolvedConfig, manifestPath: string) {
