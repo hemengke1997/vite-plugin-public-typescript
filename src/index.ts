@@ -8,6 +8,9 @@ import fs from 'fs-extra'
 import createDebug from 'debug'
 import MagicString from 'magic-string'
 import {
+  JSON_EXT,
+  JS_EXT,
+  SCRIPT_TAG,
   TS_EXT,
   _isPublicTypescript,
   addCodeHeader,
@@ -140,7 +143,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           ...opts,
         })
 
-        cache.setManifestPath(normalizePath(`${globalConfigBuilder.get().absInputDir}/${opts.manifestName}.json`))
+        cache.setManifestPath(normalizePath(`${globalConfigBuilder.get().absInputDir}/${opts.manifestName}${JSON_EXT}`))
 
         cache.initCacheFromFile()
 
@@ -150,7 +153,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         debug('cache:', cache.get())
 
-        assert(cache.getManifestPath().includes('.json'))
+        assert(cache.getManifestPath().includes(JSON_EXT))
       },
 
       configureServer(server) {
@@ -280,7 +283,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
               return
             }
             // script tags
-            if (node.nodeName === 'script') {
+            if (node.nodeName === SCRIPT_TAG) {
               const { src, vppt } = getScriptInfo(node)
 
               if (vppt?.value && src?.value) {
@@ -310,7 +313,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
                   s.update(
                     node.sourceCodeLocation!.startOffset,
                     node.sourceCodeLocation!.endOffset,
-                    `<script ${attrs}></script>`,
+                    `<${SCRIPT_TAG} ${attrs}></${SCRIPT_TAG}>`,
                   )
                 } else {
                   s.remove(node.sourceCodeLocation!.startOffset, node.sourceCodeLocation!.endOffset)
@@ -351,7 +354,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
       async configureServer(server) {
         server.middlewares.use((req, res, next) => {
           try {
-            if (req?.url?.endsWith('.js') && req.url.startsWith('/')) {
+            if (req?.url?.startsWith('/') && req?.url?.endsWith(JS_EXT)) {
               const cacheItem = cache.findCacheItemByPath(req.url)
               if (cacheItem) {
                 return send(req, res, addCodeHeader(cacheItem._code || ''), 'js', {

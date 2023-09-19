@@ -12,6 +12,9 @@ import { assert } from './assert'
 const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
 export const TS_EXT = '.ts'
+export const JSON_EXT = '.json'
+export const JS_EXT = '.js'
+export const SCRIPT_TAG = 'script'
 
 export function reloadPage(ws: WebSocketServer) {
   ws.send({

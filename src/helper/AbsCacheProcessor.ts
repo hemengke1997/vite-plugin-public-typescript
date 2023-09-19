@@ -1,6 +1,7 @@
 import { normalizePath } from 'vite'
 import createDebug from 'debug'
 import type { ManifestCache } from './ManifestCache'
+import { JS_EXT } from './utils'
 
 const debug = createDebug('vite-plugin-public-typescript:AbsCacheProcessor ===> ')
 
@@ -56,7 +57,7 @@ export abstract class AbsCacheProcessor {
 
     function getOutputPath(p: string, hash?: string) {
       hash = hash ? `.${hash}` : ''
-      return normalizePath(`${p}/${tsFileName}${hash}.js`)
+      return normalizePath(`${p}/${tsFileName}${hash}${JS_EXT}`)
     }
 
     let outputPath = getOutputPath(outputDir)
