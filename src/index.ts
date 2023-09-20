@@ -296,7 +296,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
                         acc += ` ${attr.name}="${cacheItem!.path}"`
                         return acc
                       }
-                      acc += ` ${attr.name}="${attr.value}"`
+                      acc += attr.value ? ` ${attr.name}="${attr.value}"` : ` ${attr.name}`
                       return acc
                     }, '')
                     .trim()
