@@ -6,7 +6,7 @@ import { assert } from './assert'
 import { globalConfigBuilder } from './GlobalConfigBuilder'
 import { AbsCacheProcessor } from './AbsCacheProcessor'
 import type { IAddFile, IDeleteFile } from './AbsCacheProcessor'
-import { findAllOldJsFile, stripBase, writeFile } from './utils'
+import { findAllOldJsFile, writeFile } from './utils'
 import type { ManifestCache } from './ManifestCache'
 
 const debug = createDebug('FileCacheProcessor ===> ')
@@ -19,7 +19,7 @@ export class FileCacheProcessor extends AbsCacheProcessor {
   }
 
   async deleteOldJs(args: IDeleteFile): Promise<void> {
-    const { tsFileName, jsFileName = '', silent } = args
+    const { tsFileName, jsFileName = '' } = args
 
     const {
       outputDir,
@@ -52,14 +52,14 @@ export class FileCacheProcessor extends AbsCacheProcessor {
         } // skip repeat js file
         if (fs.existsSync(f)) {
           debug('deleteOldJsFile - file exists:', f, tsFileName)
-          this.cache.remove(tsFileName, { disableWatch: silent })
+          this.cache.remove(tsFileName)
           debug('deleteOldJsFile - cache removed:', tsFileName)
           fs.remove(f)
           debug('deleteOldJsFile -file removed:', f)
         }
       }
     } else {
-      this.cache.remove(tsFileName, { disableWatch: silent })
+      this.cache.remove(tsFileName)
       debug('cache removed:', tsFileName)
     }
   }
@@ -67,15 +67,15 @@ export class FileCacheProcessor extends AbsCacheProcessor {
   async addNewJs(args: IAddFile): Promise<void> {
     const { code = '' } = args
     const {
-      viteConfig: { publicDir, base },
+      viteConfig: { publicDir },
     } = globalConfigBuilder.get()
 
-    const outPath = this.setCache(args, globalConfigBuilder.get())
+    const pathToDisk = this.setCache(args, globalConfigBuilder.get())
 
-    const fp = normalizePath(path.join(publicDir, stripBase(outPath, base)))
+    const jsFilePath = normalizePath(path.join(publicDir, pathToDisk))
 
-    fs.ensureDirSync(path.dirname(fp))
+    fs.ensureDirSync(path.dirname(jsFilePath))
 
-    writeFile(fp, code)
+    writeFile(jsFilePath, code)
   }
 }

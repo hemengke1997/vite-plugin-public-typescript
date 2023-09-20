@@ -3,7 +3,8 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "jsx": "react-jsx"
   },
-  "include": ["src/entry-server.ts", "src/vite-env.d.ts"]
+  "include": ["src/vite-env.d.ts"]
 }

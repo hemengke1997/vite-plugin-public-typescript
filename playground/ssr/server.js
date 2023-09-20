@@ -1,5 +1,6 @@
 import fs from 'fs/promises'
 import express from 'express'
+import { injectScriptsToHtml } from 'vite-plugin-public-typescript'
 import manifest from './public-typescript/manifest.json' assert { type: 'json' }
 
 // Constants
@@ -43,7 +44,7 @@ app.use('*', async (req, res) => {
       // Always read fresh template in development
       template = await fs.readFile('./index.html', 'utf-8')
       template = await vite.transformIndexHtml(url, template)
-      render = (await vite.ssrLoadModule('/src/entry-server.ts')).render
+      render = (await vite.ssrLoadModule('/src/entry-server.tsx')).render
     } else {
       template = templateHtml
       render = (await import('./dist/server/entry-server.js')).render
@@ -51,11 +52,16 @@ app.use('*', async (req, res) => {
 
     const rendered = await render(url, ssrManifest)
 
-    const html = template
-      .replace(`<!--app-head-->`, rendered.head ?? '')
-      .replace(`<!--app-html-->`, rendered.html ?? '')
-      .replace(`<!--app-prehead-->`, `<script src=${manifest.ssr}></script>`)
+    let html = template.replace(`<!--app-head-->`, rendered.head ?? '').replace(`<!--app-html-->`, rendered.html ?? '')
 
+    html = injectScriptsToHtml(html, [
+      {
+        attrs: {
+          src: manifest.ssr,
+        },
+        injectTo: 'head-prepend',
+      },
+    ])
     res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
   } catch (e) {
     vite?.ssrFixStacktrace(e)

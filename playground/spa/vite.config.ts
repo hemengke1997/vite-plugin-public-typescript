@@ -21,7 +21,7 @@ export default defineConfig((env) => ({
             tag: 'script',
             attrs: {
               'src': manifest.test,
-              'data-vppt': 'true',
+              'data-vppt': true,
             },
             injectTo: 'head-prepend',
           },

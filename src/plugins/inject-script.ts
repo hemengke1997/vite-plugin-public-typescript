@@ -1,7 +1,24 @@
 import type { HtmlTagDescriptor, PluginOption } from 'vite'
-import { VPPT_DATA_ATTR } from '../helper/html'
+import { VPPT_DATA_ATTR, injectTagsToHtml } from '../helper/html'
 
-type Scripts = Omit<HtmlTagDescriptor, 'tag'>[]
+export type Scripts = Omit<HtmlTagDescriptor, 'tag'>[]
+
+export function generateScriptTags(scripts: Scripts) {
+  const tags: HtmlTagDescriptor[] = scripts.map((s) => ({
+    ...s,
+    tag: 'script',
+    attrs: {
+      crossorigin: true,
+      ...s.attrs,
+      [VPPT_DATA_ATTR]: true,
+    },
+  }))
+  return tags
+}
+
+export function injectScriptsToHtml(html: string, scripts: Scripts) {
+  return injectTagsToHtml(html, generateScriptTags(scripts))
+}
 
 export function injectScripts(scripts: Scripts) {
   const plugin: PluginOption = {
@@ -9,18 +26,9 @@ export function injectScripts(scripts: Scripts) {
     transformIndexHtml: {
       order: 'post',
       async handler(html) {
-        const tags: HtmlTagDescriptor[] = scripts.map((s) => ({
-          ...s,
-          tag: 'script',
-          attrs: {
-            crossorigin: true,
-            ...s.attrs,
-            [VPPT_DATA_ATTR]: 'true',
-          },
-        }))
         return {
-          tags,
           html,
+          tags: generateScriptTags(scripts),
         }
       },
     },

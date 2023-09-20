@@ -27,7 +27,7 @@
 // })
 
 // function initCache() {
-//   const cache = new ManifestCache({ watchMode: false, write: false })
+//   const cache = new ManifestCache({ write: false })
 //   cache.set({
 //     x: {
 //       path: 'x.js',

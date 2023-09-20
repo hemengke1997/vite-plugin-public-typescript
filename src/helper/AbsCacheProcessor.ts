@@ -46,33 +46,28 @@ export abstract class AbsCacheProcessor {
     await this.addNewJs({ code, tsFileName, contentHash })
   }
 
-  setCache(args: IAddFile, config: TGlobalConfig) {
+  setCache(args: IAddFile, config: TGlobalConfig): string {
     const { contentHash, code = '', tsFileName } = args
     const {
       outputDir,
       viteConfig: { base },
     } = config
 
-    const outputDirPrefix = base + outputDir
-
     function getOutputPath(p: string, hash?: string) {
       hash = hash ? `.${hash}` : ''
       return normalizePath(`${p}/${tsFileName}${hash}.js`)
     }
 
-    let outputPath = getOutputPath(outputDirPrefix)
-    if (contentHash) {
-      outputPath = getOutputPath(outputDirPrefix, contentHash)
-    }
+    const path = getOutputPath(base + outputDir, contentHash)
 
     this.cache.set({
       [tsFileName]: {
-        path: outputPath,
+        path,
         _code: code,
         _hash: contentHash,
       },
     })
 
-    return outputPath
+    return this.cache.get()[tsFileName]._pathToDisk || ''
   }
 }

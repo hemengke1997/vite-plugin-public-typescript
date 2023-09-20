@@ -17,6 +17,7 @@ import {
   isEmptyObject,
   normalizeAssetsDirPath,
   reloadPage,
+  removeBase,
   removeOldJsFiles,
   validateOptions,
 } from './helper/utils'
@@ -26,7 +27,6 @@ import { globalConfigBuilder } from './helper/GlobalConfigBuilder'
 import { initCacheProcessor } from './helper/processor'
 import { ManifestCache } from './helper/ManifestCache'
 import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
-import { injectScripts } from './plugins/inject-script'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
 
@@ -75,12 +75,6 @@ export interface VPPTPluginOptions {
    */
   sideEffects?: boolean
   /**
-   * @description vite ssrBuild
-   * @see https://vitejs.dev/config/#conditional-config
-   * @default false
-   */
-  ssrBuild?: boolean | undefined
-  /**
    * @description build-out destination
    * @default 'memory'
    */
@@ -92,7 +86,6 @@ export const DEFAULT_OPTIONS: Required<VPPTPluginOptions> = {
   outputDir: '/',
   manifestName: 'manifest',
   hash: true,
-  ssrBuild: false,
   esbuildOptions: {},
   sideEffects: false,
   destination: 'memory',
@@ -100,7 +93,14 @@ export const DEFAULT_OPTIONS: Required<VPPTPluginOptions> = {
 
 let previousOpts: VPPTPluginOptions
 
-const cache = new ManifestCache()
+type CacheItemType = {
+  path: string
+  _code?: string
+  _hash?: string
+  _pathToDisk?: string
+}
+
+const cache = new ManifestCache<CacheItemType>()
 
 export default function publicTypescript(options: VPPTPluginOptions = {}) {
   const opts = {
@@ -142,7 +142,11 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         cache.setManifestPath(normalizePath(`${globalConfigBuilder.get().absInputDir}/${opts.manifestName}.json`))
 
-        cache.initCacheFromFile()
+        cache.beforeChange = (value) => {
+          if (value?.path) {
+            value._pathToDisk = removeBase(value.path, viteConfig.base)
+          }
+        }
 
         disableManifestHmr(c, cache.getManifestPath())
 
@@ -206,10 +210,6 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         }
       },
       async buildStart() {
-        if (opts.ssrBuild || viteConfig.build.ssr) {
-          return
-        }
-
         // skip server restart when options not changed
         if (eq(previousOpts, opts)) {
           return
@@ -221,7 +221,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         fs.ensureFileSync(manifestPath)
 
-        const parsedCacheJson = cache.readManifestFromFile()
+        const parsedCacheJson = cache.readManifestFile()
 
         debug('buildStart - parsedCacheJson:', parsedCacheJson)
 
@@ -249,16 +249,12 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         await buildAll(tsFilesGlob)
       },
       generateBundle() {
-        if (opts.ssrBuild || viteConfig.build.ssr) {
-          return
-        }
-
         if (opts.destination === 'memory') {
           const c = cache.get()
           Object.keys(c).forEach((key) => {
             this.emitFile({
               type: 'asset',
-              fileName: normalizeAssetsDirPath(`${c[key].path}`, viteConfig.base),
+              fileName: normalizeAssetsDirPath(`${c[key]._pathToDisk}`),
               source: c[key]._code,
             })
           })
@@ -277,7 +273,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
             if (node.nodeName === 'script') {
               const { src, vppt } = getScriptInfo(node)
 
-              if (vppt?.value && src?.value) {
+              if (vppt?.name && src?.value) {
                 const c = cache.get()
                 let cacheItem = cache.findCacheItemByPath(src.value)
 
@@ -289,9 +285,6 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
                 if (cacheItem) {
                   const attrs = node.attrs
                     .reduce((acc, attr) => {
-                      if (attr.name === vppt.name) {
-                        return acc
-                      }
                       if (attr.name === src.name) {
                         acc += ` ${attr.name}="${cacheItem!.path}"`
                         return acc
@@ -368,4 +361,6 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
   return plugins as any
 }
 
-export { publicTypescript, injectScripts, esbuildTypescript }
+export { injectTagsToHtml } from './helper/html'
+export * from './plugins/inject-script'
+export { publicTypescript, esbuildTypescript }

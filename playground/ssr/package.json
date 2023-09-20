@@ -4,21 +4,25 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "node server",
+    "dev": "cross-env BASE=/ssr DEBUG=vite-plugin-public-typescript* node server",
     "build": "npm run build:client && npm run build:server",
-    "build:client": "vite build --ssrManifest --outDir dist/client",
-    "build:server": "vite build --ssr src/entry-server.ts --outDir dist/server",
-    "preview": "cross-env NODE_ENV=production node server"
+    "build:client": "cross-env BASE=/ssr vite build --ssrManifest --outDir dist/client",
+    "build:server": "cross-env BASE=/ssr vite build --ssr src/entry-server.tsx --outDir dist/server",
+    "preview": "cross-env BASE=/ssr NODE_ENV=production node server"
   },
   "dependencies": {
     "compression": "^1.7.4",
     "express": "^4.18.2",
     "lib": "file: ./../lib",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "sirv": "^2.0.3"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
     "@types/node": "^18.17.15",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
     "cross-env": "^7.0.3",
     "typescript": "^4.9.5",
     "vite": "^4.4.9",

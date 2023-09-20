@@ -104,8 +104,9 @@ export function writeFile(filename: string, content: string): void {
     // Read content first
     // if content is same, skip write file
     const oldContent = fs.readFileSync(filename, 'utf-8')
+    debug('oldContent:', oldContent, 'newContent:', newContent)
     if (oldContent && newContent === oldContent) {
-      debug('skip writeFile, content is same with old content')
+      debug('skip writeFile, content is same with old content:', oldContent)
       return
     }
   }
@@ -159,21 +160,9 @@ export function validateOptions(options: Required<VPPTPluginOptions>) {
   }
 }
 
-export function stripBase(path: string, base: string): string {
-  const devBase = base[base.length - 1] === '/' ? base : `${base}/`
-  return path.startsWith(devBase) ? path.slice(devBase.length - 1) : path
-}
-
-// normalize dir path
-export function normalizeAssetsDirPath(dir: string, base: string) {
-  dir = stripBase(dir, base)
-  if (dir.startsWith('/')) {
-    dir = dir.slice(1)
-  }
-  if (dir.endsWith('/')) {
-    dir = dir.slice(0, -1)
-  }
-  return dir
+// remove slash at the start and end of path
+export function normalizeAssetsDirPath(dir: string) {
+  return dir.replace(/^\/|\/$/g, '')
 }
 
 export function addCodeHeader(code: string) {
@@ -216,4 +205,10 @@ export function disableManifestHmr(config: ResolvedConfig, manifestPath: string)
       config.configFileDependencies.splice(index, 1)
     }
   }
+}
+
+// NOTE: remmember call this before write compiled js file to disk
+export function removeBase(filePath: string, base: string): string {
+  const devBase = base[base.length - 1] === '/' ? base : `${base}/`
+  return filePath.startsWith(devBase) ? filePath.slice(devBase.length - 1) : filePath
 }

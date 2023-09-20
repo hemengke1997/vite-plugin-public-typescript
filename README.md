@@ -117,14 +117,12 @@ export default defineConfig({
 #### vite config
 
 ```typescript
-import { HtmlTagDescriptor, defineConfig } from 'vite'
+import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 
 export default defineConfig({
   plugins: [
-    publicTypescript({
-      manifestName: 'custom-manifest',
-    }),
+    publicTypescript(),
   ],
 })
 ```
@@ -132,7 +130,7 @@ export default defineConfig({
 #### server.js
 
 ```js
-import manifest from './public-typescript/custom-manifest.json' assert { type: 'json' }
+import manifest from './public-typescript/manifest.json' assert { type: 'json' }
 
 const html = template
   // inject js

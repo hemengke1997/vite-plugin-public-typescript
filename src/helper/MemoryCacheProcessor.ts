@@ -9,8 +9,8 @@ export class MemoryCacheProcessor extends AbsCacheProcessor {
   }
 
   async deleteOldJs(args: IDeleteFile): Promise<void> {
-    const { tsFileName, silent } = args
-    this.cache.remove(tsFileName, { disableWatch: silent })
+    const { tsFileName } = args
+    this.cache.remove(tsFileName)
   }
 
   async addNewJs(args: IAddFile): Promise<void> {
