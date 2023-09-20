@@ -159,8 +159,14 @@ export function validateOptions(options: Required<VPPTPluginOptions>) {
   }
 }
 
+export function stripBase(path: string, base: string): string {
+  const devBase = base[base.length - 1] === '/' ? base : `${base}/`
+  return path.startsWith(devBase) ? path.slice(devBase.length - 1) : path
+}
+
 // normalize dir path
-export function normalizeDirPath(dir: string) {
+export function normalizeAssetsDirPath(dir: string, base: string) {
+  dir = stripBase(dir, base)
   if (dir.startsWith('/')) {
     dir = dir.slice(1)
   }

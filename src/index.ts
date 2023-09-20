@@ -15,7 +15,7 @@ import {
   findAllOldJsFile,
   getInputDir,
   isEmptyObject,
-  normalizeDirPath,
+  normalizeAssetsDirPath,
   reloadPage,
   removeOldJsFiles,
   validateOptions,
@@ -258,7 +258,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           Object.keys(c).forEach((key) => {
             this.emitFile({
               type: 'asset',
-              fileName: normalizeDirPath(`${c[key].path}`),
+              fileName: normalizeAssetsDirPath(`${c[key].path}`, viteConfig.base),
               source: c[key]._code,
             })
           })

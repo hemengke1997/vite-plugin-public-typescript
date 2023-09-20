@@ -1,6 +1,7 @@
 import { normalizePath } from 'vite'
 import createDebug from 'debug'
 import type { ManifestCache } from './ManifestCache'
+import type { TGlobalConfig } from './GlobalConfigBuilder'
 
 const debug = createDebug('vite-plugin-public-typescript:AbsCacheProcessor ===> ')
 
@@ -45,23 +46,23 @@ export abstract class AbsCacheProcessor {
     await this.addNewJs({ code, tsFileName, contentHash })
   }
 
-  setCache(
-    args: IAddFile,
-    config: {
-      outputDir: string
-    },
-  ) {
+  setCache(args: IAddFile, config: TGlobalConfig) {
     const { contentHash, code = '', tsFileName } = args
-    const { outputDir } = config
+    const {
+      outputDir,
+      viteConfig: { base },
+    } = config
+
+    const outputDirPrefix = base + outputDir
 
     function getOutputPath(p: string, hash?: string) {
       hash = hash ? `.${hash}` : ''
       return normalizePath(`${p}/${tsFileName}${hash}.js`)
     }
 
-    let outputPath = getOutputPath(outputDir)
+    let outputPath = getOutputPath(outputDirPrefix)
     if (contentHash) {
-      outputPath = getOutputPath(outputDir, contentHash)
+      outputPath = getOutputPath(outputDirPrefix, contentHash)
     }
 
     this.cache.set({

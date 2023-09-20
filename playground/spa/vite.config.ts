@@ -6,6 +6,7 @@ import manifest from './public-typescript/manifest.json'
 
 // https://vitejs.dev/config/
 export default defineConfig((env) => ({
+  base: '/spa',
   define: {
     haha: JSON.stringify('custom define!'),
     app: JSON.stringify({ hello: 'world' }),

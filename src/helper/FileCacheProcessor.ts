@@ -6,7 +6,7 @@ import { assert } from './assert'
 import { globalConfigBuilder } from './GlobalConfigBuilder'
 import { AbsCacheProcessor } from './AbsCacheProcessor'
 import type { IAddFile, IDeleteFile } from './AbsCacheProcessor'
-import { findAllOldJsFile, writeFile } from './utils'
+import { findAllOldJsFile, stripBase, writeFile } from './utils'
 import type { ManifestCache } from './ManifestCache'
 
 const debug = createDebug('FileCacheProcessor ===> ')
@@ -67,14 +67,14 @@ export class FileCacheProcessor extends AbsCacheProcessor {
   async addNewJs(args: IAddFile): Promise<void> {
     const { code = '' } = args
     const {
-      viteConfig: { publicDir },
+      viteConfig: { publicDir, base },
     } = globalConfigBuilder.get()
 
     const outPath = this.setCache(args, globalConfigBuilder.get())
 
-    const fp = normalizePath(path.join(publicDir, outPath))
+    const fp = normalizePath(path.join(publicDir, stripBase(outPath, base)))
 
-    await fs.ensureDir(path.dirname(fp))
+    fs.ensureDirSync(path.dirname(fp))
 
     writeFile(fp, code)
   }
