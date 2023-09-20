@@ -1,3 +1,12 @@
+## [1.5.4](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.3...v1.5.4) (2023-09-20)
+
+
+### Bug Fixes
+
+* script attributes maybe falsy ([d9db386](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/d9db386dc2a940a73d95548de4c3d7d1fb411668))
+
+
+
 ## [1.5.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.2...v1.5.3) (2023-09-20)
 
 
