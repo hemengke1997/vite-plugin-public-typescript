@@ -1,3 +1,12 @@
+## [1.5.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.2...v1.5.3) (2023-09-20)
+
+
+### Bug Fixes
+
+* vite `base` config ([e615d50](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e615d509959cddbb0f70e3ebed7f4539383cf0c6))
+
+
+
 ## [1.5.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.1...v1.5.2) (2023-09-15)
 
 
