@@ -9,7 +9,7 @@ import {
   setEol,
   validateOptions,
 } from '../src/helper/utils'
-import { globalConfigBuilder } from '../src/helper/GlobalConfigBuilder'
+import { globalConfig } from '../src/global-config'
 
 describe('vite-plugin-public-typescript', () => {
   it('should return true when filePath is a public typescript file', () => {
@@ -71,7 +71,7 @@ describe('vite-plugin-public-typescript', () => {
   })
 
   test('should get globalConfig', () => {
-    expect(() => globalConfigBuilder.get()).not.toThrowError()
+    expect(() => globalConfig.get()).not.toThrowError()
   })
 
   test('should extract hash', () => {

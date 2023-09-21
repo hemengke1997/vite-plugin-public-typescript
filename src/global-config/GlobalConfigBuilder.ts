@@ -1,30 +1,30 @@
 import path from 'path'
 import type { ResolvedConfig } from 'vite'
 import type { VPPTPluginOptions } from '..'
-import type { AbsCacheProcessor } from './AbsCacheProcessor'
-import type { ManifestCache } from './ManifestCache'
+import type { BaseCacheProcessor } from '../processor/BaseCacheProcessor'
+import type { CacheValue, ManifestCache } from '../manifest-cache/ManifestCache'
 
-export type UserConfig =
+export type UserConfig<T extends CacheValue = CacheValue> =
   | {
-      cache: ManifestCache
-      tsFilesGlob: string[]
+      manifestCache: ManifestCache<T>
+      originFilesGlob: string[]
       viteConfig: ResolvedConfig
-      cacheProcessor: AbsCacheProcessor
+      cacheProcessor: BaseCacheProcessor<T>
     } & Required<VPPTPluginOptions>
 
-export type TGlobalConfig = UserConfig & {
+export type GlobalConfig<T extends CacheValue = CacheValue> = UserConfig<T> & {
   absOutputDir: string
   absInputDir: string
 }
 
-class GlobalConfigBuilder {
-  private globalConfig: TGlobalConfig
+export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
+  private globalConfig: GlobalConfig<T>
 
   constructor() {
-    this.globalConfig = {} as TGlobalConfig
+    this.globalConfig = {} as GlobalConfig<T>
   }
 
-  init(c: UserConfig) {
+  init(c: UserConfig<T>) {
     const root = c.viteConfig.root || process.cwd()
     const absOutputDir = path.join(root, c.outputDir)
     const absInputDir = path.join(root, c.inputDir)
@@ -41,7 +41,7 @@ class GlobalConfigBuilder {
     return this.globalConfig
   }
 
-  set(c: UserConfig) {
+  set(c: UserConfig<T>) {
     this.globalConfig = {
       ...this.get(),
       ...c,
@@ -49,7 +49,3 @@ class GlobalConfigBuilder {
     return this
   }
 }
-
-const globalConfigBuilder = new GlobalConfigBuilder()
-
-export { globalConfigBuilder }

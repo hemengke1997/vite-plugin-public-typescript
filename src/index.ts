@@ -21,12 +21,12 @@ import {
   removeOldJsFiles,
   validateOptions,
 } from './helper/utils'
-import { build, buildAll, esbuildTypescript } from './helper/build'
+import { build, buildAllOnce, esbuildTypescript } from './helper/build'
 import { assert } from './helper/assert'
-import { globalConfigBuilder } from './helper/GlobalConfigBuilder'
-import { initCacheProcessor } from './helper/processor'
-import { ManifestCache } from './helper/ManifestCache'
 import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
+import { initCacheProcessor } from './processor/processor'
+import { globalConfig } from './global-config'
+import { manifestCache } from './manifest-cache'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
 
@@ -93,15 +93,6 @@ export const DEFAULT_OPTIONS: Required<VPPTPluginOptions> = {
 
 let previousOpts: VPPTPluginOptions
 
-type CacheItemType = {
-  path: string
-  _code?: string
-  _hash?: string
-  _pathToDisk?: string
-}
-
-const cache = new ManifestCache<CacheItemType>()
-
 export default function publicTypescript(options: VPPTPluginOptions = {}) {
   const opts = {
     ...DEFAULT_OPTIONS,
@@ -125,36 +116,36 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
 
-        const tsFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*.ts`), {
+        const originFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*.ts`), {
           cwd: resolvedRoot,
           absolute: true,
         })
 
-        const cacheProcessor = initCacheProcessor(opts, cache)
+        const cacheProcessor = initCacheProcessor(opts, manifestCache)
 
-        globalConfigBuilder.init({
-          cache,
-          tsFilesGlob,
+        globalConfig.init({
+          manifestCache,
+          originFilesGlob,
           viteConfig,
           cacheProcessor,
           ...opts,
         })
 
-        cache.setManifestPath(normalizePath(`${globalConfigBuilder.get().absInputDir}/${opts.manifestName}.json`))
+        manifestCache.setManifestPath(normalizePath(`${globalConfig.get().absInputDir}/${opts.manifestName}.json`))
 
-        cache.beforeChange = (value) => {
+        // no need to set `_pathToDisk` manually anymore
+        manifestCache.setBeforeSet((value) => {
           if (value?.path) {
             value._pathToDisk = removeBase(value.path, viteConfig.base)
           }
-        }
+          return value
+        })
 
-        disableManifestHmr(c, cache.getManifestPath())
+        disableManifestHmr(c, manifestCache.getManifestPath())
 
-        debug('cache manifestPath:', cache.getManifestPath())
+        debug('manifestCache manifestPath:', manifestCache.getManifestPath())
 
-        debug('cache:', cache.get())
-
-        assert(cache.getManifestPath().includes('.json'))
+        assert(manifestCache.getManifestPath().includes('.json'))
       },
 
       configureServer(server) {
@@ -165,7 +156,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         const { ws } = server
 
         try {
-          const watcher = new Watcher(globalConfigBuilder.get().absInputDir, {
+          const watcher = new Watcher(globalConfig.get().absInputDir, {
             ignoreInitial: true,
             recursive: true,
             renameDetection: true,
@@ -177,7 +168,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
             if (_isPublicTypescript(filePath)) {
               const fileName = path.parse(filePath).name
               debug('unlink:', fileName)
-              await globalConfigBuilder.get().cacheProcessor.deleteOldJs({ tsFileName: fileName })
+              await globalConfig.get().cacheProcessor.deleteOldJs({ originFileName: fileName })
               reloadPage(ws)
             }
           }
@@ -185,7 +176,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           async function handleFileAdded(filePath: string) {
             if (_isPublicTypescript(filePath)) {
               debug('file added:', filePath)
-              await build({ filePath }, (args) => globalConfigBuilder.get().cacheProcessor.onTsBuildEnd(args))
+              await build({ filePath }, (...args) => globalConfig.get().cacheProcessor.onTsBuildEnd(...args))
               reloadPage(ws)
             }
           }
@@ -217,40 +208,49 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         previousOpts = opts
 
-        const manifestPath = cache.getManifestPath()
+        const manifestPath = manifestCache.getManifestPath()
 
         fs.ensureFileSync(manifestPath)
 
-        const parsedCacheJson = cache.readManifestFile()
+        const parsedCacheJson = manifestCache.readManifestFile()
 
         debug('buildStart - parsedCacheJson:', parsedCacheJson)
 
         if (isEmptyObject(parsedCacheJson)) {
           // write empty json object to manifest.json
-          cache.writeManifestJSON()
+          manifestCache.writeManifestJSON()
         }
 
-        const { tsFilesGlob } = globalConfigBuilder.get()
+        const { originFilesGlob } = globalConfig.get()
 
-        const tsFileNames = tsFilesGlob.map((file) => path.parse(file).name)
+        const originFilesName = originFilesGlob.map((file) => path.parse(file).name)
 
-        debug('buildStart - tsFilesGlob:', tsFilesGlob)
-        debug('buildStart - tsFileNames:', tsFileNames)
+        debug('buildStart - originFilesGlob:', originFilesGlob)
+        debug('buildStart - originFilesName:', originFilesName)
 
         if (opts.destination === 'memory') {
           const oldFiles = await findAllOldJsFile({
             outputDir: opts.outputDir,
             publicDir: viteConfig.publicDir,
-            tsFileNames,
+            originFilesName,
           })
           removeOldJsFiles(oldFiles)
+
+          // if dir is empty, delete it
+          const dir = path.join(viteConfig.publicDir, opts.outputDir)
+          if (fs.existsSync(dir) && opts.outputDir !== '/') {
+            const files = fs.readdirSync(dir)
+            if (!files.length) {
+              fs.removeSync(dir)
+            }
+          }
         }
 
-        await buildAll(tsFilesGlob)
+        buildAllOnce(originFilesGlob)
       },
       generateBundle() {
         if (opts.destination === 'memory') {
-          const c = cache.get()
+          const c = manifestCache.get()
           Object.keys(c).forEach((key) => {
             this.emitFile({
               type: 'asset',
@@ -274,8 +274,8 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
               const { src, vppt } = getScriptInfo(node)
 
               if (vppt?.name && src?.value) {
-                const c = cache.get()
-                let cacheItem = cache.findCacheItemByPath(src.value)
+                const c = manifestCache.get()
+                let cacheItem = manifestCache.findCacheItemByPath(src.value)
 
                 if (!cacheItem) {
                   const fileName = path.basename(src.value).split('.')[0]
@@ -314,7 +314,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         if (_isPublicTypescript(file)) {
           debug('hmr:', file)
 
-          await build({ filePath: file }, (args) => globalConfigBuilder.get().cacheProcessor.onTsBuildEnd(args))
+          await build({ filePath: file }, (...args) => globalConfig.get().cacheProcessor.onTsBuildEnd(...args))
 
           reloadPage(server.ws)
 
@@ -327,7 +327,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
       apply: 'serve',
       enforce: 'post',
       load(id) {
-        const cacheItem = cache.findCacheItemByPath(id)
+        const cacheItem = manifestCache.findCacheItemByPath(id)
         if (cacheItem) {
           return {
             code: '',
@@ -339,7 +339,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         server.middlewares.use((req, res, next) => {
           try {
             if (req?.url?.startsWith('/') && req?.url?.endsWith('.js')) {
-              const cacheItem = cache.findCacheItemByPath(req.url)
+              const cacheItem = manifestCache.findCacheItemByPath(req.url)
               if (cacheItem) {
                 return send(req, res, addCodeHeader(cacheItem._code || ''), 'js', {
                   cacheControl: 'max-age=31536000,immutable',

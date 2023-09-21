@@ -6,7 +6,7 @@ import fs from 'fs-extra'
 import createDebug from 'debug'
 import glob from 'tiny-glob'
 import type { VPPTPluginOptions } from '..'
-import { globalConfigBuilder } from './GlobalConfigBuilder'
+import { globalConfig } from '../global-config'
 import { assert } from './assert'
 
 const debug = createDebug('vite-plugin-public-typescript:util ===> ')
@@ -28,9 +28,12 @@ export function isPublicTypescript(args: { filePath: string; inputDir: string; r
 }
 
 export function _isPublicTypescript(filePath: string) {
-  const globalConfig = globalConfigBuilder.get()
-  assert(!!globalConfig)
-  return isPublicTypescript({ filePath, inputDir: globalConfig.inputDir, root: globalConfig.viteConfig.root })
+  assert(!!globalConfig.get())
+  return isPublicTypescript({
+    filePath,
+    inputDir: globalConfig.get().inputDir,
+    root: globalConfig.get().viteConfig.root,
+  })
 }
 
 export function isWindows() {
@@ -95,7 +98,7 @@ export function writeFile(filename: string, content: string): void {
   const newContent = setEol(content)
 
   if (fs.existsSync(filename)) {
-    const { hash } = globalConfigBuilder.get()
+    const { hash } = globalConfig.get()
     if (extractHashFromFileName(filename, hash)) {
       // if filename has hash, skip write file
       debug('skip writeFile, filename has hash')
@@ -173,13 +176,13 @@ export function getInputDir(resolvedRoot: string, originInputDir: string, suffix
   return normalizePath(path.resolve(resolvedRoot, `${originInputDir}${suffix}`))
 }
 
-export async function findAllOldJsFile(args: { publicDir: string; outputDir: string; tsFileNames: string[] }) {
-  const { publicDir, outputDir, tsFileNames } = args
+export async function findAllOldJsFile(args: { publicDir: string; outputDir: string; originFilesName: string[] }) {
+  const { publicDir, outputDir, originFilesName } = args
   const dir = path.join(publicDir, outputDir)
   const oldFiles: string[] = []
   if (fs.existsSync(dir)) {
-    for (const tsFileName of tsFileNames) {
-      const old = await glob(normalizePath(path.join(publicDir, `${outputDir}/${tsFileName}.?(*.)js`)))
+    for (const originFileName of originFilesName) {
+      const old = await glob(normalizePath(path.join(publicDir, `${outputDir}/${originFileName}.?(*.)js`)))
       if (old.length) {
         oldFiles.push(...old)
       }

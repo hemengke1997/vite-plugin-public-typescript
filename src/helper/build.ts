@@ -5,9 +5,9 @@ import { build as esbuild } from 'esbuild'
 import createDebug from 'debug'
 import type { VPPTPluginOptions } from '..'
 import { name } from '../../package.json'
-import { globalConfigBuilder } from './GlobalConfigBuilder'
+import type { BaseCacheProcessor } from '../processor/BaseCacheProcessor'
+import { globalConfig } from '../global-config'
 import { getContentHash } from './utils'
-import type { BuildEndArgs } from './AbsCacheProcessor'
 
 const debug = createDebug('vite-plugin-public-typescript:build ===> ')
 
@@ -70,7 +70,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
   const define = transformEnvToDefine(viteConfig)
 
-  debug('esbuild define:', define)
+  debug('tsFile:', filePath, 'esbuild define:', define)
 
   let res: BuildResult
   try {
@@ -101,38 +101,49 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   return code
 }
 
-export async function build(options: { filePath: string }, onBuildEnd?: (args: BuildEndArgs) => Promise<void>) {
+export async function build(options: { filePath: string }, onBuildEnd?: BaseCacheProcessor['onTsBuildEnd']) {
   const { filePath } = options
-  const globalConfig = globalConfigBuilder.get()
+  const getGlobalConfig = globalConfig.get()
 
   const originFileName = path.basename(filePath, path.extname(filePath))
 
   let contentHash = ''
-  let fileNameWithHash = originFileName
+  let compiledFileName = originFileName
 
-  const code = (await esbuildTypescript({ filePath, ...globalConfig })) || ''
+  const code = (await esbuildTypescript({ filePath, ...getGlobalConfig })) || ''
 
-  if (globalConfig.hash) {
-    contentHash = getContentHash(code, globalConfig.hash)
-    fileNameWithHash = `${originFileName}.${contentHash}`
+  if (getGlobalConfig.hash) {
+    contentHash = getContentHash(code, getGlobalConfig.hash)
+    compiledFileName = `${originFileName}.${contentHash}`
   }
 
-  debug('before onBuildEnd cache:', globalConfig.cache.get())
+  debug('before onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.get())
 
-  await onBuildEnd?.({
-    tsFileName: originFileName,
-    jsFileNameWithHash: fileNameWithHash,
-    code,
-    contentHash,
-  })
+  await onBuildEnd?.(
+    {
+      compiledFileName,
+      originFileName,
+      silent: true,
+    },
+    { contentHash, code, silent: false, originFileName },
+  )
 
-  debug('after onBuildEnd cache:', globalConfig.cache.get())
+  debug('after onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.get())
 }
 
-export async function buildAll(tsFilesGlob: string[]) {
-  const { cacheProcessor } = globalConfigBuilder.get()
+export async function buildAllOnce(tsFilesGlob: string[]) {
+  const { cacheProcessor } = globalConfig.get()
+
+  const toBuildList: (() => Promise<void>)[] = []
 
   for (const file of tsFilesGlob) {
-    await build({ filePath: file }, (args) => cacheProcessor.onTsBuildEnd(args))
+    toBuildList.push(() =>
+      build({ filePath: file }, (deleteArgs, addArgs) =>
+        cacheProcessor.onTsBuildEnd({ ...deleteArgs, silent: true }, { ...addArgs, silent: true }),
+      ),
+    )
   }
+
+  await Promise.all(toBuildList.map((fn) => fn()))
+  cacheProcessor.manifestCache.writeManifestJSON()
 }

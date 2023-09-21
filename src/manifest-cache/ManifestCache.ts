@@ -1,17 +1,14 @@
 import path from 'path'
 import fs from 'fs-extra'
-import type { ApplyData } from 'on-change'
 import onChange from 'on-change'
 import createDebug from 'debug'
-import { writeFile } from './utils'
+import { writeFile } from '../helper/utils'
 
 const debug = createDebug('vite-plugin-public-typescript:ManifestCache ===> ')
 
 type PathOnlyCache = Record<string, string>
 
-type _OnChangeType<ValueType> = (path: string, value: ValueType, previousValue: ValueType, applyData: ApplyData) => void
-
-export interface IManifestConstructor {
+export interface ManifestConstructor {
   write?: boolean
 }
 
@@ -20,40 +17,38 @@ export interface IManifestConstructor {
  * {
  *   fileName: {
  *    path: '/some-path',
- *    _code: 'compiled code'
  *    // and more
  *   }
  * }
  */
-export type TCacheValue = {
+export type CacheValue = {
   path: string
 } & Partial<{ [_key: string]: string }>
 
-export type TDefaultCache<V extends TCacheValue> = {
+export type CacheObject<V extends CacheValue> = {
   [fileName in string]: V
 }
 
-const DEFAULT_OPTIONS: IManifestConstructor = {
+const DEFAULT_OPTIONS: ManifestConstructor = {
   write: true,
 }
 
-export class ManifestCache<T extends TCacheValue = TCacheValue, U extends TDefaultCache<T> = TDefaultCache<T>> {
+export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObject<T> = CacheObject<T>> {
   private cache: U
 
   private manifestPath = ''
+  private beforeSet = (value: T | undefined) => {
+    return value
+  }
 
-  beforeChange: (value: T | undefined) => void = () => {}
-
-  constructor(options?: IManifestConstructor) {
+  constructor(options?: ManifestConstructor) {
     options = {
       ...DEFAULT_OPTIONS,
       ...options,
     }
 
     this.cache = onChange<U>({} as U, (...args) => {
-      debug('cache changed:', this.cache)
-
-      this.beforeChange(args[1] as T)
+      debug('cache changed:', this.cache, 'onChange args:', args)
 
       if (options!.write) {
         this.writeManifestJSON()
@@ -65,6 +60,11 @@ export class ManifestCache<T extends TCacheValue = TCacheValue, U extends TDefau
     return Object.assign({}, this.cache)
   }
 
+  setBeforeSet(fn: typeof this.beforeSet) {
+    this.beforeSet = fn
+    return this
+  }
+
   // NOTE: the only way to set cache
   set(c: U, opts?: { silent?: boolean }) {
     const keys = Object.keys(c)
@@ -73,10 +73,12 @@ export class ManifestCache<T extends TCacheValue = TCacheValue, U extends TDefau
       const cacheV = this.getByKey(k)
 
       if (cacheV !== c[k]) {
+        const value = this.beforeSet(c[k]) as U[keyof U]
+
         if (opts?.silent) {
-          onChange.target(this.cache)[k] = c[k]
+          onChange.target(this.cache)[k] = value
         } else {
-          this.cache[k] = c[k]
+          this.cache[k] = value
         }
       }
     })
@@ -135,11 +137,20 @@ export class ManifestCache<T extends TCacheValue = TCacheValue, U extends TDefau
     return this.extractPath(this.get())
   }
 
+  sortObjectByKey(c: PathOnlyCache) {
+    const keys = Object.keys(c).sort()
+    const sortedCache: PathOnlyCache = {}
+    keys.forEach((k) => {
+      sortedCache[k] = c[k]
+    })
+    return sortedCache
+  }
+
   writeManifestJSON() {
     const targetPath = this.getManifestPath()
 
     const cacheObj = this.getManifestJson()
-    const orderdCache = Object.assign({}, cacheObj)
+    const orderdCache = this.sortObjectByKey(cacheObj)
 
     writeFile(targetPath, JSON.stringify(orderdCache || {}, null, 2))
 
