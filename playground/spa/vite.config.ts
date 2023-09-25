@@ -1,5 +1,4 @@
-import type { HtmlTagDescriptor } from 'vite'
-import { defineConfig } from 'vite'
+import { type HtmlTagDescriptor, defineConfig } from 'vite'
 import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
 import react from '@vitejs/plugin-react'
 import manifest from './public-typescript/manifest.json'

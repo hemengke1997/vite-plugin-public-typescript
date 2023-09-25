@@ -1,5 +1,4 @@
-import type { Options } from 'tsup'
-import { defineConfig } from 'tsup'
+import { type Options, defineConfig } from 'tsup'
 
 const commonConfig = (option: Options): Options => {
   return {

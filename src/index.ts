@@ -1,12 +1,10 @@
-import path from 'path'
-import type { PluginOption, ResolvedConfig } from 'vite'
-import { normalizePath, send } from 'vite'
+import path from 'node:path'
 import glob from 'tiny-glob'
-import type { BuildOptions } from 'esbuild'
-import Watcher from 'watcher'
 import fs from 'fs-extra'
 import createDebug from 'debug'
 import MagicString from 'magic-string'
+import { type PluginOption, type ResolvedConfig, normalizePath, send } from 'vite'
+import { type BuildOptions } from 'esbuild'
 import {
   _isPublicTypescript,
   addCodeHeader,
@@ -27,6 +25,7 @@ import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
 import { initCacheProcessor } from './processor/processor'
 import { globalConfig } from './global-config'
 import { manifestCache } from './manifest-cache'
+import { initWatcher } from './helper/file-watcher'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
 
@@ -82,13 +81,13 @@ export interface VPPTPluginOptions {
 }
 
 export const DEFAULT_OPTIONS: Required<VPPTPluginOptions> = {
-  inputDir: 'public-typescript',
-  outputDir: '/',
-  manifestName: 'manifest',
-  hash: true,
-  esbuildOptions: {},
-  sideEffects: false,
   destination: 'memory',
+  esbuildOptions: {},
+  hash: true,
+  inputDir: 'public-typescript',
+  manifestName: 'manifest',
+  outputDir: '/',
+  sideEffects: false,
 }
 
 let previousOpts: VPPTPluginOptions
@@ -117,17 +116,17 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
 
         const originFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*.ts`), {
-          cwd: resolvedRoot,
           absolute: true,
+          cwd: resolvedRoot,
         })
 
         const cacheProcessor = initCacheProcessor(opts, manifestCache)
 
         globalConfig.init({
+          cacheProcessor,
           manifestCache,
           originFilesGlob,
           viteConfig,
-          cacheProcessor,
           ...opts,
         })
 
@@ -147,7 +146,6 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         assert(manifestCache.getManifestPath().includes('.json'))
       },
-
       configureServer(server) {
         if (process.env.VITEST || process.env.CI) {
           return
@@ -155,50 +153,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         const { ws } = server
 
-        try {
-          const watcher = new Watcher(globalConfig.get().absInputDir, {
-            ignoreInitial: true,
-            recursive: true,
-            renameDetection: true,
-            debounce: 0,
-            renameTimeout: 0,
-          })
-
-          async function handleUnlink(filePath: string) {
-            if (_isPublicTypescript(filePath)) {
-              const fileName = path.parse(filePath).name
-              debug('unlink:', fileName)
-              await globalConfig.get().cacheProcessor.deleteOldJs({ originFileName: fileName })
-              reloadPage(ws)
-            }
-          }
-
-          async function handleFileAdded(filePath: string) {
-            if (_isPublicTypescript(filePath)) {
-              debug('file added:', filePath)
-              await build({ filePath }, (...args) => globalConfig.get().cacheProcessor.onTsBuildEnd(...args))
-              reloadPage(ws)
-            }
-          }
-
-          async function handleFileRenamed(filePath: string, filePathNext: string) {
-            if (_isPublicTypescript(filePath)) {
-              debug('file renamed:', filePath, '==>', filePathNext)
-              await handleUnlink(filePath)
-              await handleFileAdded(filePathNext)
-            }
-          }
-
-          watcher.on('unlink', handleUnlink)
-
-          watcher.on('add', handleFileAdded)
-
-          watcher.on('rename', async (f, fNext) => {
-            await handleFileRenamed(f, fNext)
-          })
-        } catch (e) {
-          console.error(e)
-        }
+        initWatcher(() => reloadPage(ws))
       },
       async buildStart() {
         // skip server restart when options not changed
@@ -230,9 +185,9 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         if (opts.destination === 'memory') {
           const oldFiles = await findAllOldJsFile({
+            originFilesName,
             outputDir: opts.outputDir,
             publicDir: viteConfig.publicDir,
-            originFilesName,
           })
           removeOldJsFiles(oldFiles)
 
@@ -240,7 +195,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           const dir = path.join(viteConfig.publicDir, opts.outputDir)
           if (fs.existsSync(dir) && opts.outputDir !== '/') {
             const files = fs.readdirSync(dir)
-            if (!files.length) {
+            if (files.length === 0) {
               fs.removeSync(dir)
             }
           }
@@ -253,11 +208,24 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           const c = manifestCache.get()
           Object.keys(c).forEach((key) => {
             this.emitFile({
-              type: 'asset',
               fileName: normalizeAssetsDirPath(`${c[key]._pathToDisk}`),
               source: c[key]._code,
+              type: 'asset',
             })
           })
+        }
+      },
+      async handleHotUpdate(ctx) {
+        const { file, server } = ctx
+
+        if (_isPublicTypescript(file)) {
+          debug('hmr:', file)
+
+          await build({ filePath: file }, (...args) => globalConfig.get().cacheProcessor.onTsBuildEnd(...args))
+
+          reloadPage(server.ws)
+
+          return []
         }
       },
       transformIndexHtml: {
@@ -308,19 +276,6 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           return s.toString()
         },
       },
-      async handleHotUpdate(ctx) {
-        const { file, server } = ctx
-
-        if (_isPublicTypescript(file)) {
-          debug('hmr:', file)
-
-          await build({ filePath: file }, (...args) => globalConfig.get().cacheProcessor.onTsBuildEnd(...args))
-
-          reloadPage(server.ws)
-
-          return []
-        }
-      },
     },
     {
       name: 'vite:public-typescript:server',
@@ -348,8 +303,8 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
                 })
               }
             }
-          } catch (e) {
-            return next(e)
+          } catch (error) {
+            return next(error)
           }
           next()
         })

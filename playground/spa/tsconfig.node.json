@@ -3,9 +3,9 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
     "resolveJsonModule": true,
-    "baseUrl": "."
+    "allowSyntheticDefaultImports": true
   },
   "include": ["vite.config.ts", "public-typescript/manifest.json"]
 }

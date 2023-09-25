@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import { describe, expect, it, test } from 'vitest'
 import {
   eq,
@@ -16,14 +16,14 @@ describe('vite-plugin-public-typescript', () => {
     const filePath = 'src/foo/bar.ts'
     const root = 'src'
     const inputDir = 'foo'
-    expect(isPublicTypescript({ filePath, root, inputDir })).toBe(true)
+    expect(isPublicTypescript({ filePath, inputDir, root })).toBe(true)
   })
 
   it('should return false when filePath is not a public typescript file', () => {
     const filePath = 'src/foo/bar.js'
     const root = 'src'
     const inputDir = 'foo'
-    expect(isPublicTypescript({ filePath, root, inputDir })).toBe(false)
+    expect(isPublicTypescript({ filePath, inputDir, root })).toBe(false)
   })
 
   test('should be typescript file', () => {
@@ -32,14 +32,14 @@ describe('vite-plugin-public-typescript', () => {
     const otherFile = 'hello.js'
     const res1 = isPublicTypescript({
       filePath: path.resolve(root, `publicTypescript/${tsFile}`),
-      root,
       inputDir: 'publicTypescript',
+      root,
     })
 
     const res2 = isPublicTypescript({
       filePath: path.resolve(root, `publicTypescript/${otherFile}`),
-      root,
       inputDir: 'publicTypescript',
+      root,
     })
 
     expect(res1).toBe(true)
@@ -83,14 +83,14 @@ describe('vite-plugin-public-typescript', () => {
 
   test('should validate options success', () => {
     const opts = {
-      inputDir: 'publicTypescript',
-      outputDir: '/',
-      manifestName: 'manifest',
-      hash: true,
-      ssrBuild: false,
-      esbuildOptions: {},
-      sideEffects: false,
       destination: 'file',
+      esbuildOptions: {},
+      hash: true,
+      inputDir: 'publicTypescript',
+      manifestName: 'manifest',
+      outputDir: '/',
+      sideEffects: false,
+      ssrBuild: false,
     } as const
 
     expect(() => validateOptions(opts)).not.toThrowError()

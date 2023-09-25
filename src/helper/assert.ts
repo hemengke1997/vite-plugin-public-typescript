@@ -5,7 +5,7 @@ function createErrorWithCleanStackTrace(errorMessage: string, numberOfStackTrace
   let err
   {
     const stackTraceLimit__original = Error.stackTraceLimit
-    Error.stackTraceLimit = Infinity
+    Error.stackTraceLimit = Number.POSITIVE_INFINITY
     err = new Error(errorMessage)
     Error.stackTraceLimit = stackTraceLimit__original
   }

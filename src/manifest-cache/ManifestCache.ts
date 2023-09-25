@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import fs from 'fs-extra'
 import onChange from 'on-change'
 import createDebug from 'debug'
@@ -93,10 +93,8 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
   remove(k: keyof U, opts?: { silent?: boolean }) {
     if (opts?.silent) {
       delete onChange.target(this.cache)[k]
-    } else {
-      if (this.cache[k]) {
-        delete this.cache[k]
-      }
+    } else if (this.cache[k]) {
+      delete this.cache[k]
     }
 
     return this
@@ -127,9 +125,10 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
   extractPath(c: U) {
     const cache = Object.assign({}, c)
     const pathOnlyCache: PathOnlyCache = {}
-    for (const key in cache) {
-      pathOnlyCache[key] = cache[key].path
-    }
+    Object.keys(cache).forEach((key) => {
+      const value = cache[key]
+      pathOnlyCache[key] = value.path
+    })
     return pathOnlyCache
   }
 

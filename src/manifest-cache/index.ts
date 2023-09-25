@@ -1,5 +1,4 @@
-import type { CacheValue } from './ManifestCache'
-import { ManifestCache } from './ManifestCache'
+import { type CacheValue, ManifestCache } from './ManifestCache'
 
 export type CacheValueEx = {
   _code?: string

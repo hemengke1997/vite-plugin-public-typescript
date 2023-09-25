@@ -1,5 +1,5 @@
-import type { DefaultTreeAdapterMap, ParserError, Token } from 'parse5'
-import type { HtmlTagDescriptor } from 'vite'
+import { type DefaultTreeAdapterMap, type ParserError, type Token } from 'parse5'
+import { type HtmlTagDescriptor } from 'vite'
 
 export const VPPT_DATA_ATTR = 'data-vppt'
 
@@ -10,11 +10,11 @@ export async function traverseHtml(
 ): Promise<void> {
   const { parse } = await import('parse5')
   const ast = parse(html, {
-    scriptingEnabled: false, // parse inside <noscript>
-    sourceCodeLocationInfo: true,
     onParseError: (e: ParserError) => {
       handleParseError(e, html, filePath)
     },
+    scriptingEnabled: false, // parse inside <noscript>
+    sourceCodeLocationInfo: true,
   })
   traverseNodes(ast, visitor)
 }
@@ -60,28 +60,29 @@ export function getScriptInfo(node: DefaultTreeAdapterMap['element']): {
 
   for (const p of node.attrs) {
     if (p.prefix !== undefined) continue
-    if (p.name === 'src') {
-      if (!src) {
-        src = p
-        sourceCodeLocation = node.sourceCodeLocation?.attrs!.src
-      }
+    if (p.name === 'src' && !src) {
+      src = p
+      sourceCodeLocation = node.sourceCodeLocation?.attrs!.src
     }
     if (p.name === VPPT_DATA_ATTR) {
       vppt = p
     }
   }
-  return { src, sourceCodeLocation, vppt }
+  return { sourceCodeLocation, src, vppt }
 }
 
 function serializeAttrs(attrs: HtmlTagDescriptor['attrs']): string {
   let res = ''
-  for (const key in attrs) {
-    if (typeof attrs[key] === 'boolean') {
-      res += attrs[key] ? ` ${key}` : ``
-    } else {
-      res += ` ${key}=${JSON.stringify(attrs[key])}`
+  if (attrs) {
+    for (const [key, value] of Object.entries(attrs)) {
+      if (typeof value === 'boolean') {
+        res += value ? ` ${key}` : ``
+      } else {
+        res += ` ${key}=${JSON.stringify(value)}`
+      }
     }
   }
+
   return res
 }
 
@@ -105,19 +106,19 @@ function serializeTag({ tag, attrs, children }: HtmlTagDescriptor, indent = ''):
 function serializeTags(tags: HtmlTagDescriptor['children'], indent = ''): string {
   if (typeof tags === 'string') {
     return tags
-  } else if (tags && tags.length) {
+  } else if (tags && tags.length > 0) {
     return tags.map((tag) => `${indent}${serializeTag(tag, indent)}\n`).join('')
   }
   return ''
 }
-const headInjectRE = /([ \t]*)<\/head>/i
-const headPrependInjectRE = /([ \t]*)<head[^>]*>/i
+const headInjectRE = /([\t ]*)<\/head>/i
+const headPrependInjectRE = /([\t ]*)<head[^>]*>/i
 
 const htmlInjectRE = /<\/html>/i
-const htmlPrependInjectRE = /([ \t]*)<html[^>]*>/i
+const htmlPrependInjectRE = /([\t ]*)<html[^>]*>/i
 
-const bodyInjectRE = /([ \t]*)<\/body>/i
-const bodyPrependInjectRE = /([ \t]*)<body[^>]*>/i
+const bodyInjectRE = /([\t ]*)<\/body>/i
+const bodyPrependInjectRE = /([\t ]*)<body[^>]*>/i
 
 const doctypePrependInjectRE = /<!doctype html>/i
 function injectToHead(html: string, tags: HtmlTagDescriptor[], prepend = false) {

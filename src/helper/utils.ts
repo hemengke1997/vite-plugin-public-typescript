@@ -1,12 +1,11 @@
-import path from 'path'
-import { createHash } from 'crypto'
-import type { ResolvedConfig, WebSocketServer } from 'vite'
-import { normalizePath } from 'vite'
+import path from 'node:path'
+import { createHash } from 'node:crypto'
+import { type ResolvedConfig, type WebSocketServer, normalizePath } from 'vite'
 import fs from 'fs-extra'
 import createDebug from 'debug'
 import glob from 'tiny-glob'
-import type { VPPTPluginOptions } from '..'
 import { globalConfig } from '../global-config'
+import { type VPPTPluginOptions } from '..'
 import { assert } from './assert'
 
 const debug = createDebug('vite-plugin-public-typescript:util ===> ')
@@ -43,7 +42,7 @@ export function isWindows() {
 export const linebreak = isWindows() ? '\r\n' : '\n'
 
 export function detectLastLine(string: string) {
-  const last = string[string.length - 1]
+  const last = string.at(-1) || ''
 
   return /(?:\r?\n)/g.test(last)
 }
@@ -129,7 +128,7 @@ export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VP
     return ''
   }
   const hashLen = getHashLen(hash)
-  return createHash('md5').update(chunk).digest('hex').substring(0, hashLen)
+  return createHash('md5').update(chunk).digest('hex').slice(0, Math.max(0, hashLen))
 }
 
 export function extractHashFromFileName(filename: string, hash: VPPTPluginOptions['hash']) {
@@ -147,11 +146,9 @@ export function validateOptions(options: Required<VPPTPluginOptions>) {
   // ensure outputDir is Dir
   if (!outputDir.startsWith('/')) {
     outputDir = `/${outputDir}`
-  } else {
-    if (outputDir.length > 1 && outputDir.endsWith('/')) {
-      // remove last slash
-      options.outputDir = outputDir.replace(/\/$/, '')
-    }
+  } else if (outputDir.length > 1 && outputDir.endsWith('/')) {
+    // remove last slash
+    options.outputDir = outputDir.replace(/\/$/, '')
   }
   options.outputDir = outputDir
 
@@ -165,7 +162,7 @@ export function validateOptions(options: Required<VPPTPluginOptions>) {
 
 // remove slash at the start and end of path
 export function normalizeAssetsDirPath(dir: string) {
-  return dir.replace(/^\/|\/$/g, '')
+  return dir.replaceAll(/^\/|\/$/g, '')
 }
 
 export function addCodeHeader(code: string) {
@@ -183,7 +180,7 @@ export async function findAllOldJsFile(args: { publicDir: string; outputDir: str
   if (fs.existsSync(dir)) {
     for (const originFileName of originFilesName) {
       const old = await glob(normalizePath(path.join(publicDir, `${outputDir}/${originFileName}.?(*.)js`)))
-      if (old.length) {
+      if (old.length > 0) {
         oldFiles.push(...old)
       }
     }
@@ -192,7 +189,7 @@ export async function findAllOldJsFile(args: { publicDir: string; outputDir: str
 }
 
 export function removeOldJsFiles(oldFiles: string[]) {
-  if (oldFiles.length) {
+  if (oldFiles.length > 0) {
     for (const f of oldFiles) {
       if (fs.existsSync(f)) {
         fs.removeSync(f)
@@ -212,6 +209,6 @@ export function disableManifestHmr(config: ResolvedConfig, manifestPath: string)
 
 // NOTE: remmember call this before write compiled js file to disk
 export function removeBase(filePath: string, base: string): string {
-  const devBase = base[base.length - 1] === '/' ? base : `${base}/`
+  const devBase = base.at(-1) === '/' ? base : `${base}/`
   return filePath.startsWith(devBase) ? filePath.slice(devBase.length - 1) : filePath
 }

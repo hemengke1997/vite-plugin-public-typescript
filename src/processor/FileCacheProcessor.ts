@@ -1,14 +1,13 @@
-import path from 'path'
+import path from 'node:path'
 import fs from 'fs-extra'
 import { normalizePath } from 'vite'
 import createDebug from 'debug'
 import { findAllOldJsFile, writeFile } from '../helper/utils'
 import { assert } from '../helper/assert'
-import type { ManifestCache } from '../manifest-cache/ManifestCache'
-import type { CacheValueEx } from '../manifest-cache'
 import { globalConfig } from '../global-config'
-import type { AddFileArgs, DeleteFileArgs } from './ManifestCacheProcessor'
-import { ManifestCacheProcessor } from './ManifestCacheProcessor'
+import { type ManifestCache } from '../manifest-cache/ManifestCache'
+import { type CacheValueEx } from '../manifest-cache'
+import { type AddFileArgs, type DeleteFileArgs, ManifestCacheProcessor } from './ManifestCacheProcessor'
 
 const debug = createDebug('FileCacheProcessor ===> ')
 
@@ -17,6 +16,7 @@ const debug = createDebug('FileCacheProcessor ===> ')
 export class FileCacheProcessor extends ManifestCacheProcessor {
   constructor(manifestCache: ManifestCache<CacheValueEx>) {
     super(manifestCache)
+    this.manifestCache = manifestCache
   }
 
   async deleteOldJs(args: DeleteFileArgs): Promise<void> {
@@ -31,12 +31,12 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
     try {
       fs.ensureDirSync(path.join(publicDir, outputDir))
       oldFiles = await findAllOldJsFile({
+        originFilesName: [originFileName],
         outputDir,
         publicDir,
-        originFilesName: [originFileName],
       })
-    } catch (e) {
-      console.error(e)
+    } catch (error) {
+      console.error(error)
     }
 
     debug('deleteOldJsFile - oldFiles:', oldFiles)
@@ -45,7 +45,7 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
 
     debug('manifestCache:', this.manifestCache.get())
 
-    if (oldFiles.length) {
+    if (oldFiles.length > 0) {
       for (const f of oldFiles) {
         if (path.parse(f).name === compiledFileName) {
           debug('deleteOldJsFile - skip file:', compiledFileName)

@@ -1,12 +1,11 @@
-import path from 'path'
-import type { ResolvedConfig } from 'vite'
-import type { BuildResult, Plugin } from 'esbuild'
-import { build as esbuild } from 'esbuild'
+import path from 'node:path'
 import createDebug from 'debug'
-import type { VPPTPluginOptions } from '..'
+import { type BuildResult, type Plugin, build as esbuild } from 'esbuild'
+import { type ResolvedConfig } from 'vite'
 import { name } from '../../package.json'
-import type { BaseCacheProcessor } from '../processor/BaseCacheProcessor'
+import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
 import { globalConfig } from '../global-config'
+import { type VPPTPluginOptions } from '..'
 import { getContentHash } from './utils'
 
 const debug = createDebug('vite-plugin-public-typescript:build ===> ')
@@ -38,15 +37,14 @@ function transformEnvToDefine(viteConfig: ResolvedConfig) {
     SSR: !!viteConfig.build.ssr,
   }
 
-  for (const key in env) {
+  Object.keys(env).forEach((key) => {
     importMetaKeys[`import.meta.env.${key}`] = JSON.stringify(env[key])
-  }
+  })
 
-  for (const key in viteConfig.define) {
-    const c = viteConfig.define[key]
-
-    defineKeys[key] = typeof c === 'string' ? c : JSON.stringify(viteConfig.define[key])
-  }
+  Object.keys(viteConfig.define || []).forEach((key) => {
+    const c = viteConfig.define?.[key]
+    defineKeys[key] = typeof c === 'string' ? c : JSON.stringify(viteConfig.define?.[key])
+  })
 
   return {
     'import.meta.env': JSON.stringify(viteConfig.env),
@@ -75,24 +73,24 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   let res: BuildResult
   try {
     res = await esbuild({
-      entryPoints: [filePath],
-      write: false,
-      platform: 'browser',
       bundle: true,
-      format: 'iife',
-      sourcemap: false,
-      treeShaking: true,
-      splitting: false,
-      minify: true,
-      plugins: esbuildPlugins,
-      logLevel: sideEffects ? undefined : 'error',
       define,
+      entryPoints: [filePath],
+      format: 'iife',
+      logLevel: sideEffects ? undefined : 'error',
+      minify: true,
+      platform: 'browser',
+      plugins: esbuildPlugins,
+      sourcemap: false,
+      splitting: false,
+      treeShaking: true,
+      write: false,
       ...rest,
     })
 
     debug('esbuild success:', filePath)
-  } catch (e) {
-    console.error(`[${name}]`, e)
+  } catch (error) {
+    console.error(`[${name}]`, error)
     return
   }
 
@@ -125,7 +123,7 @@ export async function build(options: { filePath: string }, onBuildEnd?: BaseCach
       originFileName,
       silent: true,
     },
-    { contentHash, code, silent: false, originFileName },
+    { code, contentHash, originFileName, silent: false },
   )
 
   debug('after onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.get())

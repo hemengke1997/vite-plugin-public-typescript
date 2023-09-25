@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "composite": true,
+    "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "jsx": "react-jsx"
+    "resolveJsonModule": true
   },
   "include": ["src/vite-env.d.ts"]
 }

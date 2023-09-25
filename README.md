@@ -130,7 +130,7 @@ export default defineConfig({
 #### server.js
 
 ```js
-import manifest from './public-typescript/manifest.json' assert { type: 'json' }
+import manifest from './public-typescript/manifest.json'
 
 const html = template
   // inject js

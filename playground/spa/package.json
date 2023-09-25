@@ -1,8 +1,8 @@
 {
   "name": "spa",
-  "type": "module",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "debug": "cross-env DEBUG=vite-plugin-public-typescript* vite",
