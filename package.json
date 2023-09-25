@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-public-typescript",
-  "version": "1.5.4",
-  "description": "A vite plugin that compiles typescript to javascript for direct use in the browser. 编译typescript至javascript，供浏览器直接使用",
+  "version": "1.5.5",
+  "description": "A vite plugin that compiles typescript to javascript for direct use in the browser. 动态编译 typescript 至 javascript 的 vite插件",
   "type": "module",
   "keywords": [
     "vite",
