@@ -1,4 +1,3 @@
-// Taken from https://github.com/brillout/vite-plugin-ssr/blob/main/vite-plugin-ssr/utils/assert.ts
 export { createErrorWithCleanStackTrace }
 
 function createErrorWithCleanStackTrace(errorMessage: string, numberOfStackTraceLinesToRemove: number) {

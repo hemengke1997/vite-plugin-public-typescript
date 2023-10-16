@@ -17,17 +17,17 @@ export type GlobalConfig<T extends CacheValue = CacheValue> = UserConfig<T> & {
 }
 
 export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
-  private globalConfig: GlobalConfig<T>
+  private _globalConfig: GlobalConfig<T>
 
   constructor() {
-    this.globalConfig = {} as GlobalConfig<T>
+    this._globalConfig = {} as GlobalConfig<T>
   }
 
   init(c: UserConfig<T>) {
     const root = c.viteConfig.root || process.cwd()
     const absOutputDir = path.join(root, c.outputDir)
     const absInputDir = path.join(root, c.inputDir)
-    this.globalConfig = {
+    this._globalConfig = {
       ...c,
       absInputDir,
       absOutputDir,
@@ -37,11 +37,11 @@ export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
   }
 
   get() {
-    return this.globalConfig
+    return this._globalConfig
   }
 
   set(c: UserConfig<T>) {
-    this.globalConfig = {
+    this._globalConfig = {
       ...this.get(),
       ...c,
     }

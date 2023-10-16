@@ -9,7 +9,7 @@ const debug = createDebug('vite-plugin-public-typescript:ManifestCache ===> ')
 type PathOnlyCache = Record<string, string>
 
 export interface ManifestConstructor {
-  write?: boolean
+  writable?: boolean
 }
 
 /**
@@ -30,14 +30,14 @@ export type CacheObject<V extends CacheValue> = {
 }
 
 const DEFAULT_OPTIONS: ManifestConstructor = {
-  write: true,
+  writable: true,
 }
 
 export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObject<T> = CacheObject<T>> {
-  private cache: U
+  private _cache: U
 
-  private manifestPath = ''
-  private beforeSet = (value: T | undefined) => {
+  private _manifestPath = ''
+  private _beforeSet = (value: T | undefined) => {
     return value
   }
 
@@ -47,21 +47,21 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
       ...options,
     }
 
-    this.cache = onChange<U>({} as U, (...args) => {
-      debug('cache changed:', this.cache, 'onChange args:', args)
+    this._cache = onChange<U>({} as U, (...args) => {
+      debug('cache changed:', this._cache, 'onChange args:', args)
 
-      if (options!.write) {
+      if (options!.writable) {
         this.writeManifestJSON()
       }
     })
   }
 
   get() {
-    return Object.assign({}, this.cache)
+    return Object.assign({}, this._cache)
   }
 
-  setBeforeSet(fn: typeof this.beforeSet) {
-    this.beforeSet = fn
+  setBeforeSet(fn: typeof this._beforeSet) {
+    this._beforeSet = fn
     return this
   }
 
@@ -73,12 +73,12 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
       const cacheV = this.getByKey(k)
 
       if (cacheV !== c[k]) {
-        const value = this.beforeSet(c[k]) as U[keyof U]
+        const value = this._beforeSet(c[k]) as U[keyof U]
 
         if (opts?.silent) {
-          onChange.target(this.cache)[k] = value
+          onChange.target(this._cache)[k] = value
         } else {
-          this.cache[k] = value
+          this._cache[k] = value
         }
       }
     })
@@ -87,14 +87,14 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
   }
 
   getByKey(k: keyof U): T {
-    return Object.assign({}, this.cache[k])
+    return Object.assign({}, this._cache[k])
   }
 
   remove(k: keyof U, opts?: { silent?: boolean }) {
     if (opts?.silent) {
-      delete onChange.target(this.cache)[k]
-    } else if (this.cache[k]) {
-      delete this.cache[k]
+      delete onChange.target(this._cache)[k]
+    } else if (this._cache[k]) {
+      delete this._cache[k]
     }
 
     return this
@@ -114,12 +114,12 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
   }
 
   setManifestPath(p: string) {
-    this.manifestPath = p
+    this._manifestPath = p
     fs.ensureDirSync(path.dirname(p))
   }
 
   getManifestPath() {
-    return this.manifestPath
+    return this._manifestPath
   }
 
   extractPath(c: U) {
@@ -159,12 +159,12 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
   }
 
   findCacheItemByPath(path: string) {
-    const k = Object.keys(this.cache).find((key) => {
-      if (this.cache[key].path === path) {
+    const k = Object.keys(this._cache).find((key) => {
+      if (this._cache[key].path === path) {
         return true
       }
       return false
     })
-    return k ? this.cache[k] : null
+    return k ? this._cache[k] : null
   }
 }

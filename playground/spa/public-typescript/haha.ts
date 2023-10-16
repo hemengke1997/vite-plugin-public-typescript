@@ -1,4 +1,2 @@
 // @ts-expect-error
-console.log(haha)
-// @ts-expect-error
-console.log(app)
+console.log(haha, '来自vite define的环境变量')

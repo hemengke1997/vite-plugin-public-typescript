@@ -6,6 +6,9 @@
 
 **在vite的运行时或构建时编译指定目录下的typescript文件，供开发者独立使用**
 
+## 在线示例
+[Demo](https://hemengke1997.github.io/vite-plugin-public-typescript/)
+
 ## 为什么要使用此插件
 
 - 假设你想在页面渲染之前就执行一些js代码，应该怎么办？

@@ -1,27 +1,24 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import manifest from '../public-typescript/manifest.json'
 import './App.css'
 
-// const a = manifest.haha
+function formatManifst() {
+  return Object.keys(manifest).map((key) => (
+    <div key={key} style={{ display: 'flex' }}>
+      <div>文件 {key}.ts 的 js uri 是：</div>
+      <div>{(manifest as Record<string, string>)[key]}</div>
+    </div>
+  ))
+}
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <div className='App'>
+      <h3>以下都是 vite-plugin-public-typescript 插件编译后，通过 manifest.json 文件获取的：</h3>
+      <div>{formatManifst()}</div>
+
       <div>
-        <a href='https://vitejs.dev' target='_blank' rel='noreferrer'>
-          <img src='/spa/vite.svg' className='logo' alt='Vite logo' />
-        </a>
-        <a href='https://reactjs.org' target='_blank' rel='noreferrer'>
-          <img src={reactLogo} className='logo react' alt='React logo' />
-        </a>
+        <h4>请打开控制台观察以上文件的打印</h4>
       </div>
-      <h1>Vite + React</h1>
-      <div className='card'>
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-      </div>
-      <p className='read-the-docs'>Click on the Vite and React logos to learn more</p>
     </div>
   )
 }
