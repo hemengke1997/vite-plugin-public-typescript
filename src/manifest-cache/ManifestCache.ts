@@ -37,6 +37,7 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
   private _cache: U
 
   private _manifestPath = ''
+
   private _beforeSet = (value: T | undefined) => {
     return value
   }
@@ -60,17 +61,12 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
     return Object.assign({}, this._cache)
   }
 
-  setBeforeSet(fn: typeof this._beforeSet) {
-    this._beforeSet = fn
-    return this
-  }
-
   // NOTE: the only way to set cache
   set(c: U, opts?: { silent?: boolean }) {
     const keys = Object.keys(c)
 
     keys.forEach((k: keyof U) => {
-      const cacheV = this.getByKey(k)
+      const cacheV = this.getCacheValueByKey(k)
 
       if (cacheV !== c[k]) {
         const value = this._beforeSet(c[k]) as U[keyof U]
@@ -86,10 +82,6 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
     return this
   }
 
-  getByKey(k: keyof U): T {
-    return Object.assign({}, this._cache[k])
-  }
-
   remove(k: keyof U, opts?: { silent?: boolean }) {
     if (opts?.silent) {
       delete onChange.target(this._cache)[k]
@@ -100,12 +92,20 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
     return this
   }
 
+  set beforeSet(fn: typeof this._beforeSet) {
+    this._beforeSet = fn
+  }
+
+  getCacheValueByKey(k: keyof U): T {
+    return Object.assign({}, this._cache[k])
+  }
+
   readManifestFile() {
-    if (!fs.existsSync(this.getManifestPath())) {
+    if (!fs.existsSync(this.manifestPath)) {
       return {}
     }
 
-    const cacheJson = fs.readFileSync(this.getManifestPath(), 'utf-8')
+    const cacheJson = fs.readFileSync(this.manifestPath, 'utf-8')
     if (cacheJson) {
       return JSON.parse(cacheJson)
     }
@@ -118,7 +118,7 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
     fs.ensureDirSync(path.dirname(p))
   }
 
-  getManifestPath() {
+  get manifestPath() {
     return this._manifestPath
   }
 
@@ -146,7 +146,7 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
   }
 
   writeManifestJSON() {
-    const targetPath = this.getManifestPath()
+    const targetPath = this.manifestPath
 
     const cacheObj = this.getManifestJson()
     const orderdCache = this.sortObjectByKey(cacheObj)

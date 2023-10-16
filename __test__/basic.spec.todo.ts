@@ -81,13 +81,13 @@
 
 // describe('manifestCache', () => {
 //   test('should set cache and get cache right', ({ cache }) => {
-//     expect(cache.getByKey('x')).toStrictEqual({ path: 'x.js', _code: 'console.log("x")' })
+//     expect(cache.getCacheValueByKey('x')).toStrictEqual({ path: 'x.js', _code: 'console.log("x")' })
 //   })
 
 //   test('should remove cache', ({ cache }) => {
 //     cache.remove('x')
 
-//     expect(cache.getByKey('x')).toBeFalsy()
+//     expect(cache.getCacheValueByKey('x')).toBeFalsy()
 //   })
 
 //   test('should get all', ({ cache }) => {
@@ -97,7 +97,7 @@
 
 //   test('should set manifestPath', ({ cache }) => {
 //     cache.setManifestPath(manifestPath)
-//     expect(cache.getManifestPath()).toBe(manifestPath)
+//     expect(cache.manifestPath).toBe(manifestPath)
 //   })
 
 //   test('should write manifest', ({ cache }) => {

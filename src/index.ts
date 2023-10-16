@@ -133,18 +133,18 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         manifestCache.setManifestPath(normalizePath(`${globalConfig.get().absInputDir}/${opts.manifestName}.json`))
 
         // no need to set `_pathToDisk` manually anymore
-        manifestCache.setBeforeSet((value) => {
+        manifestCache.beforeSet = (value) => {
           if (value?.path) {
             value._pathToDisk = removeBase(value.path, viteConfig.base)
           }
           return value
-        })
+        }
 
-        disableManifestHmr(c, manifestCache.getManifestPath())
+        disableManifestHmr(c, manifestCache.manifestPath)
 
-        debug('manifestCache manifestPath:', manifestCache.getManifestPath())
+        debug('manifestCache manifestPath:', manifestCache.manifestPath)
 
-        assert(manifestCache.getManifestPath().includes('.json'))
+        assert(manifestCache.manifestPath.includes('.json'))
       },
       configureServer(server) {
         if (process.env.VITEST || process.env.CI) {
@@ -163,7 +163,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         previousOpts = opts
 
-        const manifestPath = manifestCache.getManifestPath()
+        const manifestPath = manifestCache.manifestPath
 
         fs.ensureFileSync(manifestPath)
 
