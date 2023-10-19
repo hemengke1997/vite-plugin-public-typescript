@@ -23,14 +23,6 @@ export const hmrPorts = {
 
 const timeout = (n: number) => new Promise((r) => setTimeout(r, n))
 
-// async function toEl(el: string | ElementHandle): Promise<ElementHandle> {
-//   if (typeof el === 'string') {
-//     const r = await page.$(el)
-//     return r
-//   }
-//   return el
-// }
-
 export function readFile(filename: string): string {
   return fs.readFileSync(path.resolve(testDir, filename), 'utf-8')
 }

@@ -112,28 +112,23 @@ beforeAll(async (s) => {
   }
 
   try {
-    page.addListener('console', async (msg) => {
+    page.addListener('console', (msg) => {
       // ignore favicon request in headed browser
       if (
         process.env.VITE_DEBUG_SERVE &&
         msg.text().includes('Failed to load resource:') &&
         msg.location().url.includes('favicon.ico')
       ) {
-        console.log(msg, 'msg')
-        return
-      }
-      if (['React DevTools'].some((i) => msg.text().includes(i))) {
         return
       }
       browserLogs.push(msg.text())
     })
-
-    page.addListener('pageerror', (error) => {
+    page.on('pageerror', (error) => {
       browserErrors.push(error)
     })
 
     testPath = suite.filepath!
-    testName = slash(testPath).match(/playground\/([\w-]+)\//)![1]
+    testName = slash(testPath).match(/playground\/([\w-]+)\//)?.[1]
     testDir = dirname(testPath)
 
     // if this is a test placed under playground/xxx/__tests__
@@ -187,6 +182,17 @@ beforeAll(async (s) => {
   }
 })
 
+function loadConfigFromDir(dir: string) {
+  return loadConfigFromFile(
+    {
+      command: isBuild ? 'build' : 'serve',
+      mode: isBuild ? 'production' : 'development',
+    },
+    undefined,
+    dir,
+  )
+}
+
 export async function startDefaultServe(): Promise<void> {
   let config: UserConfig | null = null
   // config file near the *.spec.ts
@@ -238,7 +244,7 @@ export async function startDefaultServe(): Promise<void> {
     // use resolved port/base from server
     const devBase = server.config.base
     viteTestUrl = `http://localhost:${server.config.server.port}${devBase === '/' ? '' : devBase}`
-    await goToUrlAndWaitForViteWSConnect(page, viteTestUrl)
+    await page.goto(viteTestUrl)
   } else {
     process.env.VITE_INLINE = 'inline-build'
     // determine build watch
@@ -331,48 +337,4 @@ function setupConsoleWarnCollector(_logs: string[]) {
 
 export function slash(p: string): string {
   return p.replace(/\\/g, '/')
-}
-
-function loadConfigFromDir(dir: string) {
-  return loadConfigFromFile(
-    {
-      command: isBuild ? 'build' : 'serve',
-      mode: isBuild ? 'production' : 'development',
-    },
-    undefined,
-    dir,
-  )
-}
-
-async function goToUrlAndWaitForViteWSConnect(page: Page, url: string) {
-  return Promise.all([page.goto(url), waitForViteConnect(page, 15000)])
-}
-
-export async function waitForViteConnect(page: Page, timeoutMS = 5000) {
-  if (isBuild) {
-    return Promise.resolve() // no vite websocket on build
-  }
-  let timerId
-  let pageConsoleListener
-  const timeoutPromise = new Promise(
-    (_, reject) =>
-      (timerId = setTimeout(() => {
-        reject(`vite client not connected after ${timeoutMS}ms. url: ${page.url()}`)
-      }, timeoutMS)),
-  )
-  const connectedPromise = new Promise<void>((resolve) => {
-    pageConsoleListener = (data) => {
-      const text = data.text()
-      if (text.includes('[vite] connected.')) {
-        console.log(browserLogs, '<==== browserLogs on vite connected')
-        resolve()
-      }
-    }
-    page.addListener('console', pageConsoleListener)
-  })
-
-  return Promise.race([connectedPromise, timeoutPromise]).finally(() => {
-    page.removeListener('console', pageConsoleListener)
-    clearTimeout(timerId)
-  })
 }
