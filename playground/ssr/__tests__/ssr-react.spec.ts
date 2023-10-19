@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import { describe, expect, test } from 'vitest'
 import { port } from './serve'
-import { browserLogs, editFile, isBuild, isServe, page, untilBrowserLogAfter, untilUpdated } from '~utils'
+import { browserLogs, editFile, page, untilBrowserLogAfter, untilUpdated } from '~utils'
 
 const url = `http://localhost:${port}`
 

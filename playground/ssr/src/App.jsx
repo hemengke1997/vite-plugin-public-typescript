@@ -1,5 +1,4 @@
-import { Link, Route, Routes } from 'react-router-dom'
-
+/* eslint-disable unused-imports/no-unused-vars */
 // Auto generates routes from files under ./pages
 // https://vitejs.dev/guide/features.html#glob-import
 const pages = import.meta.glob('./pages/*.jsx', { eager: true })
