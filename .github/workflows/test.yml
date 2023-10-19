@@ -18,25 +18,36 @@ on:
 jobs:
   test:
     timeout-minutes: 20
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node_version: [16, 18, 20]
+        include:
+          # Active LTS + other OS
+          - os: macos-latest
+            node_version: 18
+          - os: windows-latest
+            node_version: 18
+      fail-fast: false
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
+        with:
+          version: 8.6.2
 
-      - name: Set node version to 18
+      - name: Set node version to ${{ matrix.node_version }}
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ matrix.node_version }}
           cache: pnpm
 
       - name: Install deps
         run: pnpm install
-
-      - name: Lint
-        run: pnpm lint
 
       # Install playwright's binary under custom directory to cache
       - name: Set Playwright path (non-windows)
