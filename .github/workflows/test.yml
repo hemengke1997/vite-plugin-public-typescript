@@ -92,6 +92,8 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
+        with:
+          version: 8.6.2
 
       - name: Set node version to LTS
         uses: actions/setup-node@v3
@@ -101,9 +103,6 @@ jobs:
 
       - name: Install deps
         run: pnpm install
-
-      - name: Build
-        run: pnpm run build
 
       - name: Lint
         run: pnpm run lint

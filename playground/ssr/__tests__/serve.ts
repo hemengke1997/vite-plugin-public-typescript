@@ -3,9 +3,12 @@
 
 import path from 'node:path'
 import kill from 'kill-port'
+import { type ViteDevServer } from 'vite'
 import { hmrPorts, isBuild, ports, rootDir } from '~utils'
 
 export const port = ports['ssr']
+
+export let viteServer: ViteDevServer
 
 export async function serve(): Promise<{ close(): Promise<void> }> {
   if (isBuild) {
@@ -28,7 +31,7 @@ export async function serve(): Promise<{ close(): Promise<void> }> {
       logLevel: 'silent',
       build: {
         target: 'esnext',
-        ssr: 'src/entry-server.jsx',
+        ssr: 'src/entry-server.tsx',
         outDir: 'dist/server',
         rollupOptions: {
           output: {
@@ -43,6 +46,8 @@ export async function serve(): Promise<{ close(): Promise<void> }> {
 
   const { createServer } = await import(path.resolve(rootDir, 'server.js'))
   const { app, vite } = await createServer(rootDir, isBuild, hmrPorts['ssr'])
+
+  viteServer = vite
 
   return new Promise((resolve, reject) => {
     try {

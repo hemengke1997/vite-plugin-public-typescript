@@ -1,4 +1,3 @@
-/* eslint-disable import/no-mutable-exports */
 import { dirname, join, resolve } from 'node:path'
 import os from 'node:os'
 import fs from 'fs-extra'

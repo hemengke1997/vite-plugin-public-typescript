@@ -13,8 +13,8 @@ export * from './vitestSetup'
 
 // make sure these ports are unique
 export const ports = {
-  spa: 9526,
-  ssr: 9527,
+  spa: 9524,
+  ssr: 9525,
 }
 export const hmrPorts = {
   spa: 24680,

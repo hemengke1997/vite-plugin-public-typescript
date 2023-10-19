@@ -62,7 +62,7 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
         // always read fresh template in dev
         template = fs.readFileSync(resolve('index.html'), 'utf-8')
         template = await vite.transformIndexHtml(url, template)
-        render = (await vite.ssrLoadModule('/src/entry-server.jsx')).render
+        render = (await vite.ssrLoadModule('/src/entry-server.tsx')).render
       } else {
         template = indexProd
         // @ts-ignore
@@ -96,14 +96,5 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
     }
   })
 
-  return { app, vite }
-}
-
-if (!isTest) {
-  // eslint-disable-next-line unicorn/prefer-top-level-await
-  createServer().then(({ app }) =>
-    app.listen(5173, () => {
-      console.log('http://localhost:5173')
-    }),
-  )
+  return { app, vite, hmrPort }
 }
