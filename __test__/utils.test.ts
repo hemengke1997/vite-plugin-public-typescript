@@ -11,7 +11,7 @@ import {
 } from '../src/helper/utils'
 import { globalConfig } from '../src/global-config'
 
-describe('vite-plugin-public-typescript', () => {
+describe('vite-plugin-public-typescript:unit', () => {
   it('should return true when filePath is a public typescript file', () => {
     const filePath = 'src/foo/bar.ts'
     const root = 'src'

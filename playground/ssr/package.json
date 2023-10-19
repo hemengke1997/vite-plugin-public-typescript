@@ -1,31 +1,27 @@
 {
-  "name": "vite-project",
+  "name": "ssr-react",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "cross-env BASE=/ssr DEBUG=vite-plugin-public-typescript* node server",
+    "dev": "node server",
     "build": "npm run build:client && npm run build:server",
-    "build:client": "cross-env BASE=/ssr vite build --ssrManifest --outDir dist/client",
-    "build:server": "cross-env BASE=/ssr vite build --ssr src/entry-server.tsx --outDir dist/server",
-    "preview": "cross-env BASE=/ssr NODE_ENV=production node server"
+    "build:client": "vite build --outDir dist/client",
+    "build:server": "vite build --ssr src/entry-server.jsx --outDir dist/server",
+    "generate": "vite build --outDir dist/static && npm run build:server && node prerender",
+    "serve": "NODE_ENV=production node server",
+    "debug": "node --inspect-brk server"
   },
   "dependencies": {
-    "compression": "^1.7.4",
-    "express": "^4.18.2",
-    "lib": "file: ./../lib",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sirv": "^2.0.3"
+    "react-router-dom": "^6.16.0",
+    "vite-plugin-public-typescript": "workspace:*"
   },
   "devDependencies": {
-    "@types/express": "^4.17.19",
-    "@types/node": "^20.8.6",
-    "@types/react": "^18.2.28",
-    "@types/react-dom": "^18.2.13",
-    "cross-env": "^7.0.3",
-    "typescript": "^5.2.2",
-    "vite": "^4.4.11",
-    "vite-plugin-public-typescript": "workspace:*"
+    "@vitejs/plugin-react": "^4.1.0",
+    "compression": "^1.7.4",
+    "express": "^4.18.2",
+    "serve-static": "^1.15.0"
   }
 }

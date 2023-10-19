@@ -9,7 +9,6 @@ export default defineConfig(() => ({
   define: {
     haha: JSON.stringify('custom define!'),
     app: JSON.stringify({ hello: 'world' }),
-    __REACT_DEVTOOLS_GLOBAL_HOOK__: JSON.stringify('({ isDisabled: true })'),
   },
   plugins: [
     react(),
@@ -18,7 +17,7 @@ export default defineConfig(() => ({
       manifestName: 'manifest',
       hash: true,
       outputDir: 'out',
-      destination: 'memory',
+      destination: 'file',
     }),
     injectScripts([
       {
