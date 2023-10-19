@@ -112,13 +112,14 @@ beforeAll(async (s) => {
   }
 
   try {
-    page.on('console', (msg) => {
+    page.addListener('console', async (msg) => {
       // ignore favicon request in headed browser
       if (
-        // process.env.VITE_DEBUG_SERVE &&
+        process.env.VITE_DEBUG_SERVE &&
         msg.text().includes('Failed to load resource:') &&
         msg.location().url.includes('favicon.ico')
       ) {
+        console.log(msg, 'msg')
         return
       }
       if (['React DevTools'].some((i) => msg.text().includes(i))) {
@@ -126,7 +127,8 @@ beforeAll(async (s) => {
       }
       browserLogs.push(msg.text())
     })
-    page.on('pageerror', (error) => {
+
+    page.addListener('pageerror', (error) => {
       browserErrors.push(error)
     })
 
@@ -343,7 +345,7 @@ function loadConfigFromDir(dir: string) {
 }
 
 async function goToUrlAndWaitForViteWSConnect(page: Page, url: string) {
-  return Promise.all([page.goto(url), waitForViteConnect(page, 50000)])
+  return Promise.all([page.goto(url), waitForViteConnect(page, 15000)])
 }
 
 export async function waitForViteConnect(page: Page, timeoutMS = 5000) {
@@ -362,15 +364,15 @@ export async function waitForViteConnect(page: Page, timeoutMS = 5000) {
     pageConsoleListener = (data) => {
       const text = data.text()
       if (text.includes('[vite] connected.')) {
-        console.log(browserLogs, 'browserLogs')
+        console.log(browserLogs, '<==== browserLogs on vite connected')
         resolve()
       }
     }
-    page.on('console', pageConsoleListener)
+    page.addListener('console', pageConsoleListener)
   })
 
   return Promise.race([connectedPromise, timeoutPromise]).finally(() => {
-    page.off('console', pageConsoleListener)
+    page.removeListener('console', pageConsoleListener)
     clearTimeout(timerId)
   })
 }

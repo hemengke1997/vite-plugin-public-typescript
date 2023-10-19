@@ -26,8 +26,7 @@ export default defineConfig(() => ({
       },
       {
         attrs: {
-          'src': manifest.haha,
-          'data-n': '1',
+          src: manifest.haha,
         },
         injectTo: 'head',
       },
@@ -41,6 +40,7 @@ export default defineConfig(() => ({
         attrs: {
           src: manifest.test,
         },
+        injectTo: 'body-prepend',
       },
     ]),
   ],
