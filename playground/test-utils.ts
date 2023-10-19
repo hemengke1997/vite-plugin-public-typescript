@@ -7,7 +7,7 @@ import { type Manifest, normalizePath } from 'vite'
 import { expect } from 'vitest'
 import { type ConsoleMessage } from 'playwright-chromium'
 import { type ExecaChildProcess } from 'execa'
-import { isBuild, isCI, isWindows, page, testDir } from './vitestSetup'
+import { isBuild, isWindows, page, testDir } from './vitestSetup'
 
 export * from './vitestSetup'
 
@@ -33,7 +33,6 @@ export function editFile(filename: string, replacer: (str: string) => string, ru
   const content = fs.readFileSync(filename, 'utf-8')
   const modified = replacer(content)
   fs.writeFileSync(filename, modified)
-  return modified
 }
 
 export function addFile(filename: string, content: string): void {
@@ -226,79 +225,5 @@ export async function killProcess(serverProcess: ExecaChildProcess): Promise<voi
     }
   } else {
     serverProcess.kill('SIGTERM', { forceKillAfterTimeout: 2000 })
-  }
-}
-
-export async function hmrUpdateComplete(file: string, timeout: number, onConsole: (text: string) => boolean) {
-  let id
-  let pageConsoleListener
-  const timerPromise = new Promise(
-    (_, reject) =>
-      (id = setTimeout(() => {
-        reject(`timeout for ${file} after ${timeout}`)
-      }, timeout)),
-  )
-  const pagePromise = new Promise((resolve) => {
-    pageConsoleListener = (data) => {
-      const text = data.text()
-
-      if (onConsole(text)) {
-        resolve(text)
-      }
-    }
-    page.on('console', pageConsoleListener)
-  })
-
-  return Promise.race([timerPromise, pagePromise]).finally(() => {
-    page.off('console', pageConsoleListener)
-    clearTimeout(id)
-  })
-}
-
-export const hmrUpdateTimeout = 10000
-
-export async function editFileAndWaitForHmrComplete(
-  file: string,
-  replacer: (str: string) => string,
-  flagFn: (text: string) => boolean,
-) {
-  const newContent = editFile(file, replacer)
-  const fileUpdateToWaitFor = file
-  try {
-    await hmrUpdateComplete(fileUpdateToWaitFor, hmrUpdateTimeout, flagFn)
-  } catch {
-    const maxTries = isCI && isWindows ? 3 : 1
-    let lastErr
-    for (let i = 1; i <= maxTries; i++) {
-      try {
-        console.log(`retry #${i} of hmr update for ${file}`)
-        editFile(file, () => newContent + '\n'.repeat(i))
-        await hmrUpdateComplete(fileUpdateToWaitFor, hmrUpdateTimeout, flagFn)
-        return
-      } catch (e) {
-        lastErr = e
-      }
-    }
-    await saveScreenshot(`failed_update_${file}`)
-    throw lastErr
-  }
-}
-
-export async function saveScreenshot(name: string) {
-  if (!page) {
-    return
-  }
-  const filename = `${new Date().toISOString().replace(/\D/g, '')}_${name.toLowerCase().replace(/[^a-z]/g, '_')}.jpeg`
-  const fullpath = path.resolve(testDir, 'screenshots', filename)
-  try {
-    await page.screenshot({
-      fullPage: true,
-      type: 'jpeg',
-      quality: 70,
-      timeout: 2000,
-      path: fullpath,
-    })
-  } catch (e) {
-    console.log('failed to take screenshot', e)
   }
 }

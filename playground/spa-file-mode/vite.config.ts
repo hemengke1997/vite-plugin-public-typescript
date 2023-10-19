@@ -7,8 +7,8 @@ import manifest from './public-typescript/manifest.json'
 export default defineConfig(() => ({
   base: '/vite-plugin-public-typescript/',
   define: {
-    haha: JSON.stringify('custom define!'),
-    app: JSON.stringify({ hello: 'world' }),
+    custom_define: JSON.stringify('custom define!'),
+    hello_world: JSON.stringify({ hello: 'world' }),
   },
   plugins: [
     react(),
@@ -26,21 +26,15 @@ export default defineConfig(() => ({
       },
       {
         attrs: {
-          'src': manifest.haha,
-          'data-n': '1',
+          src: manifest.define,
         },
         injectTo: 'head',
       },
       {
         attrs: {
-          src: manifest.index,
+          src: manifest.env,
         },
         injectTo: 'head-prepend',
-      },
-      {
-        attrs: {
-          src: manifest.test,
-        },
       },
     ]),
   ],

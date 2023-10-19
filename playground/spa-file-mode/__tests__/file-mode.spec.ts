@@ -13,7 +13,7 @@ describe('file-mode', () => {
     } catch {}
   })
   test('should output js file to publicDir', () => {
-    expect(jsFiles).toHaveLength(4)
+    expect(jsFiles).toHaveLength(3)
 
     const values = Object.values(JSON.parse(manifest)).map((v: string) => path.basename(v))
 

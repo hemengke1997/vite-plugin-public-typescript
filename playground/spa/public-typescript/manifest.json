@@ -1,6 +1,5 @@
 {
-  "haha": "/vite-plugin-public-typescript/out/haha.5ff2aef3.js",
-  "hmr": "/vite-plugin-public-typescript/out/hmr.846035fe.js",
-  "index": "/vite-plugin-public-typescript/out/index.d6349a0d.js",
-  "test": "/vite-plugin-public-typescript/out/test.09b479d0.js"
+  "define": "/vite-plugin-public-typescript/out/define.0852dc5a.js",
+  "env": "/vite-plugin-public-typescript/out/env.75fb85ec.js",
+  "hmr": "/vite-plugin-public-typescript/out/hmr.c01ee876.js"
 }

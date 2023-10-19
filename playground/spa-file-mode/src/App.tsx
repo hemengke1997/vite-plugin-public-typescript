@@ -1,3 +1,4 @@
+import { type ReactNode, useEffect, useState } from 'react'
 import manifest from '../public-typescript/manifest.json'
 import './App.css'
 
@@ -11,14 +12,30 @@ function formatManifst() {
 }
 
 function App() {
+  const [content, setContent] = useState<ReactNode>()
+
+  useEffect(() => {
+    setContent(
+      <>
+        <h3>`import meta env`: </h3>
+        <div id='env'>{JSON.stringify(window['VITE_ENV'])}</div>
+        <br />
+        <h3>自定义的环境变量:</h3>
+        <div id='custom-define'>{JSON.stringify(window['VITE_DEFINE']['custom-define'])}</div>
+        <div id='hello-world'>{JSON.stringify(window['VITE_DEFINE']['hello-world'])}</div>
+        <br />
+        <h3>hmr</h3>
+        <div id='hmr'>{window['hmr']}</div>
+      </>,
+    )
+  }, [])
+
   return (
     <div className='App'>
       <h3 id='temp'>以下都是 vite-plugin-public-typescript 插件编译后，通过 manifest.json 文件获取的：</h3>
-      <div>{formatManifst()}</div>
-
-      <div>
-        <h4>请打开控制台观察以上文件的打印</h4>
-      </div>
+      <div className={'manifest'}>{formatManifst()}</div>
+      <br />
+      {content}
     </div>
   )
 }

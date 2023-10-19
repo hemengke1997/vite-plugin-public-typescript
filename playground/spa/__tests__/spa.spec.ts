@@ -1,56 +1,45 @@
 import path from 'node:path'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { browserLogs, editFileAndWaitForHmrComplete, isBuild, isServe, listFiles, readFile } from '~utils'
+import {
+  browserLogs,
+  editFile,
+  isServe,
+  listFiles,
+  page,
+  readFile,
+  untilBrowserLogAfter,
+  untilUpdated,
+  viteTestUrl,
+} from '~utils'
 
 describe('console', async () => {
-  test('should not 404', () => {
-    browserLogs.forEach((msg) => {
-      expect(msg).not.toMatch('404')
-    })
-  })
+  test('should console hmr string', async () => {
+    await untilBrowserLogAfter(() => page.goto(viteTestUrl), 'hmr')
 
-  function expectBrowserLogsToContain(str: string) {
-    expect(browserLogs).toEqual(expect.arrayContaining([expect.stringContaining(str)]))
-  }
-
-  test('should console `custom define!`', async () => {
-    expectBrowserLogsToContain('custom define!')
-  })
-
-  test.runIf(isServe)('should console vite env - serve', () => {
-    expectBrowserLogsToContain('development')
-  })
-
-  test.runIf(isBuild)('should console vite env - build', () => {
-    expectBrowserLogsToContain('production')
-  })
-
-  test('should console constant string', () => {
-    expectBrowserLogsToContain('test')
+    await untilUpdated(() => page.textContent('#hmr'), 'hmr original text')
+    expect(browserLogs).toContain('hmr')
   })
 })
 
 describe('hmr', () => {
-  test.runIf(isServe)('should hmr', async () => {
+  test.runIf(isServe)('should trigger hmr', async () => {
     const u = 'hmr-updated'
-    await editFileAndWaitForHmrComplete(
-      'public-typescript/hmr.ts',
-      (content) => content.replace('hmr', u),
-      (text) => {
-        if (text === u) {
-          return true
-        }
-      },
+
+    await untilUpdated(() => page.textContent('#hmr'), 'hmr original text')
+    await untilBrowserLogAfter(
+      () => editFile('public-typescript/hmr.ts', (code) => code.replace('hmr original text', u)),
+      ['[vite] hot updated: /src/App.tsx'],
+      false,
     )
+    await untilUpdated(() => page.textContent('#hmr'), u)
   })
 })
 
 function manifestLike() {
   return expect.objectContaining({
-    haha: expect.any(String),
+    define: expect.any(String),
     hmr: expect.any(String),
-    index: expect.any(String),
-    test: expect.any(String),
+    env: expect.any(String),
   })
 }
 
@@ -63,12 +52,7 @@ describe('manifest', () => {
   })
 
   test('should generate manifest', () => {
-    expect(JSON.parse(manifest)).toEqual({
-      haha: expect.any(String),
-      hmr: expect.any(String),
-      index: expect.any(String),
-      test: expect.any(String),
-    })
+    expect(JSON.parse(manifest)).toEqual(manifestLike())
   })
 
   // vitest prints a warning about obsolete snapshots during build tests, ignore it, they are used in dev tests.
@@ -89,7 +73,7 @@ describe.skipIf(isServe)('build', () => {
   })
 
   test('should generate js assetes after build', () => {
-    expect(jsFiles).toHaveLength(4)
+    expect(jsFiles).toHaveLength(3)
 
     const values = Object.values(JSON.parse(manifest)).map((v: string) => path.basename(v))
     expect(jsFiles).toEqual(values)
@@ -97,5 +81,18 @@ describe.skipIf(isServe)('build', () => {
 
   test('should manifest stable on build', () => {
     expect(JSON.parse(manifest)).toEqual(manifestLike())
+  })
+})
+
+describe('custom define env', () => {
+  test('should inject custom env', async () => {
+    await untilUpdated(() => page.textContent('#custom-define'), 'custom define!')
+    await untilUpdated(() => page.textContent('#hello-world'), '{"hello":"world"}')
+  })
+})
+
+describe('import.meta.env', () => {
+  test('should inject import.meta.env', async () => {
+    expect(await page.textContent('#env')).toContain('imfromdotenv')
   })
 })
