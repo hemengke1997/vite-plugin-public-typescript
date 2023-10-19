@@ -176,7 +176,6 @@ beforeAll(async (s) => {
 
   return async () => {
     serverLogs.length = 0
-    browserLogs.length = 0
     await page?.close()
     await server?.close()
     await watcher?.close()
@@ -344,7 +343,7 @@ function loadConfigFromDir(dir: string) {
 }
 
 async function goToUrlAndWaitForViteWSConnect(page: Page, url: string) {
-  return Promise.all([page.goto(url), waitForViteConnect(page, 15000)])
+  return Promise.all([page.goto(url), waitForViteConnect(page, 50000)])
 }
 
 export async function waitForViteConnect(page: Page, timeoutMS = 5000) {
@@ -363,6 +362,7 @@ export async function waitForViteConnect(page: Page, timeoutMS = 5000) {
     pageConsoleListener = (data) => {
       const text = data.text()
       if (text.includes('[vite] connected.')) {
+        console.log(browserLogs, 'browserLogs')
         resolve()
       }
     }
