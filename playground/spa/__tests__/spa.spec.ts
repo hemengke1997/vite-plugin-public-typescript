@@ -12,11 +12,12 @@ import {
   viteTestUrl,
 } from '~utils'
 
+const hmrOriginText = 'hmr original text'
+
 describe('console', async () => {
   test('should console hmr string', async () => {
     await untilBrowserLogAfter(() => page.goto(viteTestUrl), 'hmr')
-
-    await untilUpdated(() => page.textContent('#hmr'), 'hmr original text')
+    await untilUpdated(() => page.textContent('#hmr'), hmrOriginText)
     expect(browserLogs).toContain('hmr')
   })
 })
@@ -24,20 +25,23 @@ describe('console', async () => {
 describe('hmr', () => {
   test.runIf(isServe)('should trigger hmr', async () => {
     const u = 'hmr-updated'
-    expect(page.textContent('#hmr'), 'hmr original text')
+    await page.$('#root')
+    await untilUpdated(() => page.textContent('#hmr'), hmrOriginText)
 
-    // await untilBrowserLogAfter(
-    //   () => editFile('public-typescript/hmr.ts', (code) => code.replace('hmr original text', u)),
-    //   ['[vite] hot updated: /src/App.tsx'],
-    //   false,
-    //   (l) => console.log(l, 'l'),
-    // )
+    await untilBrowserLogAfter(
+      () => editFile('public-typescript/hmr.ts', (code) => code.replace(hmrOriginText, u)),
+      '[vite] hot updated: /src/App.tsx',
+    )
 
-    editFile('public-typescript/hmr.ts', (code) => code.replace('hmr original text', u))
+    await untilUpdated(() => page.textContent('#hmr'), u)
 
-    expect(browserLogs).toContain('[vite] hot updated: /src/App.tsx')
+    await untilBrowserLogAfter(
+      () => editFile('public-typescript/hmr.ts', (code) => code.replace(u, hmrOriginText)),
+      ['hmr', '[vite] hot updated: /src/App.tsx'],
+      false,
+    )
 
-    expect(page.textContent('#hmr'), u)
+    await untilUpdated(() => page.textContent('#hmr'), hmrOriginText)
   })
 })
 
