@@ -24,15 +24,20 @@ describe('console', async () => {
 describe('hmr', () => {
   test.runIf(isServe)('should trigger hmr', async () => {
     const u = 'hmr-updated'
+    expect(page.textContent('#hmr'), 'hmr original text')
 
-    await untilUpdated(() => page.textContent('#hmr'), 'hmr original text')
-    await untilBrowserLogAfter(
-      () => editFile('public-typescript/hmr.ts', (code) => code.replace('hmr original text', u)),
-      ['[vite] hot updated: /src/App.tsx'],
-      false,
-      (l) => console.log(l, 'l'),
-    )
-    await untilUpdated(() => page.textContent('#hmr'), u)
+    // await untilBrowserLogAfter(
+    //   () => editFile('public-typescript/hmr.ts', (code) => code.replace('hmr original text', u)),
+    //   ['[vite] hot updated: /src/App.tsx'],
+    //   false,
+    //   (l) => console.log(l, 'l'),
+    // )
+
+    editFile('public-typescript/hmr.ts', (code) => code.replace('hmr original text', u))
+
+    expect(browserLogs).toContain('[vite] hot updated: /src/App.tsx')
+
+    expect(page.textContent('#hmr'), u)
   })
 })
 
