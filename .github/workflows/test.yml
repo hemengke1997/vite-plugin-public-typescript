@@ -1,10 +1,17 @@
 name: Test
 
 env:
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
   # install playwright binary manually (because pnpm only runs install script once)
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
   # Vitest auto retry on flaky segfault
   VITEST_SEGFAULT_RETRY: 3
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -31,6 +38,8 @@ jobs:
         #   - os: windows-latest
         #     node_version: 18
       fail-fast: true
+
+    name: 'Build&Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
 
     steps:
       - name: Checkout

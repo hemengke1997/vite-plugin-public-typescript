@@ -169,7 +169,7 @@ async function untilBrowserLog(target?: string | RegExp | (string | RegExp)[], e
           return remainingTargets.length === 0
         }
       } else {
-        const remainingMatchers = target.map((t) => isMatch(t))
+        const remainingMatchers = target.map((element) => isMatch(element))
         processMsg = (text: string) => {
           const nextIndex = remainingMatchers.findIndex((matcher) => matcher(text))
           if (nextIndex >= 0) {
