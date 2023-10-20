@@ -30,6 +30,7 @@ describe('hmr', () => {
       () => editFile('public-typescript/hmr.ts', (code) => code.replace('hmr original text', u)),
       ['[vite] hot updated: /src/App.tsx'],
       false,
+      (l) => console.log(l, 'l'),
     )
     await untilUpdated(() => page.textContent('#hmr'), u)
   })

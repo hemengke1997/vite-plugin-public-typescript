@@ -112,7 +112,7 @@ beforeAll(async (s) => {
   }
 
   try {
-    page.addListener('console', (msg) => {
+    page.on('console', (msg) => {
       // ignore favicon request in headed browser
       if (
         process.env.VITE_DEBUG_SERVE &&
@@ -121,6 +121,7 @@ beforeAll(async (s) => {
       ) {
         return
       }
+      if (msg.text().includes('React DevTools')) return
       browserLogs.push(msg.text())
     })
     page.on('pageerror', (error) => {
