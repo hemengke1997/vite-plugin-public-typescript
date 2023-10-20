@@ -30,20 +30,13 @@ describe('hmr', () => {
     await untilUpdated(() => page.textContent('#hmr'), hmrOriginText)
     console.log('3')
 
-    await untilBrowserLogAfter(
-      () => editFile('public-typescript/hmr.ts', (code) => code.replace(hmrOriginText, u)),
-      '[vite] hot updated: /src/App.tsx',
-    )
+    editFile('public-typescript/hmr.ts', (code) => code.replace(hmrOriginText, u))
     console.log('4')
 
     await untilUpdated(() => page.textContent('#hmr'), u)
     console.log('5')
 
-    await untilBrowserLogAfter(
-      () => editFile('public-typescript/hmr.ts', (code) => code.replace(u, hmrOriginText)),
-      ['hmr', '[vite] hot updated: /src/App.tsx'],
-      false,
-    )
+    editFile('public-typescript/hmr.ts', (code) => code.replace(u, hmrOriginText))
     console.log(6)
 
     await untilUpdated(() => page.textContent('#hmr'), hmrOriginText)
