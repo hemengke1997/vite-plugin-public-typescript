@@ -6,6 +6,9 @@ const commonConfig = (option: Options): Options => {
     minify: false,
     platform: 'node',
     sourcemap: !!option.watch,
+    define: {
+      'import.meta.vitest': 'undefined',
+    },
     tsconfig: option.watch ? './tsconfig.dev.json' : './tsconfig.json',
   }
 }

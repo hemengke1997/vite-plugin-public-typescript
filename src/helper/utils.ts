@@ -6,7 +6,8 @@ import createDebug from 'debug'
 import glob from 'tiny-glob'
 import { globalConfig } from '../global-config'
 import { type VPPTPluginOptions } from '..'
-import { assert } from './assert'
+import { manifestCache } from '../manifest-cache'
+import { initCacheProcessor } from '../processor/processor'
 
 const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
@@ -27,7 +28,6 @@ export function isPublicTypescript(args: { filePath: string; inputDir: string; r
 }
 
 export function _isPublicTypescript(filePath: string) {
-  assert(!!globalConfig.get())
   return isPublicTypescript({
     filePath,
     inputDir: globalConfig.get().inputDir,
@@ -211,4 +211,43 @@ export function disableManifestHmr(config: ResolvedConfig, manifestPath: string)
 export function removeBase(filePath: string, base: string): string {
   const devBase = base.at(-1) === '/' ? base : `${base}/`
   return filePath.startsWith(devBase) ? filePath.slice(devBase.length - 1) : filePath
+}
+
+export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: Required<VPPTPluginOptions>) {
+  const resolvedRoot = normalizePath(viteConfig.root ? path.resolve(viteConfig.root) : process.cwd())
+
+  fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
+
+  const originFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*.ts`), {
+    absolute: true,
+    cwd: resolvedRoot,
+  })
+
+  const cacheProcessor = initCacheProcessor(opts, manifestCache)
+
+  globalConfig.init({
+    cacheProcessor,
+    manifestCache,
+    originFilesGlob,
+    viteConfig,
+    ...opts,
+  })
+
+  return globalConfig.get()
+}
+
+export async function setupManifestCache(viteConfig: ResolvedConfig, opts: Required<VPPTPluginOptions>) {
+  manifestCache.setManifestPath(normalizePath(`${globalConfig.get().absInputDir}/${opts.manifestName}.json`))
+
+  // no need to set `_pathToDisk` manually anymore
+  manifestCache.beforeSet = (value) => {
+    if (value?.path) {
+      value._pathToDisk = removeBase(value.path, viteConfig.base)
+    }
+    return value
+  }
+
+  disableManifestHmr(viteConfig, manifestCache.manifestPath)
+
+  debug('manifestCache manifestPath:', manifestCache.manifestPath)
 }

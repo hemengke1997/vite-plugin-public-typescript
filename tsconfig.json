@@ -1,4 +1,7 @@
 {
   "extends": "@minko-fe/tsconfig/tsconfig.lib",
+  "compilerOptions": {
+    "types": ["vitest/importMeta"]
+  },
   "exclude": ["**/*.js"]
 }

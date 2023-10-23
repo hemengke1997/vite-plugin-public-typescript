@@ -1,15 +1,17 @@
 import path from 'node:path'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
-  browserLogs,
   editFile,
+  isBuild,
   isServe,
   listFiles,
   page,
   readFile,
+  serverLogs,
   untilBrowserLogAfter,
   untilUpdated,
   viteTestUrl,
+  withRetry,
 } from '~utils'
 
 const hmrOriginText = 'hmr original text'
@@ -21,26 +23,15 @@ describe('console', async () => {
   })
 })
 
-describe('hmr', () => {
-  test.runIf(isServe)('should trigger hmr', async () => {
+describe.skipIf(isBuild)('hmr', () => {
+  test('should trigger hmr', async () => {
     const u = 'hmr-updated'
-    console.log('1')
     await untilBrowserLogAfter(() => page.goto(viteTestUrl), 'hmr')
-    console.log('2')
     await untilUpdated(() => page.textContent('#hmr'), hmrOriginText)
-    console.log('3')
-
     editFile('public-typescript/hmr.ts', (code) => code.replace(hmrOriginText, u))
-    console.log('4')
-
     await untilUpdated(() => page.textContent('#hmr'), u)
-    console.log('5')
-
     editFile('public-typescript/hmr.ts', (code) => code.replace(u, hmrOriginText))
-    console.log(6)
-
     await untilUpdated(() => page.textContent('#hmr'), hmrOriginText)
-    console.log(7)
   })
 })
 
@@ -68,6 +59,14 @@ describe('manifest', () => {
   // always regenerate snapshots with `pnpm test:serve -u` and check the diffs if they are correct
   test.runIf(isServe)('should manifest stable on server', () => {
     expect(JSON.parse(manifest)).toEqual(manifestLike())
+  })
+
+  test.runIf(isServe)('should not trigger vite server restart when manifest file changed', async () => {
+    editFile('public-typescript/manifest.json', (content) => content)
+    await withRetry(async () => {
+      expect(serverLogs).not.toEqual(expect.arrayContaining([expect.stringMatching('server restarted')]))
+      expect(serverLogs).not.toEqual(expect.arrayContaining([expect.stringMatching('error')]))
+    })
   })
 })
 

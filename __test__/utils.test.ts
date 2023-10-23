@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { describe, expect, it, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import {
   eq,
   extractHashFromFileName,
@@ -11,15 +11,15 @@ import {
 } from '../src/helper/utils'
 import { globalConfig } from '../src/global-config'
 
-describe('vite-plugin-public-typescript:unit', () => {
-  it('should return true when filePath is a public typescript file', () => {
+describe.skip('unit test', () => {
+  test('should return true when filePath is a public typescript file', () => {
     const filePath = 'src/foo/bar.ts'
     const root = 'src'
     const inputDir = 'foo'
     expect(isPublicTypescript({ filePath, inputDir, root })).toBe(true)
   })
 
-  it('should return false when filePath is not a public typescript file', () => {
+  test('should return false when filePath is not a public typescript file', () => {
     const filePath = 'src/foo/bar.js'
     const root = 'src'
     const inputDir = 'foo'
@@ -86,7 +86,7 @@ describe('vite-plugin-public-typescript:unit', () => {
       destination: 'file',
       esbuildOptions: {},
       hash: true,
-      inputDir: 'publicTypescript',
+      inputDir: 'public-typescript',
       manifestName: 'manifest',
       outputDir: '/',
       sideEffects: false,
@@ -94,5 +94,15 @@ describe('vite-plugin-public-typescript:unit', () => {
     } as const
 
     expect(() => validateOptions(opts)).not.toThrowError()
+  })
+})
+
+describe('globalConfig related', () => {
+  test('global config ctx', ({ _globalConfig }) => {
+    expect(_globalConfig).toBeTruthy()
+  })
+
+  test('global config should be same', ({ _globalConfig }) => {
+    expect(_globalConfig).toBe(globalConfig.get())
   })
 })

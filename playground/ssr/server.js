@@ -1,9 +1,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
 import express from 'express'
 import { injectScriptsToHtml } from 'vite-plugin-public-typescript'
-import manifest from './public-typescript/manifest.json'
+
+const require = createRequire(import.meta.url)
+
+const manifest = require('./public-typescript/manifest.json')
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

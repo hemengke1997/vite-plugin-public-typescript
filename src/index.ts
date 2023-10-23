@@ -1,28 +1,24 @@
 import path from 'node:path'
-import glob from 'tiny-glob'
 import fs from 'fs-extra'
 import createDebug from 'debug'
 import MagicString from 'magic-string'
-import { type PluginOption, type ResolvedConfig, normalizePath, send } from 'vite'
+import { type PluginOption, type ResolvedConfig, send } from 'vite'
 import { type BuildOptions } from 'esbuild'
 import {
   _isPublicTypescript,
   addCodeHeader,
-  disableManifestHmr,
   eq,
   findAllOldJsFile,
-  getInputDir,
   isEmptyObject,
   normalizeAssetsDirPath,
   reloadPage,
-  removeBase,
   removeOldJsFiles,
+  setupGlobalConfig,
+  setupManifestCache,
   validateOptions,
 } from './helper/utils'
 import { build, buildAllOnce, esbuildTypescript } from './helper/build'
-import { assert } from './helper/assert'
 import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
-import { initCacheProcessor } from './processor/processor'
 import { globalConfig } from './global-config'
 import { manifestCache } from './manifest-cache'
 import { initWatcher } from './helper/file-watcher'
@@ -111,40 +107,9 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
       async configResolved(c) {
         viteConfig = c
 
-        const resolvedRoot = normalizePath(viteConfig.root ? path.resolve(viteConfig.root) : process.cwd())
+        await setupGlobalConfig(viteConfig, opts)
 
-        fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
-
-        const originFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*.ts`), {
-          absolute: true,
-          cwd: resolvedRoot,
-        })
-
-        const cacheProcessor = initCacheProcessor(opts, manifestCache)
-
-        globalConfig.init({
-          cacheProcessor,
-          manifestCache,
-          originFilesGlob,
-          viteConfig,
-          ...opts,
-        })
-
-        manifestCache.setManifestPath(normalizePath(`${globalConfig.get().absInputDir}/${opts.manifestName}.json`))
-
-        // no need to set `_pathToDisk` manually anymore
-        manifestCache.beforeSet = (value) => {
-          if (value?.path) {
-            value._pathToDisk = removeBase(value.path, viteConfig.base)
-          }
-          return value
-        }
-
-        disableManifestHmr(c, manifestCache.manifestPath)
-
-        debug('manifestCache manifestPath:', manifestCache.manifestPath)
-
-        assert(manifestCache.manifestPath.includes('.json'))
+        await setupManifestCache(viteConfig, opts)
       },
       configureServer(server) {
         if (process.env.VITEST || process.env.CI) {

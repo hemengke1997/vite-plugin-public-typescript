@@ -3,7 +3,6 @@ import fs from 'fs-extra'
 import { normalizePath } from 'vite'
 import createDebug from 'debug'
 import { findAllOldJsFile, writeFile } from '../helper/utils'
-import { assert } from '../helper/assert'
 import { globalConfig } from '../global-config'
 import { type ManifestCache } from '../manifest-cache/ManifestCache'
 import { type CacheValueEx } from '../manifest-cache'
@@ -40,8 +39,6 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
     }
 
     debug('deleteOldJsFile - oldFiles:', oldFiles)
-
-    assert(Array.isArray(oldFiles))
 
     debug('manifestCache:', this.manifestCache.get())
 
