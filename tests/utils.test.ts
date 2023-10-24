@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { describe, expect, test } from 'vitest'
+import { globalConfig } from '../src/global-config'
 import {
   eq,
   extractHashFromFileName,
@@ -9,7 +10,6 @@ import {
   setEol,
   validateOptions,
 } from '../src/helper/utils'
-import { globalConfig } from '../src/global-config'
 
 describe.skip('unit test', () => {
   test('should return true when filePath is a public typescript file', () => {

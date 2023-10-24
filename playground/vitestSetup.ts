@@ -1,9 +1,9 @@
-import { dirname, join, resolve } from 'node:path'
-import os from 'node:os'
+import type * as http from 'node:http'
 import fs from 'fs-extra'
+import os from 'node:os'
+import { dirname, join, resolve } from 'node:path'
 import { type Browser, type Page, chromium } from 'playwright-chromium'
 import { type RollupError, type RollupWatcher, type RollupWatcherEvent } from 'rollup'
-import { type File, beforeAll } from 'vitest'
 import {
   type InlineConfig,
   type Logger,
@@ -17,7 +17,7 @@ import {
   mergeConfig,
   preview,
 } from 'vite'
-import type * as http from 'node:http'
+import { type File, beforeAll } from 'vitest'
 
 // #region env
 

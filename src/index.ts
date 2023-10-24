@@ -1,9 +1,13 @@
-import path from 'node:path'
-import fs from 'fs-extra'
 import createDebug from 'debug'
-import MagicString from 'magic-string'
-import { type PluginOption, type ResolvedConfig, send } from 'vite'
 import { type BuildOptions } from 'esbuild'
+import fs from 'fs-extra'
+import MagicString from 'magic-string'
+import path from 'node:path'
+import { type PluginOption, type ResolvedConfig, send } from 'vite'
+import { globalConfig } from './global-config'
+import { build, buildAllOnce, esbuildTypescript } from './helper/build'
+import { initWatcher } from './helper/file-watcher'
+import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
 import {
   _isPublicTypescript,
   addCodeHeader,
@@ -17,11 +21,7 @@ import {
   setupManifestCache,
   validateOptions,
 } from './helper/utils'
-import { build, buildAllOnce, esbuildTypescript } from './helper/build'
-import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
-import { globalConfig } from './global-config'
 import { manifestCache } from './manifest-cache'
-import { initWatcher } from './helper/file-watcher'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
 
@@ -283,4 +283,4 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
 export { injectTagsToHtml } from './helper/html'
 export * from './plugins/inject-script'
-export { publicTypescript, esbuildTypescript }
+export { esbuildTypescript, publicTypescript }

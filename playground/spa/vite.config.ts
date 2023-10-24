@@ -1,6 +1,6 @@
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
-import react from '@vitejs/plugin-react'
 import manifest from './public-typescript/manifest.json'
 
 // https://vitejs.dev/config/

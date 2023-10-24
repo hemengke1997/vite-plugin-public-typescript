@@ -1,9 +1,9 @@
-import path from 'node:path'
 import createDebug from 'debug'
+import path from 'node:path'
 import Watcher from 'watcher'
 import { globalConfig } from '../global-config'
-import { _isPublicTypescript } from './utils'
 import { build } from './build'
+import { _isPublicTypescript } from './utils'
 
 const debug = createDebug('vite-plugin-public-typescript:file-watcher ===> ')
 

@@ -1,6 +1,6 @@
+import { page, untilBrowserLogAfter } from '~utils'
 import { describe, test } from 'vitest'
 import { port } from './serve'
-import { page, untilBrowserLogAfter } from '~utils'
 
 const url = `http://localhost:${port}`
 

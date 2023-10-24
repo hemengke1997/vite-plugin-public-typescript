@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { type ResolvedConfig } from 'vite'
 import { type VPPTPluginOptions } from '..'
-import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
 import { type CacheValue, type ManifestCache } from '../manifest-cache/ManifestCache'
+import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
 
 export type UserConfig<T extends CacheValue = CacheValue> = {
   manifestCache: ManifestCache<T>

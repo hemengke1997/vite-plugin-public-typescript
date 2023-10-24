@@ -1,10 +1,10 @@
 // this is automatically detected by playground/vitestSetup.ts and will replace
 // the default e2e test serve behavior
 
-import path from 'node:path'
-import kill from 'kill-port'
-import { type ViteDevServer } from 'vite'
 import { hmrPorts, isBuild, ports, rootDir } from '~utils'
+import kill from 'kill-port'
+import path from 'node:path'
+import { type ViteDevServer } from 'vite'
 
 export const port = ports['ssr']
 

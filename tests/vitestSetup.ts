@@ -1,9 +1,9 @@
 import path from 'node:path'
 import { type InlineConfig, type ResolvedConfig, resolveConfig } from 'vite'
 import { beforeEach } from 'vitest'
-import { setupGlobalConfig } from '../src/helper/utils'
 import { DEFAULT_OPTIONS } from '../src'
 import { type GlobalConfig } from '../src/global-config/GlobalConfigBuilder'
+import { setupGlobalConfig } from '../src/helper/utils'
 import { type CacheValueEx } from '../src/manifest-cache'
 
 const config: InlineConfig = {

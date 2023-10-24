@@ -1,11 +1,11 @@
-import path from 'node:path'
-import fs from 'fs-extra'
-import { normalizePath } from 'vite'
 import createDebug from 'debug'
-import { findAllOldJsFile, writeFile } from '../helper/utils'
+import fs from 'fs-extra'
+import path from 'node:path'
+import { normalizePath } from 'vite'
 import { globalConfig } from '../global-config'
-import { type ManifestCache } from '../manifest-cache/ManifestCache'
+import { findAllOldJsFile, writeFile } from '../helper/utils'
 import { type CacheValueEx } from '../manifest-cache'
+import { type ManifestCache } from '../manifest-cache/ManifestCache'
 import { type AddFileArgs, type DeleteFileArgs, ManifestCacheProcessor } from './ManifestCacheProcessor'
 
 const debug = createDebug('FileCacheProcessor ===> ')

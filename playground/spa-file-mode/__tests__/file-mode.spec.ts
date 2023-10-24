@@ -1,6 +1,6 @@
+import { listFiles, readFile } from '~utils'
 import path from 'node:path'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { listFiles, readFile } from '~utils'
 
 describe('file-mode', () => {
   let jsFiles: string[]

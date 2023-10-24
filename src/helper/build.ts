@@ -1,11 +1,11 @@
-import path from 'node:path'
 import createDebug from 'debug'
 import { type BuildResult, type Plugin, build as esbuild } from 'esbuild'
+import path from 'node:path'
 import { type ResolvedConfig } from 'vite'
-import { name } from '../../package.json'
-import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
-import { globalConfig } from '../global-config'
 import { type VPPTPluginOptions } from '..'
+import { name } from '../../package.json'
+import { globalConfig } from '../global-config'
+import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
 import { getContentHash } from './utils'
 
 const debug = createDebug('vite-plugin-public-typescript:build ===> ')

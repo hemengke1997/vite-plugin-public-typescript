@@ -34,6 +34,6 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
-          ACCESS_TOKEN: ${{ secrets.OPER_TOKEN }}
+          ACCESS_TOKEN: ${{ secrets.GHB_TOKEN }}
           BRANCH: gh-pages
           FOLDER: playground/spa/dist
