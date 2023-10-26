@@ -1,20 +1,12 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "jsx": "preserve",
-    "module": "ESNext",
-    "moduleResolution": "Node",
     "baseUrl": ".",
     "paths": {
       "~utils": ["./test-utils.ts"]
     },
     "types": ["vite/client", "node"],
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "outDir": "dist",
-    "esModuleInterop": true,
-    "noUnusedLocals": true,
-    "skipLibCheck": true
+    "strict": false
   },
   "include": ["."],
   "exclude": ["**/dist/**"]
