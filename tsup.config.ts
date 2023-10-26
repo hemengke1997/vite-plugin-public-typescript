@@ -10,6 +10,7 @@ const commonConfig = (option: Options): Options => {
       'import.meta.vitest': 'undefined',
     },
     tsconfig: option.watch ? './tsconfig.dev.json' : './tsconfig.json',
+    target: 'node16',
   }
 }
 

@@ -277,8 +277,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
     },
   ]
 
-  // Return as `any` to avoid Plugin type mismatches when there are multiple Vite versions installed
-  return plugins as any
+  return plugins
 }
 
 export { injectTagsToHtml } from './helper/html'

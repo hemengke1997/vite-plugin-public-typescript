@@ -33,7 +33,7 @@
     }
   },
   "scripts": {
-    "dev": "tsup --watch",
+    "dev": "simple-git-hooks && tsup --watch",
     "build": "tsup",
     "build:pages": "pnpm run build && cd playground/spa && pnpm run build",
     "test": "run-s test:unit test:serve test:build",
@@ -42,14 +42,13 @@
     "test:build": "cross-env VITE_TEST_BUILD=1 vitest run -c vitest.config.e2e.ts",
     "lint": "eslint . --fix",
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "simple-git-hooks",
     "up": "pnpm update --i --L",
     "taze": "taze -I -r -w",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "bump": "bumpp package.json -c -p -t --all -x \"pnpm run changelog\""
   },
   "peerDependencies": {
-    "vite": "3 || 4"
+    "vite": ">=4"
   },
   "dependencies": {
     "debug": "^4.3.4",
@@ -69,7 +68,6 @@
     "@types/debug": "^4.1.9",
     "@types/fs-extra": "^11.0.2",
     "@types/node": "^20.8.6",
-    "@vitest/coverage-v8": "^0.34.6",
     "bumpp": "^9.2.0",
     "conventional-changelog-cli": "^4.1.0",
     "cross-env": "^7.0.3",
@@ -79,16 +77,15 @@
     "playwright-chromium": "^1.39.0",
     "rollup": "^4.1.4",
     "simple-git-hooks": "^2.9.0",
-    "sirv": "^2.0.3",
     "taze": "^0.11.4",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
     "vite": "^4.4.11",
-    "vitest": "^0.34.6"
+    "vitest": "^0.34.5",
+    "vitest-e2e": "^0.0.8"
   },
   "engines": {
-    "pnpm": ">=8.6.2",
-    "node": ">=18.0.0"
+    "node": ">=16.0.0"
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm exec commitlint -e"
