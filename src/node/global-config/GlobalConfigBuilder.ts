@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { type ResolvedConfig } from 'vite'
-import { type VPPTPluginOptions } from '..'
+import { type Logger, type ResolvedConfig } from 'vite'
+import { type OptionsTypeWithDefault } from '../helper/utils'
 import { type CacheValue, type ManifestCache } from '../manifest-cache/ManifestCache'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
 
@@ -9,7 +9,8 @@ export type UserConfig<T extends CacheValue = CacheValue> = {
   originFilesGlob: string[]
   viteConfig: ResolvedConfig
   cacheProcessor: BaseCacheProcessor<T>
-} & Required<VPPTPluginOptions>
+  logger: Logger
+} & Required<OptionsTypeWithDefault>
 
 export type GlobalConfig<T extends CacheValue = CacheValue> = UserConfig<T> & {
   absOutputDir: string
@@ -27,6 +28,7 @@ export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
     const root = c.viteConfig.root || process.cwd()
     const absOutputDir = path.join(root, c.outputDir)
     const absInputDir = path.join(root, c.inputDir)
+
     this._globalConfig = {
       ...c,
       absInputDir,

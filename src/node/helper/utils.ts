@@ -3,19 +3,35 @@ import fs from 'fs-extra'
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import glob from 'tiny-glob'
-import { type ResolvedConfig, type WebSocketServer, normalizePath } from 'vite'
+import { type ResolvedConfig, createLogger, normalizePath } from 'vite'
 import { type VPPTPluginOptions } from '..'
+import { name as pkgName } from '../../../package.json'
 import { globalConfig } from '../global-config'
 import { manifestCache } from '../manifest-cache'
 import { initCacheProcessor } from '../processor/processor'
+import { disableManifestHmr } from './server'
 
 const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
-export function reloadPage(ws: WebSocketServer) {
-  ws.send({
-    path: '*',
-    type: 'full-reload',
+type PartialExclude<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+export type OptionsTypeWithDefault = PartialExclude<Required<VPPTPluginOptions>, 'base'>
+
+export { pkgName }
+
+export function createInternalLogger(allowClearScreen?: boolean) {
+  return createLogger('info', {
+    allowClearScreen: !!allowClearScreen,
+    prefix: `[${pkgName}]`,
   })
+}
+
+export function fileRelativeRootPath(filePath: string) {
+  return normalizePath(`/${path.relative(globalConfig.get().viteConfig.root, filePath)}`)
+}
+
+export function isInTest() {
+  return process.env.VITEST || process.env.CI
 }
 
 export function isPublicTypescript(args: { filePath: string; inputDir: string; root: string }) {
@@ -33,6 +49,10 @@ export function _isPublicTypescript(filePath: string) {
     inputDir: globalConfig.get().inputDir,
     root: globalConfig.get().viteConfig.root,
   })
+}
+
+export function isManifestFile(filePath: string) {
+  return filePath === manifestCache.manifestPath
 }
 
 export function isWindows() {
@@ -141,7 +161,7 @@ export function extractHashFromFileName(filename: string, hash: VPPTPluginOption
   return ''
 }
 
-export function validateOptions(options: Required<VPPTPluginOptions>) {
+export function validateOptions(options: OptionsTypeWithDefault) {
   let { outputDir } = options
   // ensure outputDir is Dir
   if (!outputDir.startsWith('/')) {
@@ -163,10 +183,6 @@ export function validateOptions(options: Required<VPPTPluginOptions>) {
 // remove slash at the start and end of path
 export function normalizeAssetsDirPath(dir: string) {
   return dir.replaceAll(/^\/|\/$/g, '')
-}
-
-export function addCodeHeader(code: string) {
-  return `// gen via vite-plugin-public-typescript (show in serve mode only)\n${code}`
 }
 
 export function getInputDir(resolvedRoot: string, originInputDir: string, suffix = '') {
@@ -198,23 +214,16 @@ export function removeOldJsFiles(oldFiles: string[]) {
   }
 }
 
-export function disableManifestHmr(config: ResolvedConfig, manifestPath: string) {
-  if (config.command === 'serve') {
-    const index = config.configFileDependencies.indexOf(manifestPath)
-    if (index !== -1) {
-      config.configFileDependencies.splice(index, 1)
-    }
-  }
-}
-
 // NOTE: remmember call this before write compiled js file to disk
 export function removeBase(filePath: string, base: string): string {
   const devBase = base.at(-1) === '/' ? base : `${base}/`
   return filePath.startsWith(devBase) ? filePath.slice(devBase.length - 1) : filePath
 }
 
-export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: Required<VPPTPluginOptions>) {
+export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: OptionsTypeWithDefault) {
   const resolvedRoot = normalizePath(viteConfig.root ? path.resolve(viteConfig.root) : process.cwd())
+
+  opts.base = opts.base ?? viteConfig.base
 
   fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
 
@@ -225,24 +234,28 @@ export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: Requir
 
   const cacheProcessor = initCacheProcessor(opts, manifestCache)
 
+  const logger = createInternalLogger(viteConfig.clearScreen)
+
   globalConfig.init({
     cacheProcessor,
     manifestCache,
     originFilesGlob,
     viteConfig,
-    ...opts,
+    logger,
+    ...(opts as Required<OptionsTypeWithDefault>),
   })
 
   return globalConfig.get()
 }
 
-export async function setupManifestCache(viteConfig: ResolvedConfig, opts: Required<VPPTPluginOptions>) {
-  manifestCache.setManifestPath(normalizePath(`${globalConfig.get().absInputDir}/${opts.manifestName}.json`))
+export async function setupManifestCache(viteConfig: ResolvedConfig, opts: OptionsTypeWithDefault) {
+  const cacheDir = path.resolve(viteConfig.root, opts.cacheDir)
+  manifestCache.setManifestPath(normalizePath(`${cacheDir}/${opts.manifestName}.json`))
 
   // no need to set `_pathToDisk` manually anymore
   manifestCache.beforeSet = (value) => {
     if (value?.path) {
-      value._pathToDisk = removeBase(value.path, viteConfig.base)
+      value._pathToDisk = removeBase(value.path, opts.base!)
     }
     return value
   }

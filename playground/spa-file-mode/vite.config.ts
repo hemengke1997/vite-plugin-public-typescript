@@ -1,7 +1,6 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
-import manifest from './public-typescript/manifest.json'
 
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
@@ -19,7 +18,7 @@ export default defineConfig(() => ({
       outputDir: 'out',
       destination: 'file',
     }),
-    injectScripts([
+    injectScripts((manifest) => [
       {
         attrs: { src: manifest.hmr },
         injectTo: 'body',

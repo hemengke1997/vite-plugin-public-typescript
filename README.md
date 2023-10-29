@@ -2,7 +2,6 @@
 
 ![npm][npm-img]
 
-<!-- **中文** | [English](./README.md) -->
 
 **在vite的运行时或构建时编译指定目录下的typescript文件，供开发者独立使用**
 
@@ -26,12 +25,13 @@
 
 ## 功能
 
-- 运行时和构建时，把指定文件夹中的 `typescript` 文件编译为 `javascript`，供浏览器直接使用
 - 输出带有 `hash` 的js文件，无需担心缓存
 - 自定义编译选项，指定目标浏览器范围，无需担心兼容性
 - 支持 `vite` 环境变量
 - 支持 `HMR`
 - 支持不同的输出方式（内存模式和文件模式）
+- 支持 `CSR` 和 `SSR` 应用
+
 
 ## 安装
 
@@ -41,16 +41,20 @@ pnpm add vite-plugin-public-typescript -D
 
 ## 配置项
 
-| 参数           | 类型           | 默认值              | 描述                                           |
-| -------------- | -------------- | ------------------- | ---------------------------------------------- |
-| inputDir       | `string`       | `public-typescript` | 存放需要编译的 `typescript` 的目录             |
-| outputDir      | `string`       | `/`                 | 输出公共 javascript 的目录，相对于 `publicDir` |
-| manifestName   | `string`       | `manifest`          | `manifest` 的文件名                            |
-| hash           | `boolean`      | `true`              | 编译后的 `js` 是否生成 `hash `                 |
-| esbuildOptions | `BuildOptions` | `{}`                | esbuild 构建选项                               |
-| ssrBuild       | `boolean`      | `false`             | 当前打包环境是否是 ssr                         |
-| sideEffects    | `boolean`      | `false`             | 若 `typescript` 文件中有导入第三方库，则开启   |
-| destination    | `string`       | `memory`            | 输出模式：内存模式 \| 文件模式                 |
+| 参数           | 类型           | 默认值                                        | 描述                                           |
+| -------------- | -------------- | --------------------------------------------- | ---------------------------------------------- |
+| inputDir       | `string`       | `public-typescript`                           | 存放需要编译的 `typescript` 的目录             |
+| outputDir      | `string`       | `/`                                           | 输出公共 javascript 的目录，相对于 `publicDir` |
+| manifestName   | `string`       | `manifest`                                    | `manifest` 的文件名                            |
+| hash           | `boolean`      | `true`                                        | 编译后的 `js` 是否生成 `hash `                 |
+| esbuildOptions | `BuildOptions` | `{}`                                          | esbuild 构建选项                               |
+| ssrBuild       | `boolean`      | `false`                                       | 当前打包环境是否是 ssr                         |
+| sideEffects    | `boolean`      | `true`                                        | 是否编译三方库                                 |
+| destination    | `string`       | `memory`                                      | 输出模式：内存模式 \| 文件模式                 |
+| cacheDir       | `string`       | `node_modules/.vite-plugin-public-typescript` | 存放manifest缓存的目录                         |
+| base           | `string`       | vite config 中的 `base`                       | 资源 base url                                  |
+
+
 
 
 ## 用法
@@ -58,7 +62,6 @@ pnpm add vite-plugin-public-typescript -D
 ```typescript
 import { defineConfig } from 'vite'
 import { publicTypescript, injectScripts } from 'vite-plugin-public-typescript'
-import manifest from './public-typescript/manifest.json'
 
 export default defineConfig({
   plugins: [
@@ -69,7 +72,7 @@ export default defineConfig({
       outputDir: '/out',
       destination: 'memory',
     }),
-    injectScripts([
+    injectScripts((manifest) => [
       {
         attrs: {
           src: manifest.script,
@@ -79,6 +82,14 @@ export default defineConfig({
     ])
   ]
 })
+```
+
+### 获取manifest
+
+```typescript
+import { manifest } from 'vite-plugin-public-typescript/client'
+
+console.log(manifest)
 ```
 
 
@@ -94,12 +105,11 @@ export default defineConfig({
 import type { HtmlTagDescriptor } from 'vite'
 import { defineConfig } from 'vite'
 import { publicTypescript, injectScripts } from 'vite-plugin-public-typescript'
-import manifest from './public-typescript/manifest.json'
 
 export default defineConfig({
   plugins: [
     publicTypescript(),
-    injectScripts([
+    injectScripts((manifest) => [
       {
         attrs: {
           src: manifest.spa,
@@ -133,11 +143,16 @@ export default defineConfig({
 #### server.js
 
 ```js
-import manifest from './public-typescript/manifest.json'
+import { injectScriptsToHtml } from 'vite-plugin-public-typescript'
 
-const html = template
-  // inject js
-  .replace('<!--app-prehead-->', `<script src=${manifest.ssr}></script>`)
+html = injectScriptsToHtml(html, (manifest) => [
+  {
+    attrs: {
+      src: manifest.ssr,
+    },
+    injectTo: 'head-prepend',
+  },
+])
 ```
 
 

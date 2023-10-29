@@ -1,7 +1,6 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
-import manifest from './public-typescript/manifest.json'
 
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
@@ -18,8 +17,9 @@ export default defineConfig(() => ({
       hash: true,
       outputDir: 'out',
       destination: 'memory',
+      cacheDir: 'node_modules/.vite-plugin-public-typescript',
     }),
-    injectScripts([
+    injectScripts((manifest) => [
       {
         attrs: { src: manifest.hmr },
         injectTo: 'body',
@@ -38,5 +38,5 @@ export default defineConfig(() => ({
       },
     ]),
   ],
-  clearScreen: true,
+  clearScreen: false,
 }))

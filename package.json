@@ -22,14 +22,26 @@
     "README.md",
     "dist"
   ],
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/node/index.cjs",
+  "module": "./dist/node/index.js",
+  "types": "./dist/node/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "types": "./dist/node/index.d.ts",
+      "require": "./dist/node/index.cjs",
+      "import": "./dist/node/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "require": "./dist/client/index.cjs",
+      "import": "./dist/client/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "client": [
+        "./dist/client/index.d.ts"
+      ]
     }
   },
   "scripts": {
@@ -57,14 +69,15 @@
     "magic-string": "^0.30.5",
     "on-change": "^4.0.2",
     "parse5": "^7.1.2",
+    "picocolors": "^1.0.0",
     "tiny-glob": "^0.2.9",
     "watcher": "^2.3.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.0.0",
-    "@minko-fe/commitlint-config": "^2.0.2",
-    "@minko-fe/eslint-config": "^2.0.2",
-    "@minko-fe/tsconfig": "^2.0.2",
+    "@minko-fe/commitlint-config": "^2.0.4",
+    "@minko-fe/eslint-config": "^2.0.4",
+    "@minko-fe/tsconfig": "^2.0.4",
     "@types/debug": "^4.1.9",
     "@types/fs-extra": "^11.0.2",
     "@types/node": "^20.8.6",
@@ -75,7 +88,7 @@
     "npm-run-all": "^4.1.5",
     "simple-git-hooks": "^2.9.0",
     "taze": "^0.11.4",
-    "tsup": "^7.2.0",
+    "tsup": "^7.0.0",
     "typescript": "^5.2.2",
     "vite": "^4.4.11",
     "vitest": "^0.34.5",

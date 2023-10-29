@@ -1,16 +1,10 @@
 import express from 'express'
 import fs from 'node:fs'
-import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { injectScriptsToHtml } from 'vite-plugin-public-typescript'
 
-const require = createRequire(import.meta.url)
-
-const manifest = require('./public-typescript/manifest.json')
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
 const isTest = process.env.VITEST
 
 process.env.MY_CUSTOM_SECRET = 'API_KEY_qwertyuiop'
@@ -82,7 +76,7 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
 
       let html = template.replace(`<!--app-html-->`, appHtml)
 
-      html = injectScriptsToHtml(html, [
+      html = injectScriptsToHtml(html, (manifest) => [
         {
           attrs: {
             src: manifest.ssr,
@@ -101,3 +95,9 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
 
   return { app, vite, hmrPort }
 }
+
+// const port = process.env.PORT || 5173
+// const { app } = await createServer()
+// app.listen(port, () => {
+//   console.log(`http://localhost:${port}`)
+// })

@@ -1,27 +1,28 @@
 import createDebug from 'debug'
 import { type BuildOptions } from 'esbuild'
 import fs from 'fs-extra'
-import MagicString from 'magic-string'
 import path from 'node:path'
-import { type PluginOption, type ResolvedConfig, send } from 'vite'
+import { type PluginOption, type ResolvedConfig } from 'vite'
 import { globalConfig } from './global-config'
-import { build, buildAllOnce, esbuildTypescript } from './helper/build'
+import { buildAllOnce, esbuildTypescript } from './helper/build'
 import { initWatcher } from './helper/file-watcher'
-import { getScriptInfo, nodeIsElement, traverseHtml } from './helper/html'
+import { reloadPage } from './helper/server'
 import {
   _isPublicTypescript,
-  addCodeHeader,
+  type OptionsTypeWithDefault,
   eq,
   findAllOldJsFile,
   isEmptyObject,
+  isManifestFile,
   normalizeAssetsDirPath,
-  reloadPage,
   removeOldJsFiles,
   setupGlobalConfig,
   setupManifestCache,
   validateOptions,
 } from './helper/utils'
 import { manifestCache } from './manifest-cache'
+import { pluginServer } from './plugins/server'
+import { pluginVirtual } from './plugins/virtual'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
 
@@ -66,24 +67,38 @@ export interface VPPTPluginOptions {
   /**
    * @description treat `input` as sideEffect or not
    * @see https://esbuild.github.io/api/#tree-shaking-and-side-effects
-   * @default false
+   * @default true
    */
   sideEffects?: boolean
   /**
    * @description build-out destination
    * @default 'memory'
+   * @version v1.5.0 introduced
    */
   destination?: 'memory' | 'file'
+  /**
+   * @description manifest cache dir
+   * @default `node_modules/.vite-plugin-public-typescript`
+   * @version v2.0.0 introduced
+   */
+  cacheDir?: string
+  /**
+   * @description base path for all files
+   * @default vite.config.ts `base`
+   * @version v2.0.0 introduced
+   */
+  base?: string
 }
 
-export const DEFAULT_OPTIONS: Required<VPPTPluginOptions> = {
+export const DEFAULT_OPTIONS: OptionsTypeWithDefault = {
   destination: 'memory',
   esbuildOptions: {},
   hash: true,
   inputDir: 'public-typescript',
   manifestName: 'manifest',
   outputDir: '/',
-  sideEffects: false,
+  sideEffects: true,
+  cacheDir: 'node_modules/.vite-plugin-public-typescript',
 }
 
 let previousOpts: VPPTPluginOptions
@@ -112,13 +127,9 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         await setupManifestCache(viteConfig, opts)
       },
       configureServer(server) {
-        if (process.env.VITEST || process.env.CI) {
-          return
-        }
-
         const { ws } = server
 
-        initWatcher(() => reloadPage(ws))
+        initWatcher((file) => reloadPage(ws, file))
       },
       async buildStart() {
         // skip server restart when options not changed
@@ -166,7 +177,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           }
         }
 
-        buildAllOnce(originFilesGlob)
+        await buildAllOnce(originFilesGlob)
       },
       generateBundle() {
         if (opts.destination === 'memory') {
@@ -181,100 +192,17 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         }
       },
       async handleHotUpdate(ctx) {
-        const { file, server } = ctx
+        const { file } = ctx
 
-        if (_isPublicTypescript(file)) {
+        if (_isPublicTypescript(file) || isManifestFile(file)) {
           debug('hmr:', file)
-
-          await build({ filePath: file }, (...args) => globalConfig.get().cacheProcessor.onTsBuildEnd(...args))
-
-          reloadPage(server.ws)
 
           return []
         }
       },
-      transformIndexHtml: {
-        order: 'post',
-        async handler(html, { filename }) {
-          const s = new MagicString(html)
-
-          await traverseHtml(html, filename, (node) => {
-            if (!nodeIsElement(node)) {
-              return
-            }
-            // script tags
-            if (node.nodeName === 'script') {
-              const { src, vppt } = getScriptInfo(node)
-
-              if (vppt?.name && src?.value) {
-                const c = manifestCache.get()
-                let cacheItem = manifestCache.findCacheItemByPath(src.value)
-
-                if (!cacheItem) {
-                  const fileName = path.basename(src.value).split('.')[0]
-                  cacheItem = c[fileName]
-                }
-
-                if (cacheItem) {
-                  const attrs = node.attrs
-                    .reduce((acc, attr) => {
-                      if (attr.name === src.name) {
-                        acc += ` ${attr.name}="${cacheItem!.path}"`
-                        return acc
-                      }
-                      acc += attr.value ? ` ${attr.name}="${attr.value}"` : ` ${attr.name}`
-                      return acc
-                    }, '')
-                    .trim()
-
-                  s.update(
-                    node.sourceCodeLocation!.startOffset,
-                    node.sourceCodeLocation!.endOffset,
-                    `<script ${attrs}></script>`,
-                  )
-                } else {
-                  s.remove(node.sourceCodeLocation!.startOffset, node.sourceCodeLocation!.endOffset)
-                }
-              }
-            }
-          })
-          return s.toString()
-        },
-      },
     },
-    {
-      name: 'vite:public-typescript:server',
-      apply: 'serve',
-      enforce: 'post',
-      load(id) {
-        const cacheItem = manifestCache.findCacheItemByPath(id)
-        if (cacheItem) {
-          return {
-            code: '',
-            map: null,
-          }
-        }
-      },
-      async configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          try {
-            if (req?.url?.startsWith('/') && req?.url?.endsWith('.js')) {
-              const cacheItem = manifestCache.findCacheItemByPath(req.url)
-              if (cacheItem) {
-                return send(req, res, addCodeHeader(cacheItem._code || ''), 'js', {
-                  cacheControl: 'max-age=31536000,immutable',
-                  headers: server.config.server.headers,
-                  map: null,
-                })
-              }
-            }
-          } catch (error) {
-            return next(error)
-          }
-          next()
-        })
-      },
-    },
+    pluginServer(),
+    pluginVirtual(),
   ]
 
   return plugins

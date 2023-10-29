@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { describe, expect, test } from 'vitest'
-import { globalConfig } from '../src/global-config'
+import { globalConfig } from '../src/node/global-config'
 import {
   eq,
   extractHashFromFileName,
@@ -9,9 +9,9 @@ import {
   linebreak,
   setEol,
   validateOptions,
-} from '../src/helper/utils'
+} from '../src/node/helper/utils'
 
-describe.skip('unit test', () => {
+describe('unit test', () => {
   test('should return true when filePath is a public typescript file', () => {
     const filePath = 'src/foo/bar.ts'
     const root = 'src'
@@ -31,14 +31,14 @@ describe.skip('unit test', () => {
     const tsFile = 'hello.ts'
     const otherFile = 'hello.js'
     const res1 = isPublicTypescript({
-      filePath: path.resolve(root, `publicTypescript/${tsFile}`),
-      inputDir: 'publicTypescript',
+      filePath: path.resolve(root, `public-typescript/${tsFile}`),
+      inputDir: 'public-typescript',
       root,
     })
 
     const res2 = isPublicTypescript({
-      filePath: path.resolve(root, `publicTypescript/${otherFile}`),
-      inputDir: 'publicTypescript',
+      filePath: path.resolve(root, `public-typescript/${otherFile}`),
+      inputDir: 'public-typescript',
       root,
     })
 
@@ -91,6 +91,7 @@ describe.skip('unit test', () => {
       outputDir: '/',
       sideEffects: false,
       ssrBuild: false,
+      cacheDir: 'node_modules/.vite-plugin-public-typescript',
     } as const
 
     expect(() => validateOptions(opts)).not.toThrowError()

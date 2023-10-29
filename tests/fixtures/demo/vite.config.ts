@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import { publicTypescript } from '../../../src'
+import { publicTypescript } from '../../../src/node'
 
 // https://vitejs.dev/config/
 export default defineConfig(() => ({

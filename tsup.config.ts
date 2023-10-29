@@ -3,28 +3,43 @@ import { type Options, defineConfig } from 'tsup'
 const commonConfig = (option: Options): Options => {
   return {
     clean: false,
-    minify: false,
-    platform: 'node',
     sourcemap: !!option.watch,
     define: {
       'import.meta.vitest': 'undefined',
     },
     tsconfig: option.watch ? './tsconfig.dev.json' : './tsconfig.json',
-    target: 'node16',
+    dts: true,
+    minify: false,
+    external: [/^virtual:.*/],
   }
 }
 
 export const tsup = defineConfig((option) => [
   {
-    entry: ['src/index.ts'],
-    dts: true,
+    entry: {
+      'node/index': './src/node/index.ts',
+    },
     format: ['esm'],
+    target: 'node16',
+    platform: 'node',
     ...commonConfig(option),
   },
   {
-    entry: ['src/index.ts'],
+    entry: {
+      'node/index': './src/node/index.ts',
+    },
     noExternal: ['on-change', 'watcher'],
     format: ['cjs'],
+    target: 'node16',
+    platform: 'node',
+    ...commonConfig(option),
+  },
+  {
+    entry: {
+      'client/index': './src/client/index.ts',
+    },
+    format: ['esm', 'cjs'],
+    platform: 'neutral',
     ...commonConfig(option),
   },
 ])

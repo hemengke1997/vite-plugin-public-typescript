@@ -2,11 +2,9 @@ import createDebug from 'debug'
 import { type BuildResult, type Plugin, build as esbuild } from 'esbuild'
 import path from 'node:path'
 import { type ResolvedConfig } from 'vite'
-import { type VPPTPluginOptions } from '..'
-import { name } from '../../package.json'
 import { globalConfig } from '../global-config'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
-import { getContentHash } from './utils'
+import { type OptionsTypeWithDefault, getContentHash, pkgName } from './utils'
 
 const debug = createDebug('vite-plugin-public-typescript:build ===> ')
 
@@ -57,7 +55,7 @@ function transformEnvToDefine(viteConfig: ResolvedConfig) {
 type IBuildOptions = {
   filePath: string
   viteConfig: ResolvedConfig
-} & Required<VPPTPluginOptions>
+} & OptionsTypeWithDefault
 
 export async function esbuildTypescript(buildOptions: IBuildOptions) {
   const { filePath, esbuildOptions, sideEffects, viteConfig } = buildOptions
@@ -90,7 +88,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
     debug('esbuild success:', filePath)
   } catch (error) {
-    console.error(`[${name}]`, error)
+    console.error(`[${pkgName}]`, error)
     return
   }
 

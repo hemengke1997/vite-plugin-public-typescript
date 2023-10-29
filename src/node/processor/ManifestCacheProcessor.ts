@@ -37,10 +37,7 @@ export abstract class ManifestCacheProcessor extends BaseCacheProcessor<CacheVal
 
   setCache(args: AddFileArgs, config: GlobalConfig) {
     const { contentHash, originFileName, code } = args
-    const {
-      outputDir,
-      viteConfig: { base },
-    } = config
+    const { outputDir, base } = config
 
     const pathWithBase = this.genCacheItemPath({ base, contentHash, originFileName, outputDir })
 

@@ -16,6 +16,8 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 const hmrOriginText = 'hmr original text'
 
+const manifestPath = 'node_modules/.vite-plugin-public-typescript/manifest.json'
+
 describe('console', async () => {
   test('should console hmr string', async () => {
     await untilBrowserLogAfter(() => page.goto(viteTestUrl), 'hmr')
@@ -47,7 +49,7 @@ describe('manifest', () => {
   let manifest: string
   beforeAll(() => {
     try {
-      manifest = readFile('public-typescript/manifest.json')
+      manifest = readFile(manifestPath)
     } catch {}
   })
 
@@ -62,7 +64,7 @@ describe('manifest', () => {
   })
 
   test.runIf(isServe)('should not trigger vite server restart when manifest file changed', async () => {
-    editFile('public-typescript/manifest.json', (content) => content)
+    editFile(manifestPath, (content) => content)
     await withRetry(async () => {
       expect(serverLogs).not.toEqual(expect.arrayContaining([expect.stringMatching('server restarted')]))
       expect(serverLogs).not.toEqual(expect.arrayContaining([expect.stringMatching('error')]))
@@ -75,7 +77,7 @@ describe.skipIf(isServe)('build', () => {
   let manifest: string
   beforeAll(() => {
     try {
-      manifest = readFile('public-typescript/manifest.json')
+      manifest = readFile(manifestPath)
       jsFiles = listFiles('dist/out')
     } catch {}
   })

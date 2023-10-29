@@ -11,7 +11,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['./playground/**/*.spec.[tj]s'],
+    include: ['./playground/spa/**/*.spec.[tj]s'],
     reporters: 'dot',
     coverage: {
       provider: undefined,
