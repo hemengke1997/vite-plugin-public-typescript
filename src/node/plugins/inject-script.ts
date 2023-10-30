@@ -37,5 +37,6 @@ export function injectScripts(scripts: Scripts) {
     },
   }
 
-  return plugin
+  // Return as `any` to avoid Plugin type mismatches when there are multiple Vite versions installed
+  return plugin as any
 }

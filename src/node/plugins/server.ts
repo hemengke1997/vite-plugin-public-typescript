@@ -5,7 +5,7 @@ import { getScriptInfo, nodeIsElement, traverseHtml } from '../helper/html'
 import { addCodeHeader } from '../helper/server'
 import { manifestCache } from '../manifest-cache'
 
-export function pluginServer() {
+export function pluginServer(): PluginOption {
   const plugin: PluginOption = {
     name: 'vite:public-typescript:server',
     apply: 'serve',

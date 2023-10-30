@@ -14,9 +14,9 @@ import { disableManifestHmr } from './server'
 
 const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
-type PartialExclude<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export type OptionsTypeWithDefault = PartialExclude<Required<VPPTPluginOptions>, 'base' | 'sideEffects'>
+export type OptionsTypeWithDefault = PartialBy<Required<VPPTPluginOptions>, 'base' | 'sideEffects'>
 
 export { pkgName }
 

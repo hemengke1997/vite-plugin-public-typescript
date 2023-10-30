@@ -100,8 +100,6 @@ export const DEFAULT_OPTIONS: OptionsTypeWithDefault = {
   cacheDir: 'node_modules/.vite-plugin-public-typescript',
 }
 
-// let previousOpts: VPPTPluginOptions
-
 export default function publicTypescript(options: VPPTPluginOptions = {}) {
   const opts = {
     ...DEFAULT_OPTIONS,
@@ -114,7 +112,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
   let viteConfig: ResolvedConfig
 
-  const plugins: PluginOption = [
+  const plugins: PluginOption[] = [
     {
       name: 'vite:public-typescript',
       enforce: 'post',
@@ -131,13 +129,6 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         initWatcher((file) => reloadPage(ws, file))
       },
       async buildStart() {
-        // skip server restart when options not changed
-        // if (eq(previousOpts, opts)) {
-        //   return
-        // }
-
-        // previousOpts = opts
-
         const manifestPath = manifestCache.manifestPath
 
         fs.ensureFileSync(manifestPath)
@@ -204,7 +195,8 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
     pluginVirtual(),
   ]
 
-  return plugins
+  // Return as `any` to avoid Plugin type mismatches when there are multiple Vite versions installed
+  return plugins as any
 }
 
 export { injectTagsToHtml } from './helper/html'

@@ -60,7 +60,7 @@
     "bump": "bumpp package.json -c -p -t --all -x \"pnpm run changelog\""
   },
   "peerDependencies": {
-    "vite": ">=4"
+    "vite": ">=4.0.0"
   },
   "dependencies": {
     "debug": "^4.3.4",

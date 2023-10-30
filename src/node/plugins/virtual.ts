@@ -2,7 +2,7 @@ import { type PluginOption } from 'vite'
 import { resolvedVirtualModuleId, virtualModuleId } from '../helper/virtual'
 import { manifestCache } from '../manifest-cache'
 
-export function pluginVirtual() {
+export function pluginVirtual(): PluginOption {
   const plugin: PluginOption = {
     name: 'vite:public-typescript:virtual',
     enforce: 'post',
