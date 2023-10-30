@@ -1,6 +1,7 @@
 import createDebug from 'debug'
 import { type BuildResult, type Plugin, build as esbuild } from 'esbuild'
 import path from 'node:path'
+import colors from 'picocolors'
 import { type ResolvedConfig } from 'vite'
 import { globalConfig } from '../global-config'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
@@ -88,7 +89,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
     debug('esbuild success:', filePath)
   } catch (error) {
-    console.error(`[${pkgName}]`, error)
+    console.error(colors.red(`[${pkgName}] `), error)
     return
   }
 

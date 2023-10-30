@@ -60,15 +60,7 @@ html = injectScriptsToHtml(html, (manifest) => [
 ])
 ```
 
-2. node环境中，也可以使用 `getManifest` 获取manifest
-
-```ts
-import { getManifest } from 'vite-plugin-public-typescript'
-
-console.log(getManifest(), 'manifest')
-```
-
-3. 在业务源码中，使用 `vite-plugin-public-typescript/client` 引入 manifest
+2. 在业务源码中，使用 `vite-plugin-public-typescript/client` 引入 manifest
 ```ts
 import { manifest } from 'vite-plugin-public-typescript/client'
 

@@ -1,9 +1,11 @@
 import createDebug from 'debug'
 import path from 'node:path'
+import colors from 'picocolors'
 import Watcher from 'watcher'
 import { globalConfig } from '../global-config'
 import { build } from './build'
-import { _isPublicTypescript, type HmrFile } from './utils'
+import { type HmrFile } from './server'
+import { _isPublicTypescript, pkgName } from './utils'
 
 const debug = createDebug('vite-plugin-public-typescript:file-watcher ===> ')
 
@@ -59,6 +61,6 @@ export function initWatcher(cb: (file: HmrFile) => void) {
       handleFileChange(filePath, () => cb({ path: filePath, event: 'changed' }))
     })
   } catch (error) {
-    console.error(error)
+    console.error(colors.red(`[${pkgName}] `), error)
   }
 }

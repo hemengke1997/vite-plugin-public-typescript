@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { type InlineConfig, type ResolvedConfig, resolveConfig } from 'vite'
 import { beforeEach } from 'vitest'
-import { DEFAULT_OPTIONS } from '../src/node'
 import { type GlobalConfig } from '../src/node/global-config/GlobalConfigBuilder'
+import { DEFAULT_OPTIONS } from '../src/node/helper/default-options'
 import { setupGlobalConfig } from '../src/node/helper/utils'
 import { type CacheValueEx } from '../src/node/manifest-cache'
 

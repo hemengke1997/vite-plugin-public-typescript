@@ -1,13 +1,13 @@
 import path from 'node:path'
 import { describe, expect, test } from 'vitest'
 import { globalConfig } from '../src/node/global-config'
+import { setEol } from '../src/node/helper/io'
 import {
   eq,
   extractHashFromFileName,
   getContentHash,
   isPublicTypescript,
   linebreak,
-  setEol,
   validateOptions,
 } from '../src/node/helper/utils'
 

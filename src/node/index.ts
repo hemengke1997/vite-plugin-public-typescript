@@ -5,11 +5,11 @@ import path from 'node:path'
 import { type PluginOption, type ResolvedConfig } from 'vite'
 import { globalConfig } from './global-config'
 import { buildAllOnce } from './helper/build'
+import { DEFAULT_OPTIONS } from './helper/default-options'
 import { initWatcher } from './helper/file-watcher'
 import { reloadPage } from './helper/server'
 import {
   _isPublicTypescript,
-  type OptionsTypeWithDefault,
   findAllOldJsFile,
   isEmptyObject,
   isManifestFile,
@@ -88,16 +88,6 @@ export interface VPPTPluginOptions {
    * @version v2.0.0 introduced
    */
   base?: string
-}
-
-export const DEFAULT_OPTIONS: OptionsTypeWithDefault = {
-  destination: 'memory',
-  esbuildOptions: {},
-  hash: true,
-  inputDir: 'public-typescript',
-  manifestName: 'manifest',
-  outputDir: '/',
-  cacheDir: 'node_modules/.vite-plugin-public-typescript',
 }
 
 export default function publicTypescript(options: VPPTPluginOptions = {}) {

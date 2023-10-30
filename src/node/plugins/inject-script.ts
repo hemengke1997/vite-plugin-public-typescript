@@ -1,11 +1,11 @@
 import { type HtmlTagDescriptor, type PluginOption } from 'vite'
 import { VPPT_DATA_ATTR, injectTagsToHtml } from '../helper/html'
-import { manifestCache } from '../manifest-cache'
+import { getManifest } from '../manifest-cache'
 
 export type Scripts = (manifest: Record<string, string>) => Omit<HtmlTagDescriptor, 'tag'>[]
 
 function generateScriptTags(scripts: Scripts) {
-  const _scripts = scripts(manifestCache.getManifestJson())
+  const _scripts = scripts(getManifest())
   const tags: HtmlTagDescriptor[] = _scripts.map((s) => ({
     ...s,
     attrs: {

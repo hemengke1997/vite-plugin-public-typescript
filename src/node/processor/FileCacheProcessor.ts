@@ -1,9 +1,11 @@
 import createDebug from 'debug'
 import fs from 'fs-extra'
 import path from 'node:path'
+import colors from 'picocolors'
 import { normalizePath } from 'vite'
 import { globalConfig } from '../global-config'
-import { findAllOldJsFile, writeFile } from '../helper/utils'
+import { writeFile } from '../helper/io'
+import { findAllOldJsFile, pkgName } from '../helper/utils'
 import { type CacheValueEx } from '../manifest-cache'
 import { type ManifestCache } from '../manifest-cache/ManifestCache'
 import { type AddFileArgs, type DeleteFileArgs, ManifestCacheProcessor } from './ManifestCacheProcessor'
@@ -35,7 +37,7 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
         publicDir,
       })
     } catch (error) {
-      console.error(error)
+      console.error(colors.red(`[${pkgName}] `), error)
     }
 
     debug('deleteOldJsFile - oldFiles:', oldFiles)

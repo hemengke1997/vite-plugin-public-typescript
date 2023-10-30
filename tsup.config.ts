@@ -11,6 +11,8 @@ const commonConfig = (option: Options): Options => {
     dts: true,
     minify: false,
     external: [/^virtual:.*/],
+    shims: true,
+    splitting: true,
   }
 }
 

@@ -2,12 +2,13 @@ import express from 'express'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { getManifest, injectScriptsToHtml } from 'vite-plugin-public-typescript'
+import { injectScriptsToHtml } from 'vite-plugin-public-typescript'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 const isTest = process.env.VITEST
 
-process.env.MY_CUSTOM_SECRET = 'API_KEY_qwertyuiop'
+process.env.__Manifest_Path__ = __dirname
 
 export async function createServer(root = process.cwd(), isProd = process.env.NODE_ENV === 'production', hmrPort) {
   const resolve = (p) => path.resolve(__dirname, p)
@@ -76,14 +77,11 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
 
       let html = template.replace(`<!--app-html-->`, appHtml)
 
-      console.log(getManifest(), 'manifest')
-
       html = injectScriptsToHtml(html, (manifest) => [
         {
           attrs: {
             src: manifest.ssr,
           },
-          injectTo: 'head-prepend',
         },
       ])
 
@@ -98,8 +96,10 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
   return { app, vite, hmrPort }
 }
 
-const port = process.env.PORT || 5173
-const { app } = await createServer()
-app.listen(port, () => {
-  console.log(`http://localhost:${port}`)
-})
+if (!isTest) {
+  const port = process.env.PORT || 5173
+  const { app } = await createServer()
+  app.listen(port, () => {
+    console.log(`http://localhost:${port}`)
+  })
+}

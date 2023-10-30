@@ -8,7 +8,7 @@ import { type ResolvedConfig, createLogger, normalizePath } from 'vite'
 import { type VPPTPluginOptions } from '..'
 import { name as pkgName } from '../../../package.json'
 import { globalConfig } from '../global-config'
-import { manifestCache } from '../manifest-cache'
+import { manifestCache, saveManifestPathToDisk } from '../manifest-cache'
 import { initCacheProcessor } from '../processor/processor'
 import { disableManifestHmr } from './server'
 
@@ -60,23 +60,6 @@ export function isWindows() {
   return typeof process != 'undefined' && process.platform === 'win32'
 }
 
-export const linebreak = isWindows() ? '\r\n' : '\n'
-
-export function detectLastLine(string: string) {
-  const last = string.at(-1) || ''
-
-  return /(?:\r?\n)/g.test(last)
-}
-
-const newline = /\r\n|\r|\n/g
-export function setEol(text: string) {
-  if (!detectLastLine(text)) {
-    text += linebreak
-  }
-
-  return text.replaceAll(newline, linebreak)
-}
-
 export function isObject(o: unknown): o is Object {
   return Object.prototype.toString.call(o) === '[object Object]'
 }
@@ -109,47 +92,12 @@ export function converEmptyObjectToNull(obj: unknown) {
   return obj
 }
 
-export function writeFile(filename: string, content: string): void {
-  const dir = path.dirname(filename)
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-
-  const newContent = setEol(content)
-
-  if (fs.existsSync(filename)) {
-    const { hash } = globalConfig.get()
-    if (extractHashFromFileName(filename, hash)) {
-      // if filename has hash, skip write file
-      debug('skip writeFile, filename has hash')
-      return
-    }
-    // Read content first
-    // if content is same, skip write file
-    const oldContent = fs.readFileSync(filename, 'utf-8')
-    debug('oldContent:', oldContent, 'newContent:', newContent)
-    if (oldContent && newContent === oldContent) {
-      debug('skip writeFile, content is same with old content:', oldContent)
-      return
-    }
-  }
-
-  fs.writeFileSync(filename, newContent)
-
-  debug('writeFile success:', filename)
-}
-
-function getHashLen(hash: VPPTPluginOptions['hash']) {
-  return typeof hash === 'number' ? hash : HASH_LEN
-}
-
 const HASH_LEN = 8
-export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
-  if (!chunk) {
-    return ''
-  }
-  const hashLen = getHashLen(hash)
-  return createHash('md5').update(chunk).digest('hex').slice(0, Math.max(0, hashLen))
+
+export const linebreak = isWindows() ? '\r\n' : '\n'
+
+export function getHashLen(hash: VPPTPluginOptions['hash']) {
+  return typeof hash === 'number' ? hash : HASH_LEN
 }
 
 export function extractHashFromFileName(filename: string, hash: VPPTPluginOptions['hash']) {
@@ -160,6 +108,14 @@ export function extractHashFromFileName(filename: string, hash: VPPTPluginOption
     return match[1]
   }
   return ''
+}
+
+export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
+  if (!chunk) {
+    return ''
+  }
+  const hashLen = getHashLen(hash)
+  return createHash('md5').update(chunk).digest('hex').slice(0, Math.max(0, hashLen))
 }
 
 export function validateOptions(options: OptionsTypeWithDefault) {
@@ -261,7 +217,10 @@ export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: Option
 
 export async function setupManifestCache(viteConfig: ResolvedConfig, opts: OptionsTypeWithDefault) {
   const cacheDir = path.resolve(viteConfig.root, opts.cacheDir)
-  manifestCache.setManifestPath(normalizePath(`${cacheDir}/${opts.manifestName}.json`))
+
+  manifestCache.setManifestPath(`${cacheDir}/${opts.manifestName}.json`)
+
+  saveManifestPathToDisk()
 
   // no need to set `_pathToDisk` manually anymore
   manifestCache.beforeSet = (value) => {

@@ -2,7 +2,7 @@ import createDebug from 'debug'
 import fs from 'fs-extra'
 import path from 'node:path'
 import onChange from 'on-change'
-import { writeFile } from '../helper/utils'
+import { readJsonFile, writeJsonFile } from '../helper/io'
 
 const debug = createDebug('vite-plugin-public-typescript:ManifestCache ===> ')
 
@@ -101,21 +101,12 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
   }
 
   readManifestFile() {
-    if (!fs.existsSync(this.manifestPath)) {
-      return {}
-    }
-
-    const cacheJson = fs.readFileSync(this.manifestPath, 'utf-8')
-    if (cacheJson) {
-      return JSON.parse(cacheJson)
-    }
-
-    return {}
+    return readJsonFile(this.manifestPath)
   }
 
   setManifestPath(p: string) {
-    this._manifestPath = p
     fs.ensureDirSync(path.dirname(p))
+    this._manifestPath = p
   }
 
   get manifestPath() {
@@ -151,7 +142,7 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
     const cacheObj = this.getManifestJson()
     const orderdCache = this.sortObjectByKey(cacheObj)
 
-    writeFile(targetPath, JSON.stringify(orderdCache || {}, null, 2))
+    writeJsonFile(targetPath, orderdCache)
 
     debug('write manifest json:', JSON.stringify(orderdCache || {}, null, 2))
 
