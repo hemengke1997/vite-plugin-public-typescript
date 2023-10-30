@@ -10,7 +10,6 @@ import { reloadPage } from './helper/server'
 import {
   _isPublicTypescript,
   type OptionsTypeWithDefault,
-  eq,
   findAllOldJsFile,
   isEmptyObject,
   isManifestFile,
@@ -68,6 +67,7 @@ export interface VPPTPluginOptions {
    * @description treat `input` as sideEffect or not
    * @see https://esbuild.github.io/api/#tree-shaking-and-side-effects
    * @default true
+   * @deprecated in v2.0.0. always treat as sideEffect now
    */
   sideEffects?: boolean
   /**
@@ -97,11 +97,10 @@ export const DEFAULT_OPTIONS: OptionsTypeWithDefault = {
   inputDir: 'public-typescript',
   manifestName: 'manifest',
   outputDir: '/',
-  sideEffects: true,
   cacheDir: 'node_modules/.vite-plugin-public-typescript',
 }
 
-let previousOpts: VPPTPluginOptions
+// let previousOpts: VPPTPluginOptions
 
 export default function publicTypescript(options: VPPTPluginOptions = {}) {
   const opts = {
@@ -133,11 +132,11 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
       },
       async buildStart() {
         // skip server restart when options not changed
-        if (eq(previousOpts, opts)) {
-          return
-        }
+        // if (eq(previousOpts, opts)) {
+        //   return
+        // }
 
-        previousOpts = opts
+        // previousOpts = opts
 
         const manifestPath = manifestCache.manifestPath
 

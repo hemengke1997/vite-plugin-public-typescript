@@ -2,6 +2,7 @@ import createDebug from 'debug'
 import fs from 'fs-extra'
 import { createHash } from 'node:crypto'
 import path from 'node:path'
+import colors from 'picocolors'
 import glob from 'tiny-glob'
 import { type ResolvedConfig, createLogger, normalizePath } from 'vite'
 import { type VPPTPluginOptions } from '..'
@@ -15,7 +16,7 @@ const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
 type PartialExclude<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export type OptionsTypeWithDefault = PartialExclude<Required<VPPTPluginOptions>, 'base'>
+export type OptionsTypeWithDefault = PartialExclude<Required<VPPTPluginOptions>, 'base' | 'sideEffects'>
 
 export { pkgName }
 
@@ -177,6 +178,16 @@ export function validateOptions(options: OptionsTypeWithDefault) {
   if (inputDir.endsWith('/')) {
     // remove last slash
     options.inputDir = inputDir.replace(/\/$/, '')
+  }
+
+  if (options.sideEffects !== undefined) {
+    console.warn(
+      colors.yellow(
+        `${colors.bold('(warning!)')} [${pkgName}]: sideEffects option is ${colors.bold(
+          'deprecated',
+        )}, please remove it`,
+      ),
+    )
   }
 }
 

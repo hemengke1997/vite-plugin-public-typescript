@@ -39,7 +39,7 @@ function App() {
 
   return (
     <div className='App'>
-      <h3 id='temp'>以下都是 vite-plugin-public-typescript 插件编译后，通过 manifest.json 文件获取的：</h3>
+      <h3 id='temp'>以下都是 vite-plugin-public-typescript 插件编译后生成的js文件：</h3>
       <div className={'manifest'}>{formatManifst()}</div>
       <br />
       {content}
