@@ -4,7 +4,7 @@ import { manifestCache } from '../manifest-cache'
 
 export type Scripts = (manifest: Record<string, string>) => Omit<HtmlTagDescriptor, 'tag'>[]
 
-export function generateScriptTags(scripts: Scripts) {
+function generateScriptTags(scripts: Scripts) {
   const _scripts = scripts(manifestCache.getManifestJson())
   const tags: HtmlTagDescriptor[] = _scripts.map((s) => ({
     ...s,

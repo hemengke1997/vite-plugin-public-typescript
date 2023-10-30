@@ -8,4 +8,8 @@ export type CacheValueEx = {
 
 const manifestCache = new ManifestCache<CacheValueEx>()
 
+export function getManifest(): Record<string, string> {
+  return manifestCache.getManifestJson()
+}
+
 export { manifestCache }

@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 import path from 'node:path'
 import { type PluginOption, type ResolvedConfig } from 'vite'
 import { globalConfig } from './global-config'
-import { buildAllOnce, esbuildTypescript } from './helper/build'
+import { buildAllOnce } from './helper/build'
 import { initWatcher } from './helper/file-watcher'
 import { reloadPage } from './helper/server'
 import {
@@ -199,6 +199,6 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
   return plugins as any
 }
 
-export { injectTagsToHtml } from './helper/html'
-export * from './plugins/inject-script'
-export { esbuildTypescript, publicTypescript }
+export { getManifest } from './manifest-cache'
+export { injectScripts, injectScriptsToHtml } from './plugins/inject-script'
+export { publicTypescript }

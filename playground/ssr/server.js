@@ -2,7 +2,7 @@ import express from 'express'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { injectScriptsToHtml } from 'vite-plugin-public-typescript'
+import { getManifest, injectScriptsToHtml } from 'vite-plugin-public-typescript'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isTest = process.env.VITEST
@@ -76,6 +76,8 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
 
       let html = template.replace(`<!--app-html-->`, appHtml)
 
+      console.log(getManifest(), 'manifest')
+
       html = injectScriptsToHtml(html, (manifest) => [
         {
           attrs: {
@@ -96,8 +98,8 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
   return { app, vite, hmrPort }
 }
 
-// const port = process.env.PORT || 5173
-// const { app } = await createServer()
-// app.listen(port, () => {
-//   console.log(`http://localhost:${port}`)
-// })
+const port = process.env.PORT || 5173
+const { app } = await createServer()
+app.listen(port, () => {
+  console.log(`http://localhost:${port}`)
+})
