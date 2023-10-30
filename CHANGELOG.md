@@ -1,3 +1,28 @@
+# [2.0.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.5...v2.0.0) (2023-10-30)
+
+
+### Bug Fixes
+
+* avoid Plugin type mismatches when there are multiple Vite versions installed ([7c870e3](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/7c870e318c2bcbfd32c3caa1488b8368ad00c1b9))
+* deprecate `sideEffects` options ([4caaa45](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/4caaa454a40f7c9cabaeb7ec997fc2df1c8c9445))
+* lint ([9fe26ee](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/9fe26eee036272d5c02d85d94644d27f4c9d6718))
+* test ([b609df2](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/b609df2370b5eac00c1cd6fcb7002cff64ba9a4b))
+* typo ([068b84d](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/068b84d70f2a045cc0e80f7b584bfb723b090595))
+
+
+### Features
+
+* add online-demo ([d4dcc64](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/d4dcc64ff55ca6e604b8a0a886e777283a97dd2a))
+* support `cacheDir` and `base` ([faabab8](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/faabab89a9105994e25f8335e67d00790be46763))
+
+
+### Performance Improvements
+
+* improve infrastructure ([847db57](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/847db57de325a237eb96a392a00b6a6e1f306001))
+* simplify code ([f46a19b](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/f46a19b6485a506b955f5c9f35166f40062a2daa))
+
+
+
 ## [1.5.5](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.4...v1.5.5) (2023-09-25)
 
 
