@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.0.0...v2.0.1) (2023-10-30)
+
+
+### Bug Fixes
+
+* fixed manifest being undefined under ssr or standalone env ([743e58f](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/743e58f8403498d7a38d179e44aa8a8928d03426))
+
+
+
 # [2.0.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v1.5.5...v2.0.0) (2023-10-30)
 
 
