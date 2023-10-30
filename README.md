@@ -1,6 +1,20 @@
-# vite-plugin-public-typescript
 
-![npm][npm-img]
+<p align="center">
+  <a href="https://vitejs.dev" style="margin-right: 16px;" target="_blank" rel="noopener noreferrer">
+    <img width="140" src="https://vitejs.dev/logo.svg" alt="Vite logo">
+  </a>
+  <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer">
+    <img width="140" src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg" alt="Typescript logo">
+  </a>
+</p>
+<br/>
+<p align="center">
+  <a href="https://npmjs.com/package/vite-plugin-public-typescript"><img src="https://img.shields.io/npm/v/vite-plugin-public-typescript.svg" alt="npm package"></a>
+  <a href="https://nodejs.org/en/about/releases/"><img src="https://img.shields.io/node/v/vite-plugin-public-typescript.svg" alt="node compatibility"></a>
+  <a href="https://github.com/vite-plugin-public-typescript/actions/workflows/test.yml"><img src="https://github.com/vite-plugin-public-typescript/actions/workflows/test.yml/badge.svg?branch=master" alt="test status"></a>
+</p>
+
+# vite-plugin-public-typescript
 
 
 **在vite的运行时或构建时编译指定目录下的typescript文件，供开发者独立使用**
@@ -41,37 +55,31 @@ pnpm add vite-plugin-public-typescript -D
 
 ## 配置项
 
-| 参数           | 类型           | 默认值                                        | 描述                                           |
-| -------------- | -------------- | --------------------------------------------- | ---------------------------------------------- |
-| inputDir       | `string`       | `public-typescript`                           | 存放需要编译的 `typescript` 的目录             |
-| outputDir      | `string`       | `/`                                           | 输出公共 javascript 的目录，相对于 `publicDir` |
-| manifestName   | `string`       | `manifest`                                    | `manifest` 的文件名                            |
-| hash           | `boolean`      | `true`                                        | 编译后的 `js` 是否生成 `hash `                 |
-| esbuildOptions | `BuildOptions` | `{}`                                          | esbuild 构建选项                               |
-| ssrBuild       | `boolean`      | `false`                                       | 当前打包环境是否是 ssr                         |
-| sideEffects    | `boolean`      | `true`                                        | 是否编译三方库                                 |
-| destination    | `string`       | `memory`                                      | 输出模式：内存模式 \| 文件模式                 |
-| cacheDir       | `string`       | `node_modules/.vite-plugin-public-typescript` | 存放manifest缓存的目录                         |
-| base           | `string`       | vite config 中的 `base`                       | 资源 base url                                  |
+| 参数            | 类型           | 默认值                                        | 描述                                           |
+| --------------- | -------------- | --------------------------------------------- | ---------------------------------------------- |
+| inputDir        | `string`       | `public-typescript`                           | 存放需要编译的 `typescript` 的目录             |
+| outputDir       | `string`       | `/`                                           | 输出公共 javascript 的目录，相对于 `publicDir` |
+| manifestName    | `string`       | `manifest`                                    | `manifest` 的文件名                            |
+| hash            | `boolean`      | `true`                                        | 编译后的 `js` 是否生成 `hash `                 |
+| esbuildOptions  | `BuildOptions` | `{}`                                          | esbuild 构建选项                               |
+| ssrBuild        | `boolean`      | `false`                                       | 当前打包环境是否是 ssr                         |
+| ~~sideEffects~~ | `boolean`      | `true`                                        | 是否编译三方库(v2.0.0废弃⚠️)                    |
+| destination     | `string`       | `memory`                                      | 输出模式：内存模式 \| 文件模式                 |
+| cacheDir        | `string`       | `node_modules/.vite-plugin-public-typescript` | 存放manifest缓存的目录                         |
+| base            | `string`       | vite config 中的 `base`                       | 资源 base url                                  |
 
 
 
 
 ## 用法
 
-```typescript
+```ts
 import { defineConfig } from 'vite'
-import { publicTypescript, injectScripts } from 'vite-plugin-public-typescript'
+import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
 
 export default defineConfig({
   plugins: [
-    publicTypescript({
-      inputDir: 'public-typescript',
-      manifestName: 'manifest',
-      hash: true,
-      outputDir: '/out',
-      destination: 'memory',
-    }),
+    publicTypescript(),
     injectScripts((manifest) => [
       {
         attrs: {
@@ -86,7 +94,7 @@ export default defineConfig({
 
 ### 获取manifest
 
-```typescript
+```ts
 import { manifest } from 'vite-plugin-public-typescript/client'
 
 console.log(manifest)
@@ -101,10 +109,9 @@ console.log(manifest)
 
 #### vite config
 
-```typescript
-import type { HtmlTagDescriptor } from 'vite'
+```ts
 import { defineConfig } from 'vite'
-import { publicTypescript, injectScripts } from 'vite-plugin-public-typescript'
+import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
 
 export default defineConfig({
   plugins: [
@@ -129,7 +136,7 @@ export default defineConfig({
 
 #### vite config
 
-```typescript
+```ts
 import { defineConfig } from 'vite'
 import { publicTypescript } from 'vite-plugin-public-typescript'
 
@@ -142,7 +149,7 @@ export default defineConfig({
 
 #### server.js
 
-```js
+```ts
 import { injectScriptsToHtml } from 'vite-plugin-public-typescript'
 
 html = injectScriptsToHtml(html, (manifest) => [
@@ -161,3 +168,4 @@ html = injectScriptsToHtml(html, (manifest) => [
 MIT
 
 [npm-img]: https://img.shields.io/npm/v/vite-plugin-public-typescript.svg
+
