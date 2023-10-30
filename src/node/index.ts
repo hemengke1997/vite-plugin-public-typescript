@@ -190,5 +190,5 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 }
 
 export { getManifest } from './manifest-cache'
-export { injectScripts, injectScriptsToHtml } from './plugins/inject-script'
+export { type ScriptDescriptor, injectScripts, injectScriptsToHtml } from './plugins/inject-script'
 export { publicTypescript }
