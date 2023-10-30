@@ -6,7 +6,7 @@ export type Scripts = (manifest: Record<string, string>) => Omit<HtmlTagDescript
 
 function generateScriptTags(scripts: Scripts) {
   const _scripts = scripts(getManifest())
-  const tags: HtmlTagDescriptor[] = _scripts.map((s) => ({
+  const tags: HtmlTagDescriptor[] = _scripts?.map((s) => ({
     ...s,
     attrs: {
       crossorigin: true,
