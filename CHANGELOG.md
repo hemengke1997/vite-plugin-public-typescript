@@ -1,3 +1,17 @@
+## [2.0.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.0.1...v2.0.2) (2023-10-30)
+
+
+### Bug Fixes
+
+* injected scripts maybe undefined ([062325a](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/062325a902b80407caf6bc77b402909448e551d2))
+
+
+### Features
+
+* export `ScriptDescriptor` type ([ef1dd60](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/ef1dd60c0ae25e39900e9e2a9ed44fc42cb35ae2))
+
+
+
 ## [2.0.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.0.0...v2.0.1) (2023-10-30)
 
 
