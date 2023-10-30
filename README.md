@@ -1,10 +1,10 @@
 
 <p align="center">
-  <a href="https://vitejs.dev" style="margin-right: 16px;" target="_blank" rel="noopener noreferrer">
-    <img width="140" src="https://vitejs.dev/logo.svg" alt="Vite logo">
+  <a href="https://vitejs.dev" style="margin-right: 32px;" target="_blank" rel="noopener noreferrer">
+    <img width="140" src="https://vitejs.dev/logo.svg" alt="Vite logo" />
   </a>
   <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer">
-    <img width="140" src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg" alt="Typescript logo">
+    <img width="140" src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg" alt="Typescript logo" />
   </a>
 </p>
 <br/>
