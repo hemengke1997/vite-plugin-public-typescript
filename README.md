@@ -11,7 +11,6 @@
 <p align="center">
   <a href="https://npmjs.com/package/vite-plugin-public-typescript"><img src="https://img.shields.io/npm/v/vite-plugin-public-typescript.svg" alt="npm package"></a>
   <a href="https://nodejs.org/en/about/releases/"><img src="https://img.shields.io/node/v/vite-plugin-public-typescript.svg" alt="node compatibility"></a>
-  <a href="https://github.com/vite-plugin-public-typescript/actions/workflows/test.yml"><img src="https://github.com/vite-plugin-public-typescript/actions/workflows/test.yml/badge.svg?branch=master" alt="test status"></a>
 </p>
 
 # vite-plugin-public-typescript

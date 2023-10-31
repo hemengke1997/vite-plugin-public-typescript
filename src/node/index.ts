@@ -175,7 +175,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         const { file } = ctx
 
         if (_isPublicTypescript(file) || isManifestFile(file)) {
-          debug('hmr:', file)
+          debug('hmr disabled:', file)
 
           return []
         }

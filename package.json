@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-public-typescript",
   "version": "2.0.2",
-  "description": "A vite plugin that compiles typescript to javascript for direct use in the browser. 动态编译 typescript 至 javascript 的 vite插件",
+  "description": "vite plugin for dynamic compilation of typescript to javascript. 动态编译 typescript 至 javascript 的 vite插件",
   "type": "module",
   "keywords": [
     "vite",
@@ -45,8 +45,8 @@
     }
   },
   "scripts": {
-    "dev": "simple-git-hooks && tsup --watch",
-    "build": "tsup",
+    "dev": "simple-git-hooks && rm -rf dist && tsup --watch",
+    "build": "rm -rf dist && tsup",
     "build:pages": "pnpm run build && cd playground/spa && pnpm run build",
     "test": "run-s test:unit test:serve test:build",
     "test:unit": "vitest run",

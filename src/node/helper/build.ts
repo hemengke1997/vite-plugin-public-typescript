@@ -9,7 +9,7 @@ import { type OptionsTypeWithDefault, getContentHash, pkgName } from './utils'
 
 const debug = createDebug('vite-plugin-public-typescript:build ===> ')
 
-const noSideEffectsPlugin: Plugin = {
+const _noSideEffectsPlugin: Plugin = {
   name: 'no-side-effects',
   setup(build) {
     // https://github.com/evanw/esbuild/issues/1895#issuecomment-1003404929
@@ -59,11 +59,7 @@ type IBuildOptions = {
 } & OptionsTypeWithDefault
 
 export async function esbuildTypescript(buildOptions: IBuildOptions) {
-  const { filePath, esbuildOptions, sideEffects, viteConfig } = buildOptions
-
-  const { plugins = [], ...rest } = esbuildOptions
-
-  const esbuildPlugins = sideEffects ? plugins : [noSideEffectsPlugin, ...plugins]
+  const { filePath, esbuildOptions, viteConfig } = buildOptions
 
   const define = transformEnvToDefine(viteConfig)
 
@@ -76,15 +72,14 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
       define,
       entryPoints: [filePath],
       format: 'iife',
-      logLevel: sideEffects ? undefined : 'error',
+      logLevel: 'error',
       minify: true,
       platform: 'browser',
-      plugins: esbuildPlugins,
       sourcemap: false,
       splitting: false,
       treeShaking: true,
       write: false,
-      ...rest,
+      ...esbuildOptions,
     })
 
     debug('esbuild success:', filePath)

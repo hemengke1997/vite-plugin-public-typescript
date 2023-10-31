@@ -85,13 +85,6 @@ export function isEmptyObject(o: unknown) {
   return isObject(o) && Object.keys(o).length === 0
 }
 
-export function converEmptyObjectToNull(obj: unknown) {
-  if (isEmptyObject(obj)) {
-    return null
-  }
-  return obj
-}
-
 const HASH_LEN = 8
 
 export const linebreak = isWindows() ? '\r\n' : '\n'

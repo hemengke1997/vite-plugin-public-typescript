@@ -13,6 +13,7 @@ const commonConfig = (option: Options): Options => {
     external: [/^virtual:.*/],
     shims: true,
     splitting: true,
+    treeshake: true,
   }
 }
 
