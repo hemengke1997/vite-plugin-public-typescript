@@ -20,5 +20,5 @@ declare module 'vitest' {
 
 beforeEach(async (ctx) => {
   const c = await setupGlobalConfig(viteConfig, DEFAULT_OPTIONS)
-  ctx._globalConfig = c
+  ctx._globalConfig = c.all
 })

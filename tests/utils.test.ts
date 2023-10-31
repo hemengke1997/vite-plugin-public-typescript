@@ -71,7 +71,7 @@ describe('unit test', () => {
   })
 
   test('should get globalConfig', () => {
-    expect(() => globalConfig.get()).not.toThrowError()
+    expect(() => globalConfig.all).not.toThrowError()
   })
 
   test('should extract hash', () => {
@@ -104,6 +104,6 @@ describe('globalConfig related', () => {
   })
 
   test('global config should be same', ({ _globalConfig }) => {
-    expect(_globalConfig).toBe(globalConfig.get())
+    expect(_globalConfig).toBe(globalConfig.all)
   })
 })

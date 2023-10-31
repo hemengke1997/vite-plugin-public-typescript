@@ -4,7 +4,7 @@ import { normalizePath } from 'vite'
 import { globalConfig } from '../global-config'
 import { DEFAULT_OPTIONS } from '../helper/default-options'
 import { readJsonFile, writeJsonFile } from '../helper/io'
-import { isInTest } from '../helper/utils'
+import { isEmptyObject, isInTest } from '../helper/utils'
 import { type CacheValue, ManifestCache } from './ManifestCache'
 
 export type CacheValueEx = {
@@ -22,7 +22,7 @@ function getManifestPath(root?: string) {
     root = process.env.__Manifest_Path__
   }
   if (!root) {
-    root = globalConfig.get().viteConfig?.root || process.cwd()
+    root = globalConfig.get('viteConfig')?.root || process.cwd()
   }
 
   return normalizePath(path.resolve(root, ManifestCachePath))
@@ -37,10 +37,17 @@ export function saveManifestPathToDisk() {
 }
 
 export function getManifest(root?: string) {
-  const manifestPath = readJsonFile(getManifestPath(root))?.manifestPath
+  if (!isEmptyObject(manifestCache.getManifestJson())) {
+    return manifestCache.getManifestJson()
+  }
 
+  if (!isEmptyObject(manifestCache.readManifestFile())) {
+    return manifestCache.readManifestFile()
+  }
+
+  const manifestPath = readJsonFile(getManifestPath(root))?.manifestPath
   if (manifestPath) {
-    return readJsonFile(manifestPath)
+    return readJsonFile(manifestPath) || {}
   }
 
   return {}

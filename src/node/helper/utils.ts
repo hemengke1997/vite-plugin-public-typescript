@@ -28,7 +28,7 @@ export function createInternalLogger(allowClearScreen?: boolean) {
 }
 
 export function fileRelativeRootPath(filePath: string) {
-  return normalizePath(`/${path.relative(globalConfig.get().viteConfig.root, filePath)}`)
+  return normalizePath(`/${path.relative(globalConfig.get('viteConfig')!.root, filePath)}`)
 }
 
 export function isInTest() {
@@ -47,8 +47,8 @@ export function isPublicTypescript(args: { filePath: string; inputDir: string; r
 export function _isPublicTypescript(filePath: string) {
   return isPublicTypescript({
     filePath,
-    inputDir: globalConfig.get().inputDir,
-    root: globalConfig.get().viteConfig.root,
+    inputDir: globalConfig.get('inputDir'),
+    root: globalConfig.get('viteConfig')!.root,
   })
 }
 
@@ -136,7 +136,7 @@ export function validateOptions(options: OptionsTypeWithDefault) {
     options.inputDir = inputDir.replace(/\/$/, '')
   }
 
-  if (options.sideEffects !== undefined) {
+  if (options.sideEffects !== undefined && !isInTest()) {
     console.warn(
       colors.yellow(
         `${colors.bold('(warning!)')} [${pkgName}]: sideEffects option is ${colors.bold(
@@ -212,7 +212,7 @@ export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: Option
     ...(opts as Required<OptionsTypeWithDefault>),
   })
 
-  return globalConfig.get()
+  return globalConfig
 }
 
 export async function setupManifestCache(viteConfig: ResolvedConfig, opts: OptionsTypeWithDefault) {

@@ -15,6 +15,6 @@ export class MemoryCacheProcessor extends ManifestCacheProcessor {
   }
 
   async addNewJs(args: AddFileArgs): Promise<void> {
-    this.setCache(args, globalConfig.get())
+    this.setCache(args, globalConfig.all)
   }
 }

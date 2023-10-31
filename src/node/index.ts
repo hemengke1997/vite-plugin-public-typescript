@@ -132,7 +132,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
           manifestCache.writeManifestJSON()
         }
 
-        const { originFilesGlob } = globalConfig.get()
+        const originFilesGlob = globalConfig.get('originFilesGlob')
 
         const originFilesName = originFilesGlob.map((file) => path.parse(file).name)
 
@@ -161,7 +161,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
       },
       generateBundle() {
         if (opts.destination === 'memory') {
-          const c = manifestCache.get()
+          const c = manifestCache.all
           Object.keys(c).forEach((key) => {
             this.emitFile({
               fileName: normalizeAssetsDirPath(`${c[key]._pathToDisk}`),

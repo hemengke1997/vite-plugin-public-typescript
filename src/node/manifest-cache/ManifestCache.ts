@@ -25,7 +25,7 @@ export type CacheValue = {
   path: string
 } & Partial<{ [_key: string]: string }>
 
-export type CacheObject<V extends CacheValue> = {
+export type CacheManifest<V extends CacheValue> = {
   [fileName in string]: V
 }
 
@@ -33,7 +33,7 @@ const DEFAULT_OPTIONS: ManifestConstructor = {
   writable: true,
 }
 
-export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObject<T> = CacheObject<T>> {
+export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheManifest<T> = CacheManifest<T>> {
   private _cache: U
 
   private _manifestPath = ''
@@ -57,8 +57,22 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
     })
   }
 
-  get() {
+  get all() {
     return Object.assign({}, this._cache)
+  }
+
+  get<Selected extends keyof U>(keys: Selected[]): Pick<U, Selected>
+  get<Selected extends keyof U>(key: Selected): U[Selected]
+  get<Selected extends keyof U>(key: any): any {
+    const result = {} as Pick<U, Selected>
+    if (Array.isArray(key)) {
+      ;(key as Selected[]).forEach((k) => {
+        result[k] = this._cache[k]
+      })
+      return result
+    } else {
+      return this._cache[key as Selected]
+    }
   }
 
   // NOTE: the only way to set cache
@@ -124,7 +138,7 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheObj
   }
 
   getManifestJson() {
-    return this.extractPath(this.get())
+    return this.extractPath(this.all)
   }
 
   sortObjectByKey(c: PathOnlyCache) {

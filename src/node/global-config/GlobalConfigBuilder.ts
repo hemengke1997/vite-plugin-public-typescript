@@ -18,6 +18,7 @@ export type GlobalConfig<T extends CacheValue = CacheValue> = UserConfig<T> & {
 }
 
 export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
+  private _inited = false
   private _globalConfig: GlobalConfig<T>
 
   constructor() {
@@ -25,7 +26,12 @@ export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
   }
 
   init(c: UserConfig<T>) {
-    const root = c.viteConfig.root || process.cwd()
+    if (this._inited) {
+      // only initialize once
+      return this
+    }
+
+    const root = c.viteConfig?.root || process.cwd()
     const absOutputDir = path.join(root, c.outputDir)
     const absInputDir = path.join(root, c.inputDir)
 
@@ -35,18 +41,30 @@ export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
       absOutputDir,
     }
 
+    this._inited = true
+
     return this
   }
 
-  get() {
-    return this._globalConfig
+  test<Path extends keyof GlobalConfig<T> | readonly string[]>(path: Path) {
+    return path as any
   }
 
-  set(c: UserConfig<T>) {
-    this._globalConfig = {
-      ...this.get(),
-      ...c,
+  get<Selected extends keyof GlobalConfig<T>>(keys: Selected[]): Pick<GlobalConfig<T>, Selected>
+  get<Selected extends keyof GlobalConfig<T>>(key: Selected): GlobalConfig<T>[Selected]
+  get<Selected extends keyof GlobalConfig<T>>(key: any): any {
+    const result = {} as Pick<GlobalConfig<T>, Selected>
+    if (Array.isArray(key)) {
+      ;(key as Selected[]).forEach((k) => {
+        result[k] = this._globalConfig[k]
+      })
+      return result
+    } else {
+      return this._globalConfig[key as Selected]
     }
-    return this
+  }
+
+  get all() {
+    return this._globalConfig
   }
 }

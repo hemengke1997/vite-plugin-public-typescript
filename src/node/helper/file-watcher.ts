@@ -13,7 +13,7 @@ export async function handleUnlink(filePath: string, cb?: () => void) {
   if (_isPublicTypescript(filePath)) {
     const fileName = path.parse(filePath).name
     debug('unlink:', fileName)
-    await globalConfig.get().cacheProcessor.deleteOldJs({ originFileName: fileName })
+    await globalConfig.get('cacheProcessor').deleteOldJs({ originFileName: fileName })
     cb?.()
   }
 }
@@ -21,7 +21,7 @@ export async function handleUnlink(filePath: string, cb?: () => void) {
 export async function handleFileAdded(filePath: string, cb?: () => void) {
   if (_isPublicTypescript(filePath)) {
     debug('file added:', filePath)
-    await build({ filePath }, (...args) => globalConfig.get().cacheProcessor.onTsBuildEnd(...args))
+    await build({ filePath }, (...args) => globalConfig.get('cacheProcessor').onTsBuildEnd(...args))
     cb?.()
   }
 }
@@ -41,7 +41,7 @@ async function handleFileChange(filePath: string, cb?: () => void) {
 
 export function initWatcher(cb: (file: HmrFile) => void) {
   try {
-    const watcher = new Watcher(globalConfig.get().absInputDir, {
+    const watcher = new Watcher(globalConfig.get('absInputDir'), {
       debounce: 0,
       ignoreInitial: true,
       recursive: true,

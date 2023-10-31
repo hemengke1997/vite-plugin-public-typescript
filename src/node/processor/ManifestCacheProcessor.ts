@@ -48,6 +48,6 @@ export abstract class ManifestCacheProcessor extends BaseCacheProcessor<CacheVal
         _hash: contentHash,
       },
     })
-    return this.manifestCache.get()[originFileName]._pathToDisk || ''
+    return this.manifestCache.get(originFileName)._pathToDisk || ''
   }
 }

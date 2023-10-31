@@ -44,7 +44,7 @@ export function writeFile(filename: string, content: string, hash = true): void 
 
   if (fs.existsSync(filename)) {
     if (hash) {
-      const _hash = globalConfig.get().hash
+      const _hash = globalConfig.get('hash')
       if (extractHashFromFileName(filename, _hash)) {
         // if filename has hash, skip write file
         debug('skip writeFile, filename has hash')

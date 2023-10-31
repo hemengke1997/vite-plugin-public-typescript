@@ -100,7 +100,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
 export async function build(options: { filePath: string }, onBuildEnd?: BaseCacheProcessor['onTsBuildEnd']) {
   const { filePath } = options
-  const getGlobalConfig = globalConfig.get()
+  const getGlobalConfig = globalConfig.all
 
   const originFileName = path.basename(filePath, path.extname(filePath))
 
@@ -114,7 +114,7 @@ export async function build(options: { filePath: string }, onBuildEnd?: BaseCach
     compiledFileName = `${originFileName}.${contentHash}`
   }
 
-  debug('before onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.get())
+  debug('before onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.all)
 
   await onBuildEnd?.(
     {
@@ -125,11 +125,11 @@ export async function build(options: { filePath: string }, onBuildEnd?: BaseCach
     { code, contentHash, originFileName, silent: false },
   )
 
-  debug('after onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.get())
+  debug('after onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.all)
 }
 
 export async function buildAllOnce(tsFilesGlob: string[]) {
-  const { cacheProcessor } = globalConfig.get()
+  const cacheProcessor = globalConfig.get('cacheProcessor')
 
   const toBuildList: (() => Promise<void>)[] = []
 

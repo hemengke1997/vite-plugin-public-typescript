@@ -12,7 +12,7 @@ export type HmrFile = {
   event: string
 }
 export function reloadPage(ws: WebSocketServer, file: HmrFile) {
-  const { logger } = globalConfig.get()
+  const logger = globalConfig.get('logger')
 
   if (!isInTest()) {
     logger.info(

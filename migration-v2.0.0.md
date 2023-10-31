@@ -1,5 +1,13 @@
 # v2.0.0 升级指南
 
+
+## 新功能
+
+- 支持自定义base，默认取vite config 中的 base
+- 支持 cacheDir，默认 `node_modules/.vite-plugin-public-typescript`。如果是非vite项目，可以指定为跟 `inputDir` 同名
+
+**喜大普奔，再也不用看到manifest.json文件啦～**
+
 ## vite项目
 
 1. 删除manifest.json文件

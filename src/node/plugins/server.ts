@@ -52,7 +52,7 @@ export function pluginServer(): PluginOption {
             const { src, vppt } = getScriptInfo(node)
 
             if (vppt?.name && src?.value) {
-              const c = manifestCache.get()
+              const c = manifestCache.all
               let cacheItem = manifestCache.findCacheItemByPath(src.value)
 
               if (!cacheItem) {

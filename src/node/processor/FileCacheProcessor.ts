@@ -26,7 +26,7 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
     const {
       outputDir,
       viteConfig: { publicDir },
-    } = globalConfig.get()
+    } = globalConfig.get(['outputDir', 'viteConfig'])
 
     let oldFiles: string[] = []
     try {
@@ -42,7 +42,7 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
 
     debug('deleteOldJsFile - oldFiles:', oldFiles)
 
-    debug('manifestCache:', this.manifestCache.get())
+    debug('manifestCache:', this.manifestCache.all)
 
     if (oldFiles.length > 0) {
       for (const f of oldFiles) {
@@ -66,11 +66,9 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
 
   async addNewJs(args: AddFileArgs): Promise<void> {
     const { code = '' } = args
-    const {
-      viteConfig: { publicDir },
-    } = globalConfig.get()
+    const { publicDir } = globalConfig.get('viteConfig')
 
-    const pathToDisk = this.setCache(args, globalConfig.get())
+    const pathToDisk = this.setCache(args, globalConfig.all)
 
     const jsFilePath = normalizePath(path.join(publicDir, pathToDisk))
 
