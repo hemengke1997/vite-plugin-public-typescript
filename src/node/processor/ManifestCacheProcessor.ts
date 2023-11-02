@@ -8,7 +8,7 @@ import { BaseCacheProcessor } from './BaseCacheProcessor'
 // const debug = createDebug('vite-plugin-public-typescript:ManifestCacheProcessor ===> ')
 
 export interface DeleteFileArgs {
-  originFileName: string
+  originFile: string
   /**
    * if true, will not write file to disk
    */
@@ -17,7 +17,7 @@ export interface DeleteFileArgs {
 }
 
 export interface AddFileArgs {
-  originFileName: string
+  originFile: string
   contentHash: string
   silent?: boolean
   code?: string
@@ -29,25 +29,25 @@ export abstract class ManifestCacheProcessor extends BaseCacheProcessor<CacheVal
     this.manifestCache = manifestCache
   }
 
-  genCacheItemPath(args: { contentHash: string; originFileName: string; outputDir: string; base: string }) {
-    const { contentHash, originFileName, outputDir, base } = args
+  genCacheItemPath(args: { contentHash: string; originFile: string; outputDir: string; base: string }) {
+    const { contentHash, originFile, outputDir, base } = args
     const hash = contentHash ? `.${contentHash}` : ''
-    return normalizePath(`${base + outputDir}/${originFileName}${hash}.js`)
+    return normalizePath(`${base + outputDir}/${originFile}${hash}.js`)
   }
 
   setCache(args: AddFileArgs, config: GlobalConfig) {
-    const { contentHash, originFileName, code } = args
+    const { contentHash, originFile, code } = args
     const { outputDir, base } = config
 
-    const pathWithBase = this.genCacheItemPath({ base, contentHash, originFileName, outputDir })
+    const pathWithBase = this.genCacheItemPath({ base, contentHash, originFile, outputDir })
 
     this.manifestCache.set({
-      [originFileName]: {
+      [originFile]: {
         path: pathWithBase,
         _code: code || '',
         _hash: contentHash,
       },
     })
-    return this.manifestCache.get(originFileName)._pathToDisk || ''
+    return this.manifestCache.get(originFile)._pathToDisk || ''
   }
 }

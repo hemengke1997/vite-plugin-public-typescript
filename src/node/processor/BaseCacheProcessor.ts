@@ -4,7 +4,7 @@ import { type CacheValue, type ManifestCache } from '../manifest-cache/ManifestC
 const debug = createDebug('vite-plugin-public-typescript:BaseCacheProcessor ===> ')
 
 export interface DeleteFileArgs {
-  originFileName: string
+  originFile: string
   /**
    * if true, will not write file to disk
    */
@@ -13,7 +13,7 @@ export interface DeleteFileArgs {
 }
 
 export interface AddFileArgs {
-  originFileName: string
+  originFile: string
   contentHash: string
   silent?: boolean
   code?: string

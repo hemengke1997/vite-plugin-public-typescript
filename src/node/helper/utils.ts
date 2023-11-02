@@ -149,13 +149,13 @@ export function getInputDir(resolvedRoot: string, originInputDir: string, suffix
   return normalizePath(path.resolve(resolvedRoot, `${originInputDir}${suffix}`))
 }
 
-export async function findAllOldJsFile(args: { publicDir: string; outputDir: string; originFilesName: string[] }) {
-  const { publicDir, outputDir, originFilesName } = args
+export async function findAllOldJsFile(args: { originFiles: string[]; publicDir: string; outputDir: string }) {
+  const { publicDir, outputDir, originFiles } = args
   const dir = path.join(publicDir, outputDir)
   const oldFiles: string[] = []
   if (fs.existsSync(dir)) {
-    for (const originFileName of originFilesName) {
-      const old = await glob(normalizePath(path.join(publicDir, `${outputDir}/${originFileName}.?(*.)js`)))
+    for (const originFile of originFiles) {
+      const old = await glob(normalizePath(path.join(publicDir, `${outputDir}/${originFile}.?(*.)js`)))
       if (old.length > 0) {
         oldFiles.push(...old)
       }

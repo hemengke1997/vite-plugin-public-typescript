@@ -21,7 +21,7 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
   }
 
   async deleteOldJs(args: DeleteFileArgs): Promise<void> {
-    const { originFileName, compiledFileName = '', silent } = args
+    const { originFile, compiledFileName = '', silent } = args
 
     const {
       outputDir,
@@ -32,7 +32,7 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
     try {
       fs.ensureDirSync(path.join(publicDir, outputDir))
       oldFiles = await findAllOldJsFile({
-        originFilesName: [originFileName],
+        originFiles: [originFile],
         outputDir,
         publicDir,
       })
@@ -51,16 +51,16 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
           continue
         } // skip repeat js file
         if (fs.existsSync(f)) {
-          debug('deleteOldJsFile - file exists:', f, originFileName)
-          this.manifestCache.remove(originFileName, { silent })
-          debug('deleteOldJsFile - manifestCache removed:', originFileName)
+          debug('deleteOldJsFile - file exists:', f, originFile)
+          this.manifestCache.remove(originFile, { silent })
+          debug('deleteOldJsFile - manifestCache removed:', originFile)
           fs.remove(f)
           debug('deleteOldJsFile -file removed:', f)
         }
       }
     } else {
-      this.manifestCache.remove(originFileName, { silent })
-      debug('manifestCache removed:', originFileName)
+      this.manifestCache.remove(originFile, { silent })
+      debug('manifestCache removed:', originFile)
     }
   }
 

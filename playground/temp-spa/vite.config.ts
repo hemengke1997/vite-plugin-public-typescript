@@ -26,11 +26,7 @@ export default defineConfig(() => ({
       outputDir: 'out',
       destination: 'file',
       cacheDir: 'node_modules/.vite-plugin-public-typescript',
-      babel: {
-        config: {
-          plugins: ['@babel/plugin-transform-property-mutators'],
-        },
-      },
+      babel: false,
     }),
     injectScripts((manifest) => [
       {

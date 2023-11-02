@@ -10,8 +10,8 @@ export class MemoryCacheProcessor extends ManifestCacheProcessor {
   }
 
   async deleteOldJs(args: DeleteFileArgs): Promise<void> {
-    const { originFileName, silent } = args
-    this.manifestCache.remove(originFileName, { silent })
+    const { originFile, silent } = args
+    this.manifestCache.remove(originFile, { silent })
   }
 
   async addNewJs(args: AddFileArgs): Promise<void> {

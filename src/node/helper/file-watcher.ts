@@ -2,8 +2,8 @@ import createDebug from 'debug'
 import path from 'node:path'
 import colors from 'picocolors'
 import Watcher from 'watcher'
+import { build } from '../build'
 import { globalConfig } from '../global-config'
-import { build } from './build'
 import { type HmrFile } from './server'
 import { _isPublicTypescript, pkgName } from './utils'
 
@@ -13,7 +13,7 @@ export async function handleUnlink(filePath: string, cb?: () => void) {
   if (_isPublicTypescript(filePath)) {
     const fileName = path.parse(filePath).name
     debug('unlink:', fileName)
-    await globalConfig.get('cacheProcessor').deleteOldJs({ originFileName: fileName })
+    await globalConfig.get('cacheProcessor').deleteOldJs({ originFile: fileName })
     cb?.()
   }
 }

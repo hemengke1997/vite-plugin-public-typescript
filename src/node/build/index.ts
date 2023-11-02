@@ -17,8 +17,8 @@ import colors from 'picocolors'
 import { type ResolvedConfig } from 'vite'
 import { globalConfig } from '../global-config'
 import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
+import { getContentHash, pkgName } from '../helper/utils'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
-import { getContentHash, pkgName } from './utils'
 
 const _require = createRequire(import.meta.url)
 
@@ -111,7 +111,9 @@ const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: stri
                 {
                   isTSX: false,
                   rewriteImportExtensions: false,
-                  allowDeclareFields: true,
+                  allowDeclareFields: false,
+                  allowNamespaces: false,
+                  strictMode: false,
                 },
               ],
               ...(config.presets ?? []),
@@ -139,31 +141,6 @@ const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: stri
     })
   },
 })
-
-function transformEnvToDefine(viteConfig: ResolvedConfig) {
-  const importMetaKeys: Record<string, string> = {}
-  const defineKeys: Record<string, string> = {}
-  const env: Record<string, any> = {
-    ...viteConfig.env,
-    SSR: !!viteConfig.build.ssr,
-  }
-
-  Object.keys(env).forEach((key) => {
-    importMetaKeys[`import.meta.env.${key}`] = JSON.stringify(env[key])
-  })
-
-  Object.keys(viteConfig.define || []).forEach((key) => {
-    const c = viteConfig.define?.[key]
-    defineKeys[key] = typeof c === 'string' ? c : JSON.stringify(viteConfig.define?.[key])
-  })
-
-  return {
-    'import.meta.env': JSON.stringify(viteConfig.env),
-    'import.meta.hot': 'false',
-    ...importMetaKeys,
-    ...defineKeys,
-  }
-}
 
 type IBuildOptions = {
   filePath: string
@@ -277,20 +254,45 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   return code
 }
 
+function transformEnvToDefine(viteConfig: ResolvedConfig) {
+  const importMetaKeys: Record<string, string> = {}
+  const defineKeys: Record<string, string> = {}
+  const env: Record<string, any> = {
+    ...viteConfig.env,
+    SSR: !!viteConfig.build.ssr,
+  }
+
+  Object.keys(env).forEach((key) => {
+    importMetaKeys[`import.meta.env.${key}`] = JSON.stringify(env[key])
+  })
+
+  Object.keys(viteConfig.define || []).forEach((key) => {
+    const c = viteConfig.define?.[key]
+    defineKeys[key] = typeof c === 'string' ? c : JSON.stringify(viteConfig.define?.[key])
+  })
+
+  return {
+    'import.meta.env': JSON.stringify(viteConfig.env),
+    'import.meta.hot': 'false',
+    ...importMetaKeys,
+    ...defineKeys,
+  }
+}
+
 export async function build(options: { filePath: string }, onBuildEnd?: BaseCacheProcessor['onTsBuildEnd']) {
   const { filePath } = options
   const getGlobalConfig = globalConfig.all
 
-  const originFileName = path.basename(filePath, path.extname(filePath))
+  const originFile = path.basename(filePath, path.extname(filePath))
 
   let contentHash = ''
-  let compiledFileName = originFileName
+  let compiledFileName = originFile
 
   const code = (await esbuildTypescript({ filePath, ...getGlobalConfig })) || ''
 
   if (getGlobalConfig.hash) {
     contentHash = getContentHash(code, getGlobalConfig.hash)
-    compiledFileName = `${originFileName}.${contentHash}`
+    compiledFileName = `${originFile}.${contentHash}`
   }
 
   debug('before onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.all)
@@ -298,10 +300,10 @@ export async function build(options: { filePath: string }, onBuildEnd?: BaseCach
   await onBuildEnd?.(
     {
       compiledFileName,
-      originFileName,
+      originFile,
       silent: true,
     },
-    { code, contentHash, originFileName, silent: false },
+    { code, contentHash, originFile, silent: false },
   )
 
   debug('after onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.all)

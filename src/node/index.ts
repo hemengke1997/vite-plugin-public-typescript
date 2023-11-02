@@ -3,8 +3,8 @@ import { type BuildOptions } from 'esbuild'
 import fs from 'fs-extra'
 import path from 'node:path'
 import { type PluginOption, type ResolvedConfig } from 'vite'
+import { type ESBuildPluginBabelOptions, buildAllOnce } from './build'
 import { globalConfig } from './global-config'
-import { type ESBuildPluginBabelOptions, buildAllOnce } from './helper/build'
 import { DEFAULT_OPTIONS } from './helper/default-options'
 import { initWatcher } from './helper/file-watcher'
 import { reloadPage } from './helper/server'
@@ -19,7 +19,7 @@ import {
   setupManifestCache,
   validateOptions,
 } from './helper/utils'
-import { manifestCache } from './manifest-cache'
+import { getManifest, manifestCache } from './manifest-cache'
 import { pluginServer } from './plugins/server'
 import { pluginVirtual } from './plugins/virtual'
 
@@ -131,7 +131,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         fs.ensureFileSync(manifestPath)
 
-        const parsedCacheJson = manifestCache.readManifestFile()
+        const parsedCacheJson = getManifest()
 
         debug('buildStart - parsedCacheJson:', parsedCacheJson)
 
@@ -142,27 +142,50 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         const originFilesGlob = globalConfig.get('originFilesGlob')
 
-        const originFilesName = originFilesGlob.map((file) => path.parse(file).name)
+        const originFiles = originFilesGlob.map((file) => path.parse(file).name)
 
         debug('buildStart - originFilesGlob:', originFilesGlob)
-        debug('buildStart - originFilesName:', originFilesName)
+        debug('buildStart - originFiles:', originFiles)
 
-        if (opts.destination === 'memory') {
-          const oldFiles = await findAllOldJsFile({
-            originFilesName,
-            outputDir: opts.outputDir,
-            publicDir: viteConfig.publicDir,
-          })
-          removeOldJsFiles(oldFiles)
+        switch (opts.destination) {
+          case 'memory':
+            {
+              const oldFiles = await findAllOldJsFile({
+                originFiles,
+                outputDir: opts.outputDir,
+                publicDir: viteConfig.publicDir,
+              })
 
-          // if dir is empty, delete it
-          const dir = path.join(viteConfig.publicDir, opts.outputDir)
-          if (fs.existsSync(dir) && opts.outputDir !== '/') {
-            const files = fs.readdirSync(dir)
-            if (files.length === 0) {
-              fs.removeSync(dir)
+              removeOldJsFiles(oldFiles)
+
+              // if dir is empty, delete it
+              const dir = path.join(viteConfig.publicDir, opts.outputDir)
+              if (fs.existsSync(dir) && opts.outputDir !== '/') {
+                const files = fs.readdirSync(dir)
+                if (files.length === 0) {
+                  fs.removeSync(dir)
+                }
+              }
             }
-          }
+            break
+          case 'file':
+            {
+              const previousManifestKeys = Object.keys(parsedCacheJson)
+              if (previousManifestKeys.length !== originFiles.length) {
+                // if manifest.json is not match with originFilesName, delete the difference
+                const difference = previousManifestKeys.filter((x) => !originFiles.includes(x))
+                const oldFiles = await findAllOldJsFile({
+                  originFiles: difference,
+                  outputDir: opts.outputDir,
+                  publicDir: viteConfig.publicDir,
+                })
+
+                removeOldJsFiles(oldFiles)
+              }
+            }
+            break
+          default:
+            break
         }
 
         await buildAllOnce(originFilesGlob)
