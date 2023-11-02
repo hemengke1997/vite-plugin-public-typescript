@@ -1,18 +1,21 @@
-const foo = {
-  get bar() {
-    return this._bar
-  },
-  set bar(value) {
-    this._bar = value
-  },
+import { flexible } from 'modern-flexible'
+
+declare global {
+  interface Window {
+    resize: () => void
+  }
 }
 
-const a = 1
+const { resize } = flexible({
+  rootValue: 16,
+  distinctDevice: [
+    { deviceWidthRange: [375, 750], UIWidth: 375, isDevice: (w) => w <= 767 },
+    {
+      deviceWidthRange: [1535, 1920],
+      UIWidth: 1920,
+      isDevice: (w) => w > 767,
+    },
+  ],
+})
 
-foo.bar = '123'
-
-const n = { a: 1, b: 2 }
-
-const { b } = n
-
-console.log(b, 'b', a, 'a')
+window.resize = resize

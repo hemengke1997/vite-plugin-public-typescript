@@ -60,10 +60,18 @@ async function loadBabel() {
   return babel
 }
 
-const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: string[] }): Plugin => ({
+const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: string[]; filename: string }): Plugin => ({
   name: 'babel',
   setup(build) {
-    const { filter = /.*/, namespace = '', config = {}, loader, polyfill = false, targets } = options || {}
+    const {
+      filter = /.*/,
+      namespace = '',
+      config = {},
+      loader,
+      polyfill = false,
+      targets,
+      filename = '',
+    } = options || {}
 
     const resolveLoader = (args: OnLoadArgs): Loader | undefined => {
       if (typeof loader === 'function') {
@@ -75,6 +83,7 @@ const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: stri
     const transformContents = async (args: OnLoadArgs, contents: string): Promise<OnLoadResult> => {
       const babel = await loadBabel()
       const presetEnv = (await import('@babel/preset-env')).default
+      const ts = (await import('@babel/preset-typescript')).default
 
       return new Promise((resolve, reject) => {
         babel.transform(
@@ -82,6 +91,7 @@ const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: stri
           {
             ast: false,
             babelrc: false,
+            filename,
             configFile: false,
             comments: false,
             compact: false,
@@ -95,6 +105,14 @@ const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: stri
                   ignoreBrowserslistConfig: true,
                   needPolyfills: polyfill,
                 }),
+              ],
+              [
+                ts,
+                {
+                  isTSX: false,
+                  rewriteImportExtensions: false,
+                  allowDeclareFields: true,
+                },
               ],
               ...(config.presets ?? []),
             ],
@@ -196,6 +214,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   const define = transformEnvToDefine(viteConfig)
 
   debug('tsFile:', filePath, 'esbuild define:', define)
+  const filename = path.basename(filePath)
 
   let babelTarget: string[] = []
   let esbuildTarget: string[] = []
@@ -210,10 +229,11 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
     ? [
         esbuildPluginBabel(
           typeof babel === 'boolean'
-            ? { targets: babelTarget }
+            ? { targets: babelTarget, filename }
             : {
                 ...babel,
                 targets: babelTarget,
+                filename,
               },
         ),
         ...plugins,
@@ -239,7 +259,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
       ...rest,
     })
 
-    debug('esbuild success:', filePath)
+    debug('esbuild success:', filename)
   } catch (error) {
     const babelPluginNotFound = /ERROR: \[plugin: babel\] Cannot find package '(.*)'/
     if ((error as Error)?.message.match(babelPluginNotFound)) {
