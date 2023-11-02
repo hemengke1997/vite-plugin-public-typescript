@@ -1,3 +1,12 @@
+## [2.1.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.1.0...v2.1.1) (2023-11-02)
+
+
+### Bug Fixes
+
+* no transformer for typescript, causing compile with an error if there is a type declaration in it ([17e2001](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/17e20017314c809fcd6769582bf6b048d1d49d90))
+
+
+
 # [2.1.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.0.2...v2.1.0) (2023-11-02)
 
 
