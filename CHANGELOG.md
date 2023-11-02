@@ -1,3 +1,12 @@
+# [2.1.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.0.2...v2.1.0) (2023-11-02)
+
+
+### Features
+
+* introduce `babel` option for better browser compatibility ([30b9ccd](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/30b9ccd28c75313f64fc8849ac29d361053d8642))
+
+
+
 ## [2.0.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.0.1...v2.0.2) (2023-10-30)
 
 
