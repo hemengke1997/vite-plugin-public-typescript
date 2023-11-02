@@ -15,7 +15,7 @@ importers:
         specifier: ^7.22.20
         version: 7.23.2(@babel/core@7.23.2)
       '@babel/preset-typescript':
-        specifier: ^7.23.2
+        specifier: ^7.22.20
         version: 7.23.2(@babel/core@7.23.2)
       browserslist:
         specifier: ^4.22.1
