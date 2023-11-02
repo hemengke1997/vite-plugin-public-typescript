@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 import path from 'node:path'
 import { type PluginOption, type ResolvedConfig } from 'vite'
 import { globalConfig } from './global-config'
-import { buildAllOnce } from './helper/build'
+import { type ESBuildPluginBabelOptions, buildAllOnce } from './helper/build'
 import { DEFAULT_OPTIONS } from './helper/default-options'
 import { initWatcher } from './helper/file-watcher'
 import { reloadPage } from './helper/server'
@@ -88,6 +88,12 @@ export interface VPPTPluginOptions {
    * @version v2.0.0 introduced
    */
   base?: string
+  /**
+   * @description use babel to transform
+   * @default false
+   * @version v2.1.0 introduced
+   */
+  babel?: boolean | ESBuildPluginBabelOptions
 }
 
 export default function publicTypescript(options: VPPTPluginOptions = {}) {
@@ -115,6 +121,8 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
       },
       configureServer(server) {
         const { ws } = server
+
+        globalConfig.set('viteDevServer', server)
 
         initWatcher((file) => reloadPage(ws, file))
       },
@@ -192,3 +200,4 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 export { getManifest } from './manifest-cache'
 export { type ScriptDescriptor, injectScripts, injectScriptsToHtml } from './plugins/inject-script'
 export { publicTypescript }
+export { DEFAULT_OPTIONS }

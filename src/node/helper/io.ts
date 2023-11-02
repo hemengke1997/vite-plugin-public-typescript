@@ -26,7 +26,7 @@ export function readJsonFile(file: string): Record<string, string> {
     return {}
   }
 
-  const cacheJson = fs.readFileSync(file, 'utf-8')
+  const cacheJson = fs.readFileSync(file, 'utf8')
   if (cacheJson) {
     return JSON.parse(cacheJson)
   }
@@ -54,7 +54,7 @@ export function writeFile(filename: string, content: string, hash = true): void 
 
     // Read content first
     // if content is same, skip write file
-    const oldContent = fs.readFileSync(filename, 'utf-8')
+    const oldContent = fs.readFileSync(filename, 'utf8')
     debug('oldContent:', oldContent, 'newContent:', newContent)
     if (oldContent && newContent === oldContent) {
       debug('skip writeFile, content is same with old content:', oldContent)

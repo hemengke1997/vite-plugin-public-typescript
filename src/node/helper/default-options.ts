@@ -8,4 +8,5 @@ export const DEFAULT_OPTIONS: OptionsTypeWithDefault = {
   manifestName: 'manifest',
   outputDir: '/',
   cacheDir: 'node_modules/.vite-plugin-public-typescript',
+  babel: false,
 }

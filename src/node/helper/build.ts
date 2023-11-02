@@ -1,11 +1,26 @@
+import { type TransformOptions } from '@babel/core'
+import { type Options, type TargetsOptions } from '@babel/preset-env'
 import createDebug from 'debug'
-import { type BuildResult, type Plugin, build as esbuild } from 'esbuild'
+import {
+  type BuildResult,
+  type Loader,
+  type OnLoadArgs,
+  type OnLoadResult,
+  type Plugin,
+  build as esbuild,
+} from 'esbuild'
+import { resolveToEsbuildTarget } from 'esbuild-plugin-browserslist'
+import fs from 'fs-extra'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import colors from 'picocolors'
 import { type ResolvedConfig } from 'vite'
 import { globalConfig } from '../global-config'
+import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
-import { type OptionsTypeWithDefault, getContentHash, pkgName } from './utils'
+import { getContentHash, pkgName } from './utils'
+
+const _require = createRequire(import.meta.url)
 
 const debug = createDebug('vite-plugin-public-typescript:build ===> ')
 
@@ -27,6 +42,85 @@ const _noSideEffectsPlugin: Plugin = {
     })
   },
 }
+
+export interface ESBuildPluginBabelOptions {
+  config?: TransformOptions
+  filter?: RegExp
+  namespace?: string
+  loader?: Loader | ((path: string) => Loader)
+  polyfill?: boolean
+}
+
+// lazy load babel since it's not used during dev
+let babel: typeof import('@babel/core') | undefined
+async function loadBabel() {
+  if (!babel) {
+    babel = await import('@babel/core')
+  }
+  return babel
+}
+
+const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: string[] }): Plugin => ({
+  name: 'babel',
+  setup(build) {
+    const { filter = /.*/, namespace = '', config = {}, loader, polyfill = false, targets } = options || {}
+
+    const resolveLoader = (args: OnLoadArgs): Loader | undefined => {
+      if (typeof loader === 'function') {
+        return loader(args.path)
+      }
+      return loader
+    }
+
+    const transformContents = async (args: OnLoadArgs, contents: string): Promise<OnLoadResult> => {
+      const babel = await loadBabel()
+      const presetEnv = (await import('@babel/preset-env')).default
+
+      return new Promise((resolve, reject) => {
+        babel.transform(
+          contents,
+          {
+            ast: false,
+            babelrc: false,
+            configFile: false,
+            comments: false,
+            compact: false,
+            sourceMaps: false,
+            minified: false,
+            ...config,
+            presets: [
+              [
+                presetEnv,
+                createBabelPresetEnvOptions(targets, {
+                  ignoreBrowserslistConfig: true,
+                  needPolyfills: polyfill,
+                }),
+              ],
+              ...(config.presets ?? []),
+            ],
+            caller: {
+              name: 'esbuild-plugin-babel',
+            },
+          },
+          (error, result) => {
+            error
+              ? reject(error)
+              : resolve({
+                  contents: result?.code ?? '',
+                  loader: resolveLoader(args),
+                })
+          },
+        )
+      })
+    }
+
+    build.onLoad({ filter, namespace }, async (args) => {
+      const contents = await fs.readFile(args.path, 'utf8')
+
+      return transformContents(args, contents)
+    })
+  },
+})
 
 function transformEnvToDefine(viteConfig: ResolvedConfig) {
   const importMetaKeys: Record<string, string> = {}
@@ -55,15 +149,76 @@ function transformEnvToDefine(viteConfig: ResolvedConfig) {
 
 type IBuildOptions = {
   filePath: string
-  viteConfig: ResolvedConfig
-} & OptionsTypeWithDefault
+} & GlobalConfig
+
+function createBabelPresetEnvOptions(
+  targets: TargetsOptions | undefined,
+  {
+    needPolyfills = false,
+    ignoreBrowserslistConfig = true,
+  }: { needPolyfills?: boolean; ignoreBrowserslistConfig?: boolean },
+): Options {
+  return {
+    targets,
+    bugfixes: true,
+    loose: false,
+    modules: false,
+    useBuiltIns: needPolyfills ? 'usage' : false,
+    corejs: needPolyfills
+      ? {
+          version: _require('core-js/package.json').version,
+          proposals: false,
+        }
+      : undefined,
+    shippedProposals: true,
+    ignoreBrowserslistConfig,
+  }
+}
+
+/**
+ * Target	Chrome	Safari	Firefox	Edge
+ * es2015	49+	    10.1+	  45+	    14+
+ * es2016	52+	    10.1+	  52+	    14+
+ * es2017	55+	    10.1+	  52+	    15+
+ * es2018	60+	    11.1+	  55+	    79+
+ * es2019	66+	    11.1+	  58+	    79+
+ * es2020	80+	    13.1+	  72+	    80+
+ */
+
+const DEFAULT_ESBUILD_TARGET = 'es2015'
 
 export async function esbuildTypescript(buildOptions: IBuildOptions) {
-  const { filePath, esbuildOptions, viteConfig } = buildOptions
+  const { filePath, esbuildOptions, viteConfig, babel, logger } = buildOptions
+  const { plugins = [], target = DEFAULT_ESBUILD_TARGET, ...rest } = esbuildOptions
+
+  const enableBabel = !!babel
 
   const define = transformEnvToDefine(viteConfig)
 
   debug('tsFile:', filePath, 'esbuild define:', define)
+
+  let babelTarget: string[] = []
+  let esbuildTarget: string[] = []
+  if (enableBabel) {
+    const { default: browserslist } = await import('browserslist')
+    const browsersConfig = browserslist.loadConfig({ path: viteConfig.root })
+    babelTarget = browserslist(browsersConfig)
+    esbuildTarget = resolveToEsbuildTarget(babelTarget, { printUnknownTargets: false })
+  }
+
+  const esbuildPlugins = enableBabel
+    ? [
+        esbuildPluginBabel(
+          typeof babel === 'boolean'
+            ? { targets: babelTarget }
+            : {
+                ...babel,
+                targets: babelTarget,
+              },
+        ),
+        ...plugins,
+      ]
+    : plugins
 
   let res: BuildResult
   try {
@@ -71,21 +226,30 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
       bundle: true,
       define,
       entryPoints: [filePath],
-      format: 'iife',
-      logLevel: 'error',
-      minify: true,
       platform: 'browser',
+      format: 'iife',
+      logLevel: 'silent',
+      minify: !!viteConfig.build.minify,
       sourcemap: false,
       splitting: false,
       treeShaking: true,
       write: false,
-      ...esbuildOptions,
+      plugins: esbuildPlugins,
+      target: enableBabel ? esbuildTarget : target,
+      ...rest,
     })
 
     debug('esbuild success:', filePath)
   } catch (error) {
-    console.error(colors.red(`[${pkgName}] `), error)
-    return
+    const babelPluginNotFound = /ERROR: \[plugin: babel\] Cannot find package '(.*)'/
+    if ((error as Error)?.message.match(babelPluginNotFound)) {
+      const pluginName = (error as Error).message.match(babelPluginNotFound)?.[1]
+      logger.error(`${colors.red(`[${pkgName}]`)} babel plugin [${pluginName}] not found, please install it.\n`)
+      process.exit(1)
+    }
+
+    logger.error(colors.red(`[${pkgName}] `) + error)
+    process.exit(1)
   }
 
   const code = res!.outputFiles?.[0].text

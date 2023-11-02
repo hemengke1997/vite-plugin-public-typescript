@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { type Logger, type ResolvedConfig } from 'vite'
+import { type Logger, type ResolvedConfig, type ViteDevServer } from 'vite'
 import { type OptionsTypeWithDefault } from '../helper/utils'
 import { type CacheValue, type ManifestCache } from '../manifest-cache/ManifestCache'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
@@ -15,10 +15,10 @@ export type UserConfig<T extends CacheValue = CacheValue> = {
 export type GlobalConfig<T extends CacheValue = CacheValue> = UserConfig<T> & {
   absOutputDir: string
   absInputDir: string
+  viteDevServer?: ViteDevServer
 }
 
 export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
-  private _inited = false
   private _globalConfig: GlobalConfig<T>
 
   constructor() {
@@ -26,11 +26,6 @@ export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
   }
 
   init(c: UserConfig<T>) {
-    if (this._inited) {
-      // only initialize once
-      return this
-    }
-
     const root = c.viteConfig?.root || process.cwd()
     const absOutputDir = path.join(root, c.outputDir)
     const absInputDir = path.join(root, c.inputDir)
@@ -41,13 +36,7 @@ export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
       absOutputDir,
     }
 
-    this._inited = true
-
     return this
-  }
-
-  test<Path extends keyof GlobalConfig<T> | readonly string[]>(path: Path) {
-    return path as any
   }
 
   get<Selected extends keyof GlobalConfig<T>>(keys: Selected[]): Pick<GlobalConfig<T>, Selected>
@@ -66,5 +55,10 @@ export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
 
   get all() {
     return this._globalConfig
+  }
+
+  set<Selected extends keyof GlobalConfig<T>>(key: Selected, value: GlobalConfig<T>[Selected]) {
+    this._globalConfig[key] = value
+    return this
   }
 }

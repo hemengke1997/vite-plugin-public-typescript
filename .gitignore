@@ -10,5 +10,6 @@ explorations
 node_modules
 playground-temp
 temp
+temp/*
 .eslintcache
 coverage
