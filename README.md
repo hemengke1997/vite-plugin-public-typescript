@@ -39,11 +39,12 @@
 ## 功能
 
 - 输出带有 `hash` 的js文件，无需担心缓存
-- 自定义编译选项，指定目标浏览器范围，无需担心兼容性
-- 支持 `vite` 环境变量
-- 支持 `HMR`
+- 默认 esbuild 编译，速度超快！
+- 支持 babel 编译，无需担心浏览器兼容性
+- 支持 vite 环境变量
+- 支持 vite HMR
 - 支持不同的输出方式（内存模式和文件模式）
-- 支持 `CSR` 和 `SSR` 应用
+- 支持 CSR 和 SSR 应用
 
 
 ## 安装
@@ -54,19 +55,19 @@ pnpm add vite-plugin-public-typescript -D
 
 ## 配置项
 
-| 参数            | 类型           | 默认值                                        | 描述                                           |
-| --------------- | -------------- | --------------------------------------------- | ---------------------------------------------- |
-| inputDir        | `string`       | `public-typescript`                           | 存放需要编译的 `typescript` 的目录             |
-| outputDir       | `string`       | `/`                                           | 输出公共 javascript 的目录，相对于 `publicDir` |
-| manifestName    | `string`       | `manifest`                                    | `manifest` 的文件名                            |
-| hash            | `boolean`      | `true`                                        | 编译后的 `js` 是否生成 `hash `                 |
-| esbuildOptions  | `BuildOptions` | `{}`                                          | esbuild 构建选项                               |
-| ssrBuild        | `boolean`      | `false`                                       | 当前打包环境是否是 ssr                         |
-| ~~sideEffects~~ | `boolean`      | `true`                                        | 是否编译三方库(v2.0.0废弃⚠️)                    |
-| destination     | `string`       | `memory`                                      | 输出模式：内存模式 \| 文件模式                 |
-| cacheDir        | `string`       | `node_modules/.vite-plugin-public-typescript` | 存放manifest缓存的目录                         |
-| base            | `string`       | vite config 中的 `base`                       | 资源 base url                                  |
-
+| 参数            | 类型                                   | 默认值                                        | 描述                                           |
+| --------------- | -------------------------------------- | --------------------------------------------- | ---------------------------------------------- |
+| inputDir        | `string`                               | `public-typescript`                           | 存放需要编译的 `typescript` 的目录             |
+| outputDir       | `string`                               | `/`                                           | 输出公共 javascript 的目录，相对于 `publicDir` |
+| manifestName    | `string`                               | `manifest`                                    | `manifest` 的文件名                            |
+| hash            | `boolean`                              | `true`                                        | 编译后的 `js` 是否生成 `hash `                 |
+| esbuildOptions  | `BuildOptions`                         | `{}`                                          | esbuild 构建选项                               |
+| ssrBuild        | `boolean`                              | `false`                                       | 当前打包环境是否是 ssr                         |
+| ~~sideEffects~~ | `boolean`                              | `true`                                        | 是否编译三方库(v2.0.0废弃⚠️)                    |
+| destination     | `string`                               | `memory`                                      | 输出模式：内存模式 \| 文件模式                 |
+| cacheDir        | `string`                               | `node_modules/.vite-plugin-public-typescript` | 存放manifest缓存的目录                         |
+| base            | `string`                               | vite config 中的 `base`                       | 资源 base url                                  |
+| babel           | `boolean ｜ ESBuildPluginBabelOptions` | false                                         | babel编译（如果需要兼容es6以下浏览器，请开启） |
 
 
 
