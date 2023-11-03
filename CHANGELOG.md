@@ -1,3 +1,13 @@
+# [2.2.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.1.1...v2.2.0) (2023-11-03)
+
+
+### Bug Fixes
+
+* remove old js file on vite start when manifest is not match js files ([58f5f23](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/58f5f2350c3a643d105488361d9ad9276f81db3e))
+* typo ([b7ad89c](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/b7ad89cbb97bca1c4aa83c354f5beb4bf5fa7363))
+
+
+
 ## [2.1.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.1.0...v2.1.1) (2023-11-02)
 
 
