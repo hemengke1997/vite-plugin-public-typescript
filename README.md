@@ -16,7 +16,7 @@
 # vite-plugin-public-typescript
 
 
-**在vite的运行时或构建时编译指定目录下的typescript文件，供开发者独立使用**
+**编译指定目录下的typescript文件，注入到浏览器中使用**
 
 ## 在线示例
 [Demo](https://hemengke1997.github.io/vite-plugin-public-typescript/)
@@ -33,7 +33,7 @@
 ## 应用场景
 
 - 独立的第三方脚本，如 `sentry`，`google analytics`，`百度统计` 等
-- 希望在页面完全加载前就执行的脚本，如 `modern-flexible` 等
+- 希望在页面完全加载前就执行的脚本，如 [`modern-flexible`](https://github.com/hemengke1997/modern-flexible)，[`lib-flexible`](https://github.com/amfe/lib-flexible) 等
 - 初始化全局函数
 
 ## 功能
@@ -45,7 +45,6 @@
 - 支持 vite HMR
 - 支持不同的输出方式（内存模式和文件模式）
 - 支持 CSR 和 SSR 应用
-
 
 ## 安装
 
@@ -67,7 +66,8 @@ pnpm add vite-plugin-public-typescript -D
 | destination     | `string`                               | `memory`                                      | 输出模式：内存模式 \| 文件模式                 |
 | cacheDir        | `string`                               | `node_modules/.vite-plugin-public-typescript` | 存放manifest缓存的目录                         |
 | base            | `string`                               | vite config 中的 `base`                       | 资源 base url                                  |
-| babel           | `boolean ｜ ESBuildPluginBabelOptions` | false                                         | babel编译（如果需要兼容es6以下浏览器，请开启） |
+| publicDir       | `string`                               | vite config 中的 `publicDir`                  | public目录                                     |
+| babel           | `boolean ｜ ESBuildPluginBabelOptions` | `false`                                       | babel编译（如果需要兼容es6以下浏览器，请开启） |
 
 
 
