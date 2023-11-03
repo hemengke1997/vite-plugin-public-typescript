@@ -33,7 +33,7 @@ export interface VPPTPluginOptions {
   inputDir?: string
   /**
    * @description output public javascript dir after build
-   * @note relative with vite.config.ts `publicDir`
+   * @note relative with `publicDir`
    * @example
    * ```ts
    * // vite.config.ts
@@ -45,9 +45,14 @@ export interface VPPTPluginOptions {
    */
   outputDir?: string
   /**
+   * @description public dir
+   * @default `publicDir` of vite config
+   * @version v2.2.0 introduced
+   */
+  publicDir?: string
+  /**
    * @description esbuild BuildOptions
-   * @see https://esbuild.github.io/api/#build-api
-   * @default {}
+   * @see https://esbuild.github.io/api/#general-options
    */
   esbuildOptions?: BuildOptions | undefined
   /**
@@ -84,7 +89,7 @@ export interface VPPTPluginOptions {
   cacheDir?: string
   /**
    * @description base path for all files
-   * @default vite.config.ts `base`
+   * @default `base` of vite config
    * @version v2.0.0 introduced
    */
   base?: string
@@ -223,4 +228,4 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 export { getManifest } from './manifest-cache'
 export { type ScriptDescriptor, injectScripts, injectScriptsToHtml } from './plugins/inject-script'
 export { publicTypescript }
-export { DEFAULT_OPTIONS }
+export { DEFAULT_OPTIONS as options }

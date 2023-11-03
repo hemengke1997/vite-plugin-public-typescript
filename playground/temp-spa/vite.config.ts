@@ -22,11 +22,9 @@ export default defineConfig(() => ({
     publicTypescript({
       inputDir: 'public-typescript',
       manifestName: 'manifest',
-      hash: true,
       outputDir: 'out',
       destination: 'file',
-      cacheDir: 'node_modules/.vite-plugin-public-typescript',
-      babel: false,
+      babel: true,
     }),
     injectScripts((manifest) => [
       {

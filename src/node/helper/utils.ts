@@ -16,7 +16,7 @@ const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export type OptionsTypeWithDefault = PartialBy<Required<VPPTPluginOptions>, 'base' | 'sideEffects'>
+export type OptionsTypeWithDefault = PartialBy<Required<VPPTPluginOptions>, 'base' | 'publicDir' | 'sideEffects'>
 
 export { pkgName }
 
@@ -184,6 +184,7 @@ export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: Option
   const resolvedRoot = normalizePath(viteConfig.root ? path.resolve(viteConfig.root) : process.cwd())
 
   opts.base = opts.base ?? viteConfig.base
+  opts.publicDir = opts.publicDir ?? viteConfig.publicDir
 
   fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
 
