@@ -20,7 +20,7 @@ import { isCI } from 'std-env'
 import { type ResolvedConfig } from 'vite'
 import { globalConfig } from '../global-config'
 import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
-import { getContentHash, isBoolean, pkgName } from '../helper/utils'
+import { getContentHash, isBoolean, isInTest, pkgName } from '../helper/utils'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
 
 const _require = createRequire(import.meta.url)
@@ -242,6 +242,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
     debug('esbuild success:', filename)
   } catch (error) {
+    console.log(error, 'eeee')
     if (error instanceof Error) {
       const babelPluginNotFound = /ERROR: \[plugin: babel\] Cannot find package '(.*)'/
       if (error?.message.match(babelPluginNotFound)) {
@@ -252,12 +253,12 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
             `\n${colors.red(`[${pkgName}]`)} babel plugin '${colors.bold(pluginName)}' not found, please install it\n`,
           )
         }
-        process.exit(1)
+        !isInTest() && process.exit(1)
       }
     }
 
     logger.error(colors.red(`[${pkgName}] `) + error)
-    process.exit(1)
+    !isInTest() && process.exit(1)
   }
 
   const code = res!.outputFiles?.[0].text
@@ -344,7 +345,7 @@ const EXIT_CODE_RESTART = 43
 async function _ensurePackageInstalled(dependency: string, root: string) {
   if (isPackageExists(dependency, { paths: [root, __dirname] })) return true
 
-  const promptInstall = !isCI && process.stdout.isTTY
+  const promptInstall = process.stdout.isTTY && !isInTest()
 
   process.stderr.write(
     colors.red(`${colors.inverse(colors.red(' MISSING DEP '))} Can not find dependency '${dependency}'\n\n`),
@@ -361,7 +362,7 @@ async function _ensurePackageInstalled(dependency: string, root: string) {
 
   if (install) {
     await (await import('@antfu/install-pkg')).installPackage(dependency, { dev: true })
-    process.stderr.write(colors.yellow(`\nPackage ${dependency} installed, please restart.\n`))
+    process.stderr.write(colors.yellow(`\nPackage ${dependency} installed, please restart\n\n`))
     process.exit(EXIT_CODE_RESTART)
   }
 
@@ -381,33 +382,38 @@ function lockFn<P extends any[] = any[], V = any>(fn: (...args: P) => Promise<V>
   }
 }
 
+const getTime = () => Date.now() + Math.random()
 const cacheDirectory = path.join(os.tmpdir(), pkgName)
-const tmpFile = path.join(cacheDirectory, 'tmp.ts')
 
 function createTmpFile() {
   if (!fs.existsSync(cacheDirectory)) {
     fs.mkdirSync(cacheDirectory)
   }
+  const tmpFile = path.join(cacheDirectory, `tmp-${getTime()}.ts`)
   fs.writeFileSync(tmpFile, '')
   return tmpFile
 }
 
-function cleanupCache() {
-  if (fs.existsSync(cacheDirectory)) {
-    debug('cleanup cache:', fs.readdirSync(cacheDirectory))
+function cleanupCache(file: string) {
+  if (fs.existsSync(file)) {
+    fs.removeSync(file)
+    debug('no cache:', !fs.existsSync(file))
+  }
+  if (!isInTest()) {
     fs.removeSync(cacheDirectory)
-    debug('no cache:', !fs.existsSync(cacheDirectory))
   }
 }
 
 async function detectBabelPluginMissing() {
   const { all } = globalConfig
 
+  const tmp = createTmpFile()
   try {
-    const tmp = createTmpFile()
-    await esbuildTypescript({ ...all, filePath: tmp })
+    if (fs.existsSync(tmp)) {
+      await esbuildTypescript({ ...all, filePath: tmp })
+    }
   } catch {
   } finally {
-    cleanupCache()
+    cleanupCache(tmp)
   }
 }

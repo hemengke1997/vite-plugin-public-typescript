@@ -18,6 +18,12 @@ export default defineConfig(() => ({
       outputDir: 'out',
       destination: 'memory',
       cacheDir: 'node_modules/.vite-plugin-public-typescript',
+      babel: {
+        config: {
+          plugins: ['@babel/plugin-transform-react-constant-elements'],
+          presets: ['@babel/preset-react'],
+        },
+      },
     }),
     injectScripts((manifest) => [
       {
