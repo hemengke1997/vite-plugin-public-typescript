@@ -11,13 +11,16 @@ import {
 } from 'esbuild'
 import { resolveToEsbuildTarget } from 'esbuild-plugin-browserslist'
 import fs from 'fs-extra'
+import { isPackageExists } from 'local-pkg'
 import { createRequire } from 'node:module'
+import os from 'node:os'
 import path from 'node:path'
 import colors from 'picocolors'
+import { isCI } from 'std-env'
 import { type ResolvedConfig } from 'vite'
 import { globalConfig } from '../global-config'
 import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
-import { getContentHash, pkgName } from '../helper/utils'
+import { getContentHash, isBoolean, pkgName } from '../helper/utils'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
 
 const _require = createRequire(import.meta.url)
@@ -135,7 +138,7 @@ const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: stri
     }
 
     build.onLoad({ filter, namespace }, async (args) => {
-      const contents = await fs.readFile(args.path, 'utf8')
+      const contents = fs.readFileSync(args.path, 'utf8')
 
       return transformContents(args, contents)
     })
@@ -171,13 +174,13 @@ function createBabelPresetEnvOptions(
 }
 
 /**
- * Target	Chrome	Safari	Firefox	Edge
- * es2015	49+	    10.1+	  45+	    14+
- * es2016	52+	    10.1+	  52+	    14+
- * es2017	55+	    10.1+	  52+	    15+
- * es2018	60+	    11.1+	  55+	    79+
- * es2019	66+	    11.1+	  58+	    79+
- * es2020	80+	    13.1+	  72+	    80+
+ * Target   Chrome  Safari  Firefox   Edge
+ * es2015   49+     10.1+   45+       14+
+ * es2016   52+     10.1+   52+       14+
+ * es2017   55+     10.1+   52+       15+
+ * es2018   60+     11.1+   55+       79+
+ * es2019   66+     11.1+   58+       79+
+ * es2020   80+     13.1+   72+       80+
  */
 
 const DEFAULT_ESBUILD_TARGET = 'es2015'
@@ -205,7 +208,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   const esbuildPlugins = enableBabel
     ? [
         esbuildPluginBabel(
-          typeof babel === 'boolean'
+          isBoolean(babel)
             ? { targets: babelTarget, filename }
             : {
                 ...babel,
@@ -218,6 +221,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
     : plugins
 
   let res: BuildResult
+
   try {
     res = await esbuild({
       bundle: true,
@@ -238,11 +242,18 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
     debug('esbuild success:', filename)
   } catch (error) {
-    const babelPluginNotFound = /ERROR: \[plugin: babel\] Cannot find package '(.*)'/
-    if ((error as Error)?.message.match(babelPluginNotFound)) {
-      const pluginName = (error as Error).message.match(babelPluginNotFound)?.[1]
-      logger.error(`${colors.red(`[${pkgName}]`)} babel plugin [${pluginName}] not found, please install it.\n`)
-      process.exit(1)
+    if (error instanceof Error) {
+      const babelPluginNotFound = /ERROR: \[plugin: babel\] Cannot find package '(.*)'/
+      if (error?.message.match(babelPluginNotFound)) {
+        const pluginName = error.message.match(babelPluginNotFound)?.[1]
+        const install = await ensurePackageInstalled(pluginName!, viteConfig.root)
+        if (!install) {
+          logger.error(
+            `\n${colors.red(`[${pkgName}]`)} babel plugin '${colors.bold(pluginName)}' not found, please install it\n`,
+          )
+        }
+        process.exit(1)
+      }
     }
 
     logger.error(colors.red(`[${pkgName}] `) + error)
@@ -266,7 +277,7 @@ function transformEnvToDefine(viteConfig: ResolvedConfig) {
     importMetaKeys[`import.meta.env.${key}`] = JSON.stringify(env[key])
   })
 
-  Object.keys(viteConfig.define || []).forEach((key) => {
+  Object.keys(viteConfig.define || {}).forEach((key) => {
     const c = viteConfig.define?.[key]
     defineKeys[key] = typeof c === 'string' ? c : JSON.stringify(viteConfig.define?.[key])
   })
@@ -281,21 +292,21 @@ function transformEnvToDefine(viteConfig: ResolvedConfig) {
 
 export async function build(options: { filePath: string }, onBuildEnd?: BaseCacheProcessor['onTsBuildEnd']) {
   const { filePath } = options
-  const getGlobalConfig = globalConfig.all
+  const _globalConfig = globalConfig.all
 
   const originFile = path.basename(filePath, path.extname(filePath))
 
   let contentHash = ''
   let compiledFileName = originFile
 
-  const code = (await esbuildTypescript({ filePath, ...getGlobalConfig })) || ''
+  const code = (await esbuildTypescript({ filePath, ..._globalConfig })) || ''
 
-  if (getGlobalConfig.hash) {
-    contentHash = getContentHash(code, getGlobalConfig.hash)
+  if (_globalConfig.hash) {
+    contentHash = getContentHash(code, _globalConfig.hash)
     compiledFileName = `${originFile}.${contentHash}`
   }
 
-  debug('before onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.all)
+  debug('before onBuildEnd manifest-cache:', _globalConfig.manifestCache.all)
 
   await onBuildEnd?.(
     {
@@ -306,7 +317,7 @@ export async function build(options: { filePath: string }, onBuildEnd?: BaseCach
     { code, contentHash, originFile, silent: false },
   )
 
-  debug('after onBuildEnd manifest-cache:', getGlobalConfig.manifestCache.all)
+  debug('after onBuildEnd manifest-cache:', _globalConfig.manifestCache.all)
 }
 
 export async function buildAllOnce(tsFilesGlob: string[]) {
@@ -322,6 +333,81 @@ export async function buildAllOnce(tsFilesGlob: string[]) {
     )
   }
 
-  await Promise.all(toBuildList.map((fn) => fn()))
+  await detectBabelPluginMissing()
+
+  await Promise.all(toBuildList.map((fn) => fn()) || [])
+
   cacheProcessor.manifestCache.writeManifestJSON()
+}
+
+const EXIT_CODE_RESTART = 43
+async function _ensurePackageInstalled(dependency: string, root: string) {
+  if (isPackageExists(dependency, { paths: [root, __dirname] })) return true
+
+  const promptInstall = !isCI && process.stdout.isTTY
+
+  process.stderr.write(
+    colors.red(`${colors.inverse(colors.red(' MISSING DEP '))} Can not find dependency '${dependency}'\n\n`),
+  )
+
+  if (!promptInstall) return false
+
+  const prompts = (await import('prompts')).default
+  const { install } = await prompts.prompt({
+    type: 'confirm',
+    name: 'install',
+    message: colors.reset(`Do you want to install ${colors.green(dependency)}?`),
+  })
+
+  if (install) {
+    await (await import('@antfu/install-pkg')).installPackage(dependency, { dev: true })
+    process.stderr.write(colors.yellow(`\nPackage ${dependency} installed, please restart.\n`))
+    process.exit(EXIT_CODE_RESTART)
+  }
+
+  return false
+}
+
+const ensurePackageInstalled = lockFn(_ensurePackageInstalled)
+
+function lockFn<P extends any[] = any[], V = any>(fn: (...args: P) => Promise<V>) {
+  let isInstalling = false
+  return async function (...args: P) {
+    if (isInstalling) return false
+    isInstalling = true
+    const r = await fn(...args)
+    isInstalling = false
+    return r
+  }
+}
+
+const cacheDirectory = path.join(os.tmpdir(), pkgName)
+const tmpFile = path.join(cacheDirectory, 'tmp.ts')
+
+function createTmpFile() {
+  if (!fs.existsSync(cacheDirectory)) {
+    fs.mkdirSync(cacheDirectory)
+  }
+  fs.writeFileSync(tmpFile, '')
+  return tmpFile
+}
+
+function cleanupCache() {
+  if (fs.existsSync(cacheDirectory)) {
+    debug('cleanup cache:', fs.readdirSync(cacheDirectory))
+    fs.removeSync(cacheDirectory)
+    debug('no cache:', !fs.existsSync(cacheDirectory))
+  }
+}
+
+async function detectBabelPluginMissing() {
+  const { all } = globalConfig
+
+  try {
+    const tmp = createTmpFile()
+    await esbuildTypescript({ ...all, filePath: tmp })
+  } catch {
+  } finally {
+    cleanupCache()
+  }
 }

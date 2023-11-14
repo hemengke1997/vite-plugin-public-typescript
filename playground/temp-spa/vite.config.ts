@@ -24,7 +24,12 @@ export default defineConfig(() => ({
       manifestName: 'manifest',
       outputDir: 'out',
       destination: 'file',
-      babel: true,
+      babel: {
+        config: {
+          plugins: ['@babel/plugin-transform-react-constant-elements'],
+          presets: ['@babel/preset-react'],
+        }
+      },
     }),
     injectScripts((manifest) => [
       {

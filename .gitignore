@@ -13,3 +13,4 @@ temp
 temp/*
 .eslintcache
 coverage
+temp-spa

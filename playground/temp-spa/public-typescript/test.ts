@@ -4,7 +4,6 @@ declare global {
   }
 }
 
-const a = 1
-console.log(a)
+import { flexible } from 'modern-flexible'
 
-export {}
+flexible()

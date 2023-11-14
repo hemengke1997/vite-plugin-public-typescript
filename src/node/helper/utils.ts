@@ -3,6 +3,7 @@ import fs from 'fs-extra'
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import colors from 'picocolors'
+import { isCI, isWindows } from 'std-env'
 import glob from 'tiny-glob'
 import { type ResolvedConfig, createLogger, normalizePath } from 'vite'
 import { type VPPTPluginOptions } from '..'
@@ -20,6 +21,10 @@ export type OptionsTypeWithDefault = PartialBy<Required<VPPTPluginOptions>, 'bas
 
 export { pkgName }
 
+export function isBoolean(v: unknown): v is boolean {
+  return typeof v === 'boolean'
+}
+
 export function createInternalLogger(allowClearScreen?: boolean) {
   return createLogger('info', {
     allowClearScreen: !!allowClearScreen,
@@ -32,7 +37,7 @@ export function fileRelativeRootPath(filePath: string) {
 }
 
 export function isInTest() {
-  return process.env.VITEST || process.env.CI
+  return process.env.VITEST || isCI
 }
 
 export function isPublicTypescript(args: { filePath: string; inputDir: string; root: string }) {
@@ -54,10 +59,6 @@ export function _isPublicTypescript(filePath: string) {
 
 export function isManifestFile(filePath: string) {
   return filePath === manifestCache.manifestPath
-}
-
-export function isWindows() {
-  return typeof process != 'undefined' && process.platform === 'win32'
 }
 
 export function isObject(o: unknown): o is Object {
@@ -87,7 +88,7 @@ export function isEmptyObject(o: unknown) {
 
 const HASH_LEN = 8
 
-export const linebreak = isWindows() ? '\r\n' : '\n'
+export const linebreak = isWindows ? '\r\n' : '\n'
 
 export function getHashLen(hash: VPPTPluginOptions['hash']) {
   return typeof hash === 'number' ? hash : HASH_LEN
