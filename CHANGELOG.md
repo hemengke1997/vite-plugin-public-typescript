@@ -1,3 +1,12 @@
+## [2.2.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.0...v2.2.1) (2023-11-14)
+
+
+### Features
+
+* smartly install missing babel plugins ([e75e1cc](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e75e1cc3b253219403dc64a932a0a25f5ee2d4c1))
+
+
+
 # [2.2.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.1.1...v2.2.0) (2023-11-03)
 
 
