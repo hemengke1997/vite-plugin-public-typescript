@@ -381,7 +381,7 @@ function lockFn<P extends any[] = any[], V = any>(fn: (...args: P) => Promise<V>
   }
 }
 
-const getTime = () => Date.now() + Math.random()
+const getTime = () => Date.now()
 const cacheDirectory = path.join(os.tmpdir(), pkgName)
 
 function createTmpFile() {
@@ -399,7 +399,7 @@ function cleanupCache(file: string) {
     debug('no cache:', !fs.existsSync(file))
   }
   if (!isInTest()) {
-    fs.removeSync(cacheDirectory)
+    fs.rmSync(cacheDirectory, { force: true, recursive: true })
   }
 }
 
