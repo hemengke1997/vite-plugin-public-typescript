@@ -6,6 +6,7 @@
       "~utils": ["./test-utils.ts"]
     },
     "types": ["vite/client", "node"],
+    "isolatedModules": true,
     "strict": false
   },
   "include": ["."],

@@ -199,9 +199,8 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   let esbuildTarget: string[] = []
   if (enableBabel) {
     const { default: browserslist } = await import('browserslist')
-    const browsersConfig = browserslist.loadConfig({ path: viteConfig.root })
-    babelTarget = browserslist(browsersConfig)
-    esbuildTarget = resolveToEsbuildTarget(babelTarget, { printUnknownTargets: false })
+    babelTarget = browserslist.loadConfig({ path: viteConfig.root }) || []
+    esbuildTarget = resolveToEsbuildTarget(browserslist(babelTarget), { printUnknownTargets: false })
   }
 
   const esbuildPlugins = enableBabel
@@ -241,7 +240,6 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
     debug('esbuild success:', filename)
   } catch (error) {
-    console.log(error, 'eeee')
     if (error instanceof Error) {
       const babelPluginNotFound = /ERROR: \[plugin: babel\] Cannot find package '(.*)'/
       if (error?.message.match(babelPluginNotFound)) {

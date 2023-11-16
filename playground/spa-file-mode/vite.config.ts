@@ -17,6 +17,7 @@ export default defineConfig(() => ({
       hash: true,
       outputDir: 'out',
       destination: 'file',
+      babel: true,
     }),
     injectScripts((manifest) => [
       {
