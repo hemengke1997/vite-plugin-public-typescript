@@ -1,3 +1,14 @@
+## [2.2.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.1...v2.2.2) (2023-11-16)
+
+
+### Bug Fixes
+
+* ci ([9dcf924](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/9dcf9242da028f6071eedd59740538f5d8e0ca93))
+* duplicate tmp file ([c33092b](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/c33092b2fceeb600d17f4d51308a0a9f0c06f6ac))
+* tmp file os cache ([2cac428](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/2cac42805c09e2c5a5e819bb832591a229e0ed1c))
+
+
+
 ## [2.2.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.0...v2.2.1) (2023-11-14)
 
 
