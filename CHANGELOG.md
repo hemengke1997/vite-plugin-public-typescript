@@ -1,3 +1,12 @@
+## [2.2.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.2...v2.2.3) (2023-11-16)
+
+
+### Bug Fixes
+
+* babel target error ([ebd888d](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/ebd888d084eb6a04ea2e21823c1ab52f6d5c1157))
+
+
+
 ## [2.2.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.1...v2.2.2) (2023-11-16)
 
 
