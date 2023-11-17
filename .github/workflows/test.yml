@@ -75,8 +75,7 @@ jobs:
           path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
 
       - name: Install Playwright
-        # does not need to explicitly set chromium after https://github.com/microsoft/playwright/issues/14862 is solved
-        run: pnpx playwright install chromium
+        run: pnpm exec playwright install
 
       - name: Build
         run: pnpm run build
