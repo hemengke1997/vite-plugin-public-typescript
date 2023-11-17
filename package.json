@@ -5,10 +5,11 @@
   "type": "module",
   "keywords": [
     "vite",
-    "public",
     "typescript",
     "public-typescript",
-    "vite browser"
+    "vite browser",
+    "inject script",
+    "html"
   ],
   "license": "MIT",
   "homepage": "https://github.com/hemengke1997/vite-plugin-public-typescript",
