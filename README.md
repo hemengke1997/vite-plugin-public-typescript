@@ -15,8 +15,9 @@
 
 # vite-plugin-public-typescript
 
+> 在html中注入ts脚本的vite插件
 
-**编译指定目录下的typescript文件，注入到浏览器中使用**
+**编译指定目录下的typescript文件，注入到html中使用**
 
 ## 在线示例
 [Demo](https://hemengke1997.github.io/vite-plugin-public-typescript/)
