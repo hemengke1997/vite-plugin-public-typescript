@@ -50,13 +50,14 @@ jobs:
           version: 8.6.2
 
       - name: Set node version to ${{ matrix.node_version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
           cache: pnpm
+          cache-dependency-path: '**/pnpm-lock.yaml'
 
       - name: Install deps
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --prefer-offline --ignore-scripts
 
       # Install playwright's binary under custom directory to cache
       - name: Set Playwright path (non-windows)
@@ -76,7 +77,7 @@ jobs:
 
       - name: Install Playwright
         # does not need to explicitly set chromium after https://github.com/microsoft/playwright/issues/14862 is solved
-        run: pnpx playwright install chromium
+        run: pnpx playwright@1.39.0 install chromium
 
       - name: Build
         run: pnpm run build
