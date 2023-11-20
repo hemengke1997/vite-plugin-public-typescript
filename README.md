@@ -15,6 +15,9 @@
 
 # vite-plugin-public-typescript
 
+
+**中文** | [English](./README-en.md)
+
 > 在html中注入ts脚本的vite插件
 
 **编译指定目录下的typescript文件，注入到html中使用**
@@ -31,10 +34,17 @@
 
 **`vite-plugin-public-typescript` 为优雅解决这些问题而生**
 
-## 应用场景
+## 安装
+  
+```bash
+pnpm add vite-plugin-public-typescript -D
+```
+  
+
+## Scenarios
 
 - 独立的第三方脚本，如 `sentry`，`google analytics`，`百度统计` 等
-- 希望在页面完全加载前就执行的脚本，如 [`modern-flexible`](https://github.com/hemengke1997/modern-flexible)，[`lib-flexible`](https://github.com/amfe/lib-flexible) 等
+- 希望在页面完全加载前就执行的脚本，如 [`lib-flexible`](https://github.com/amfe/lib-flexible) 等
 - 初始化全局函数
 
 ## 功能
@@ -46,12 +56,6 @@
 - 支持 vite HMR
 - 支持不同的输出方式（内存模式和文件模式）
 - 支持 CSR 和 SSR 应用
-
-## 安装
-
-```bash
-pnpm add vite-plugin-public-typescript -D
-```
 
 ## 配置项
 
@@ -75,6 +79,7 @@ pnpm add vite-plugin-public-typescript -D
 ## 用法
 
 ```ts
+// vite.config.ts
 import { defineConfig } from 'vite'
 import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
 
@@ -84,7 +89,7 @@ export default defineConfig({
     injectScripts((manifest) => [
       {
         attrs: {
-          src: manifest.script,
+          src: manifest.someScript,
         },
         injectTo: 'head',
       },
