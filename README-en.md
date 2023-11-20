@@ -98,6 +98,8 @@ export default defineConfig({
 
 ```ts
 import { manifest } from 'vite-plugin-public-typescript/client'
+
+console.log(manifest)
 ```
 
 ### SPA
