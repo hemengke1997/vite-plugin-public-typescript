@@ -53,13 +53,26 @@ export interface ESBuildPluginBabelOptions {
   polyfill?: boolean
 }
 
-// lazy load babel since it's not used during dev
 let babel: typeof import('@babel/core') | undefined
 async function loadBabel() {
   if (!babel) {
     babel = await import('@babel/core')
   }
   return babel
+}
+
+const loadedPlugin = new Map<string, any>()
+function loadPlugin(path: string): Promise<any> {
+  const cached = loadedPlugin.get(path)
+  if (cached) return cached
+
+  const promise = import(path).then((module) => {
+    const value = module.default || module
+    loadedPlugin.set(path, value)
+    return value
+  })
+  loadedPlugin.set(path, promise)
+  return promise
 }
 
 const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: string[]; filename: string }): Plugin => ({
@@ -84,8 +97,9 @@ const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: stri
 
     const transformContents = async (args: OnLoadArgs, contents: string): Promise<OnLoadResult> => {
       const babel = await loadBabel()
-      const presetEnv = (await import('@babel/preset-env')).default
-      const ts = (await import('@babel/preset-typescript')).default
+
+      const presetEnv = loadPlugin('@babel/preset-env')
+      const ts = loadPlugin('@babel/preset-typescript')
 
       return new Promise((resolve, reject) => {
         babel.transform(
