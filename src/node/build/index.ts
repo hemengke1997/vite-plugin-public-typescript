@@ -21,6 +21,7 @@ import { globalConfig } from '../global-config'
 import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
 import { getContentHash, isBoolean, isInTest, pkgName } from '../helper/utils'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
+import { transformEnvToDefine } from './define'
 
 const _require = createRequire(import.meta.url)
 
@@ -98,8 +99,8 @@ const esbuildPluginBabel = (options: ESBuildPluginBabelOptions & { targets: stri
     const transformContents = async (args: OnLoadArgs, contents: string): Promise<OnLoadResult> => {
       const babel = await loadBabel()
 
-      const presetEnv = loadPlugin('@babel/preset-env')
-      const ts = loadPlugin('@babel/preset-typescript')
+      const presetEnv = await loadPlugin('@babel/preset-env')
+      const ts = await loadPlugin('@babel/preset-typescript')
 
       return new Promise((resolve, reject) => {
         babel.transform(
@@ -275,31 +276,6 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   const code = res!.outputFiles?.[0].text
 
   return code
-}
-
-function transformEnvToDefine(viteConfig: ResolvedConfig) {
-  const importMetaKeys: Record<string, string> = {}
-  const defineKeys: Record<string, string> = {}
-  const env: Record<string, any> = {
-    ...viteConfig.env,
-    SSR: !!viteConfig.build.ssr,
-  }
-
-  Object.keys(env).forEach((key) => {
-    importMetaKeys[`import.meta.env.${key}`] = JSON.stringify(env[key])
-  })
-
-  Object.keys(viteConfig.define || {}).forEach((key) => {
-    const c = viteConfig.define?.[key]
-    defineKeys[key] = typeof c === 'string' ? c : JSON.stringify(viteConfig.define?.[key])
-  })
-
-  return {
-    'import.meta.env': JSON.stringify(viteConfig.env),
-    'import.meta.hot': 'false',
-    ...importMetaKeys,
-    ...defineKeys,
-  }
 }
 
 export async function build(options: { filePath: string }, onBuildEnd?: BaseCacheProcessor['onTsBuildEnd']) {
