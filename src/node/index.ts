@@ -79,6 +79,7 @@ export interface VPPTPluginOptions {
   /**
    * @description build-out destination
    * @default 'memory'
+   * @note usually set to 'file' in non-vite projects
    * @version v1.5.0 introduced
    */
   destination?: 'memory' | 'file'
