@@ -1,7 +1,6 @@
 import createDebug from 'debug'
 import path from 'node:path'
 import colors from 'picocolors'
-import Watcher from 'watcher'
 import { build } from '../build'
 import { globalConfig } from '../global-config'
 import { type HmrFile } from './server'
@@ -39,8 +38,9 @@ async function handleFileChange(filePath: string, cb?: () => void) {
   handleFileAdded(filePath, cb)
 }
 
-export function initWatcher(cb: (file: HmrFile) => void) {
+export async function initWatcher(cb: (file: HmrFile) => void) {
   try {
+    const { default: Watcher } = await import('watcher')
     const watcher = new Watcher(globalConfig.get('absInputDir'), {
       debounce: 0,
       ignoreInitial: true,

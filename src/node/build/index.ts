@@ -1,6 +1,5 @@
 import createDebug from 'debug'
-import { type BuildResult, type Plugin, build as esbuild } from 'esbuild'
-import { resolveToEsbuildTarget } from 'esbuild-plugin-browserslist'
+import { type BuildResult, type Plugin } from 'esbuild'
 import path from 'node:path'
 import colors from 'picocolors'
 import { globalConfig } from '../global-config'
@@ -62,6 +61,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   if (enableBabel) {
     const { default: browserslist } = await import('browserslist')
     babelTarget = browserslist.loadConfig({ path: viteConfig.root }) || []
+    const { resolveToEsbuildTarget } = await import('esbuild-plugin-browserslist')
     esbuildTarget = resolveToEsbuildTarget(browserslist(babelTarget), { printUnknownTargets: false })
   }
 
@@ -83,7 +83,8 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   let res: BuildResult
 
   try {
-    res = await esbuild({
+    const { build } = await import('esbuild')
+    res = await build({
       bundle: true,
       define,
       entryPoints: [filePath],

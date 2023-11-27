@@ -126,12 +126,12 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         await setupManifestCache(viteConfig, opts)
       },
-      configureServer(server) {
+      async configureServer(server) {
         const { ws } = server
 
         globalConfig.set('viteDevServer', server)
 
-        initWatcher((file) => reloadPage(ws, file))
+        await initWatcher((file) => reloadPage(ws, file))
       },
       async buildStart() {
         const manifestPath = manifestCache.manifestPath
