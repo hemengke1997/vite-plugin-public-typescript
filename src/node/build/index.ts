@@ -2,6 +2,7 @@ import createDebug from 'debug'
 import { type BuildResult, type Plugin } from 'esbuild'
 import path from 'node:path'
 import colors from 'picocolors'
+import { isDevelopment } from 'std-env'
 import { globalConfig } from '../global-config'
 import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
 import { getContentHash, isBoolean, isInTest, pkgName } from '../helper/utils'
@@ -92,7 +93,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
       format: 'iife',
       logLevel: 'silent',
       minify: !!viteConfig.build.minify,
-      sourcemap: false,
+      sourcemap: isDevelopment ? 'inline' : false,
       splitting: false,
       treeShaking: true,
       write: false,
