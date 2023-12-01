@@ -26,9 +26,10 @@
 
 ## Why
 
-- Suppose you want to execute some scripts before the page render, what should you do?
-- Suppose you don't want to inject `script` code into `index.html` in a hard-coded way, what should you do?
-- Suppose you want third-party scripts to have hash cache, what should you do?
+- If you want to execute some scripts before the page render
+- If you don't want to inject `script` code into `index.html` in a hard-coded way
+- If you want third-party scripts to have hash cache
+- If you want your project to be all typescript
 - ...
 
 **`vite-plugin-public-typescript` is born to solve these problems elegantly**
