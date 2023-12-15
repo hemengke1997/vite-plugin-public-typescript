@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-public-typescript",
   "version": "2.2.3",
-  "description": "vite plugin for dynamic compilation of typescript to javascript. 动态编译 typescript 至 javascript 的 vite插件",
+  "description": "vite plugin for inject typescript into html. 在html中注入ts脚本的vite插件",
   "type": "module",
   "keywords": [
     "vite",
@@ -55,7 +55,6 @@
     "test:serve": "vitest run -c vitest.config.e2e.ts",
     "test:build": "cross-env VITE_TEST_BUILD=1 vitest run -c vitest.config.e2e.ts",
     "lint": "eslint . --fix",
-    "preinstall": "npx only-allow pnpm",
     "up": "pnpm update --i --L",
     "taze": "taze -I -r -w",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
