@@ -1,3 +1,29 @@
+## [2.2.4](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.3...v2.2.4) (2023-12-15)
+
+
+### Bug Fixes
+
+* ci ([c5764c6](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/c5764c6b215baff50c79b14a6fdc68f4c676d044))
+* ci ([60a8045](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/60a8045aa10fd2bfd769c9cbdafb23873caba2e9))
+* ci ([1d6fa64](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/1d6fa64caf474c4995d3d1423206e3371b09c24b))
+* ci ([e9e3026](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e9e3026e01e371890db3a007810e525cc21ba660))
+* ci ([91c7c2a](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/91c7c2a9acb60fe4477f40c90b439c916dd25374))
+* remove pnpm restriction ([6354c83](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/6354c83a7a1b7677838fea67cca7f22ee715063b))
+
+
+### Features
+
+* define support process env ([ea2889d](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/ea2889dba60f41bc56afd9516a33732690682aa1))
+
+
+### Performance Improvements
+
+* cache babel plugin ([986b150](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/986b150d3418970dcdb962dbbb19c59348581c55))
+* enable sourcemap in dev ([91f3fb0](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/91f3fb04f3b3acef2cb041e80fdfaf20ad4f73ad))
+* lazyload large dependencies ([4920649](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/4920649d662b47c42064949b2ddd5eb8b1848f13))
+
+
+
 ## [2.2.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.2...v2.2.3) (2023-11-16)
 
 
