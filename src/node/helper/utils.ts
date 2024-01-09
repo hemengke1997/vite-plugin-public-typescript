@@ -132,11 +132,7 @@ export function validateOptions(options: OptionsTypeWithDefault) {
 
   if (options.sideEffects !== undefined && !isInTest()) {
     console.warn(
-      colors.yellow(
-        `${colors.bold('(warning!)')} [${pkgName}]: sideEffects option is ${colors.bold(
-          'deprecated',
-        )}, please remove it`,
-      ),
+      colors.yellow(`${colors.bold('(warning!)')} [${pkgName}]: sideEffects option is ${colors.bold('deprecated')}`),
     )
   }
 }

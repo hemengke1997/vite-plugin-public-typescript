@@ -1,3 +1,4 @@
+import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
@@ -38,6 +39,7 @@ export default defineConfig(() => ({
         injectTo: 'head-prepend',
       },
     ]),
+    legacy(),
   ],
   clearScreen: false,
 }))
