@@ -1,3 +1,12 @@
+## [2.2.5](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.4...v2.2.5) (2024-01-09)
+
+
+### Bug Fixes
+
+* define json transform error ([3b23dd2](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/3b23dd2326f726f1f938f5f059fb0e914de8f74a))
+
+
+
 ## [2.2.4](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.3...v2.2.4) (2023-12-15)
 
 

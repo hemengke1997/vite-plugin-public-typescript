@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-public-typescript",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "vite plugin for inject typescript into html. 在html中注入ts脚本的vite插件",
   "type": "module",
   "keywords": [
