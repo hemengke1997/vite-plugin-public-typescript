@@ -1,7 +1,7 @@
 import { listFiles, readFile } from '~utils'
+import glob from 'fast-glob'
 import fs from 'fs-extra'
 import path from 'node:path'
-import glob from 'tiny-glob'
 import { beforeAll, describe, expect, test } from 'vitest'
 
 const manifestPath = 'node_modules/.vite-plugin-public-typescript/manifest.json'
