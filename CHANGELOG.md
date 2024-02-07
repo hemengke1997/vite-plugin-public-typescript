@@ -1,3 +1,12 @@
+# [2.3.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.5...v2.3.0) (2024-02-07)
+
+
+### Performance Improvements
+
+* update to vite 5.x ([430dc52](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/430dc52c828c8ecaea212d52feeeb75a4c52e227))
+
+
+
 ## [2.2.5](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.4...v2.2.5) (2024-01-09)
 
 
