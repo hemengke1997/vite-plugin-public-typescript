@@ -2,11 +2,12 @@ import { listFiles, readFile } from '~utils'
 import glob from 'fast-glob'
 import fs from 'fs-extra'
 import path from 'node:path'
+import { normalizePath } from 'vite'
 import { beforeAll, describe, expect, test } from 'vitest'
 
 const manifestPath = 'node_modules/.vite-plugin-public-typescript/manifest.json'
 
-const out = path.resolve(__dirname, '../public/out')
+const out = normalizePath(path.resolve(__dirname, '../public/out'))
 
 describe('file-mode', () => {
   let jsFiles: string[]
@@ -28,6 +29,8 @@ describe('file-mode', () => {
 
   test('should babel transform', async () => {
     const babel = (await glob(`${out}/babel.?(*.)js`, { absolute: true }))[0]
+
+    console.log(babel, 'babel')
 
     expect(fs.readFileSync(babel, 'utf8')).toContain('@babel/helpers - typeof')
   })
