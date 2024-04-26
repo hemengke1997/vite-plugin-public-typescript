@@ -67,7 +67,6 @@ pnpm add vite-plugin-public-typescript -D
 | manifestName    | `string`                               | `manifest`                                    | `manifest` 的文件名                            |
 | hash            | `boolean`                              | `true`                                        | 编译后的 `js` 是否生成 `hash `                 |
 | esbuildOptions  | `BuildOptions`                         | `{}`                                          | esbuild 构建选项                               |
-| ssrBuild        | `boolean`                              | `false`                                       | 当前打包环境是否是 ssr                         |
 | ~~sideEffects~~ | `boolean`                              | `true`                                        | 是否编译三方库(v2.0.0废弃⚠️)                    |
 | destination     | `string`                               | `memory`                                      | 输出模式：内存模式 \| 文件模式                 |
 | cacheDir        | `string`                               | `node_modules/.vite-plugin-public-typescript` | 存放manifest缓存的目录                         |

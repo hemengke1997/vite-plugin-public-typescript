@@ -35,7 +35,7 @@ function loadPlugin(path: string): Promise<any> {
   const cached = loadedPlugin.get(path)
   if (cached) return cached
 
-  const promise = import(path).then((module) => {
+  const promise = import(/* @vite-ignore */ path).then((module) => {
     const value = module.default || module
     loadedPlugin.set(path, value)
     return value

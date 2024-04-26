@@ -77,13 +77,15 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
 
       let html = template.replace(`<!--app-html-->`, appHtml)
 
-      html = injectScriptsToHtml(html, (manifest) => [
-        {
-          attrs: {
-            src: manifest.ssr,
+      html = injectScriptsToHtml(html, (manifest) => {
+        return [
+          {
+            attrs: {
+              src: manifest.ssr,
+            },
           },
-        },
-      ])
+        ]
+      })
 
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
     } catch (e) {

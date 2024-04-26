@@ -134,6 +134,8 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         await initWatcher((file) => reloadPage(ws, file))
       },
       async buildStart() {
+        if (viteConfig.build.ssr) return
+
         const manifestPath = manifestCache.manifestPath
 
         fs.ensureFileSync(manifestPath)
@@ -198,6 +200,7 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
         await buildAllOnce(originFilesGlob)
       },
       generateBundle() {
+        if (viteConfig.build.ssr) return
         if (opts.destination === 'memory') {
           const c = manifestCache.all
           Object.keys(c).forEach((key) => {

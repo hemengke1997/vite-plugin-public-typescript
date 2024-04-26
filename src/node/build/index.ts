@@ -62,8 +62,12 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   if (enableBabel) {
     const { default: browserslist } = await import('browserslist')
     babelTarget = browserslist.loadConfig({ path: viteConfig.root }) || []
-    const { resolveToEsbuildTarget } = await import('esbuild-plugin-browserslist')
-    esbuildTarget = resolveToEsbuildTarget(browserslist(babelTarget), { printUnknownTargets: false })
+    if (!babelTarget.length) {
+      esbuildTarget = [DEFAULT_ESBUILD_TARGET]
+    } else {
+      const { resolveToEsbuildTarget } = await import('esbuild-plugin-browserslist')
+      esbuildTarget = resolveToEsbuildTarget(browserslist(babelTarget), { printUnknownTargets: false })
+    }
   }
 
   const esbuildPlugins = enableBabel

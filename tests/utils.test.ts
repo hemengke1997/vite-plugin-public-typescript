@@ -90,7 +90,6 @@ describe('unit test', () => {
       manifestName: 'manifest',
       outputDir: '/',
       sideEffects: false,
-      ssrBuild: false,
       cacheDir: 'node_modules/.vite-plugin-public-typescript',
     } as const
 
