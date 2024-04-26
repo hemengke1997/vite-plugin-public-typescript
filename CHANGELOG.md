@@ -1,3 +1,17 @@
+# [2.4.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.3.0...v2.4.0) (2024-04-26)
+
+
+### Bug Fixes
+
+* skip ssr build, fix babel target bug ([fdbf5f4](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/fdbf5f4e2ee864b5c0faa0c93be3a23ec3fb7217))
+
+
+### Performance Improvements
+
+* enhance dts exports ([354a827](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/354a827dbef5e68e3641bff711f0797ba9ab89b9))
+
+
+
 # [2.3.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.2.5...v2.3.0) (2024-02-07)
 
 
