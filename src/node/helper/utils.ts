@@ -9,7 +9,7 @@ import { type ResolvedConfig, createLogger, normalizePath } from 'vite'
 import { type VPPTPluginOptions } from '..'
 import { name as pkgName } from '../../../package.json'
 import { globalConfig } from '../global-config'
-import { manifestCache, saveManifestPathToDisk } from '../manifest-cache'
+import { manifestCache } from '../manifest-cache'
 import { initCacheProcessor } from '../processor/processor'
 import { disableManifestHmr } from './server'
 
@@ -210,8 +210,6 @@ export async function setupManifestCache(viteConfig: ResolvedConfig, opts: Optio
   const cacheDir = path.resolve(viteConfig.root, opts.cacheDir)
 
   manifestCache.setManifestPath(`${cacheDir}/${opts.manifestName}.json`)
-
-  saveManifestPathToDisk()
 
   // no need to set `_pathToDisk` manually anymore
   manifestCache.beforeSet = (value) => {

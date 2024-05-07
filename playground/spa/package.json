@@ -25,7 +25,7 @@
     "cross-env": "^7.0.3",
     "terser": "^5.26.0",
     "typescript": "^5.2.2",
-    "vite": "^5.0.12",
+    "vite": "^5.2.10",
     "vite-plugin-public-typescript": "workspace:*"
   }
 }

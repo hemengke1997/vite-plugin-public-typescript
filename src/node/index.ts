@@ -131,7 +131,10 @@ export default function publicTypescript(options: VPPTPluginOptions = {}) {
 
         globalConfig.set('viteDevServer', server)
 
-        await initWatcher((file) => reloadPage(ws, file))
+        const wathcer = await initWatcher((file) => reloadPage(ws, file))
+        server.httpServer?.addListener('close', () => {
+          wathcer?.close()
+        })
       },
       async buildStart() {
         if (viteConfig.build.ssr) return

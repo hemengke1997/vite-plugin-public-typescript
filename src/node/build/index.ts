@@ -97,7 +97,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
       format: 'iife',
       logLevel: 'silent',
       minify: !!viteConfig.build.minify,
-      sourcemap: isDevelopment ? 'inline' : false,
+      sourcemap: isDevelopment ? !!viteConfig.build.sourcemap && 'inline' : false,
       splitting: false,
       treeShaking: true,
       write: false,

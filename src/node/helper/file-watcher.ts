@@ -42,11 +42,11 @@ export async function initWatcher(cb: (file: HmrFile) => void) {
   try {
     const { default: Watcher } = await import('watcher')
     const watcher = new Watcher(globalConfig.get('absInputDir'), {
-      debounce: 0,
+      debounce: 200,
       ignoreInitial: true,
       recursive: true,
       renameDetection: true,
-      renameTimeout: 0,
+      renameTimeout: 100,
     })
 
     watcher.on('unlink', (filePath: string) => handleUnlink(filePath, () => cb({ path: filePath, event: 'deleted' })))
@@ -60,6 +60,8 @@ export async function initWatcher(cb: (file: HmrFile) => void) {
     watcher.on('change', (filePath: string) => {
       handleFileChange(filePath, () => cb({ path: filePath, event: 'changed' }))
     })
+
+    return watcher
   } catch (error) {
     console.error(colors.red(`[${pkgName}] `), error)
   }
