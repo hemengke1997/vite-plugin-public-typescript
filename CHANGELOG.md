@@ -1,3 +1,12 @@
+## [2.4.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.4.1...v2.4.2) (2024-05-07)
+
+
+### Bug Fixes
+
+* revert to support vite ssr ([f8e967a](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/f8e967af5adf0a4f77c656a6c91e80f9f794e7b8))
+
+
+
 ## [2.4.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.4.0...v2.4.1) (2024-05-07)
 
 

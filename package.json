@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-public-typescript",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "vite plugin for inject public typescript into html. (Think it as compiled public javascript)",
   "type": "module",
   "keywords": [
