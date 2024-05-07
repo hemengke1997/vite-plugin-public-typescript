@@ -1,3 +1,12 @@
+## [2.4.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.4.0...v2.4.1) (2024-05-07)
+
+
+### Bug Fixes
+
+* repeated watcher initialization ([482a0fe](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/482a0fe428f1c8731cd9e1c8c434be1165d87ea1))
+
+
+
 # [2.4.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.3.0...v2.4.0) (2024-04-26)
 
 
