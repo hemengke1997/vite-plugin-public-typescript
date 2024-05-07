@@ -83,6 +83,7 @@ export async function createServer(root = process.cwd(), isProd = process.env.NO
             attrs: {
               src: manifest.ssr,
             },
+            injectTo: 'body',
           },
         ]
       })

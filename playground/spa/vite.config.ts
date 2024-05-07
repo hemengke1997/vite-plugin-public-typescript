@@ -6,6 +6,9 @@ import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
   base: '/vite-plugin-public-typescript/',
+  server: {
+    port: 3000,
+  },
   define: {
     custom_define: JSON.stringify('custom define!'),
     hello_world: JSON.stringify({ hello: 'world' }),

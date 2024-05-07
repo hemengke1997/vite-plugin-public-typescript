@@ -1,7 +1,7 @@
 import { type DefaultTreeAdapterMap, type ParserError, type Token } from 'parse5'
 import { type HtmlTagDescriptor } from 'vite'
 
-export const VPPT_DATA_ATTR = 'data-vppt'
+export const VPPT_DATA_ATTR = 'data-vite-plugin-public-typescript'
 
 export async function traverseHtml(
   html: string,
