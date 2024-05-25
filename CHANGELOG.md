@@ -1,3 +1,14 @@
+# [3.0.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.4.2...v3.0.0) (2024-05-25)
+
+### Feat
+
+* Support absolute inputDir and cacheDir
+
+### Break Changes
+
+* Remove `sideEffects` option
+
+
 ## [2.4.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.4.1...v2.4.2) (2024-05-07)
 
 
