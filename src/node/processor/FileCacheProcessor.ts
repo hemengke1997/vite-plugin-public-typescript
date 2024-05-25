@@ -2,7 +2,6 @@ import createDebug from 'debug'
 import fs from 'fs-extra'
 import path from 'node:path'
 import colors from 'picocolors'
-import { normalizePath } from 'vite'
 import { globalConfig } from '../global-config'
 import { writeFile } from '../helper/io'
 import { findAllOldJsFile, pkgName } from '../helper/utils'
@@ -23,18 +22,14 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
   async deleteOldJs(args: DeleteFileArgs): Promise<void> {
     const { originFile, compiledFileName = '', silent } = args
 
-    const {
-      outputDir,
-      viteConfig: { publicDir },
-    } = globalConfig.get(['outputDir', 'viteConfig'])
+    const { outputDir } = globalConfig.get(['outputDir', 'viteConfig'])
 
     let oldFiles: string[] = []
     try {
-      fs.ensureDirSync(path.join(publicDir, outputDir))
+      fs.ensureDirSync(outputDir)
       oldFiles = await findAllOldJsFile({
         originFiles: [originFile],
         outputDir,
-        publicDir,
       })
     } catch (error) {
       console.error(colors.red(`[${pkgName}] `), error)
@@ -66,11 +61,8 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
 
   async addNewJs(args: AddFileArgs): Promise<void> {
     const { code = '' } = args
-    const { publicDir } = globalConfig.get('viteConfig')
 
-    const pathToDisk = this.setCache(args, globalConfig.all)
-
-    const jsFilePath = normalizePath(path.join(publicDir, pathToDisk))
+    const jsFilePath = this.setCache(args, globalConfig.all)
 
     fs.ensureDirSync(path.dirname(jsFilePath))
 

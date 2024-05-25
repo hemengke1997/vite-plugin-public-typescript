@@ -2,14 +2,7 @@ import path from 'node:path'
 import { describe, expect, test } from 'vitest'
 import { globalConfig } from '../src/node/global-config'
 import { setEol } from '../src/node/helper/io'
-import {
-  eq,
-  extractHashFromFileName,
-  getContentHash,
-  isPublicTypescript,
-  linebreak,
-  validateOptions,
-} from '../src/node/helper/utils'
+import { eq, extractHashFromFileName, getContentHash, isPublicTypescript, linebreak } from '../src/node/helper/utils'
 
 describe('unit test', () => {
   test('should return true when filePath is a public typescript file', () => {
@@ -79,21 +72,6 @@ describe('unit test', () => {
     const hash2 = extractHashFromFileName('hello.1234', 4)
     expect(hash1).toBe('1234')
     expect(hash2).toBe('1234')
-  })
-
-  test('should validate options success', () => {
-    const opts = {
-      destination: 'file',
-      esbuildOptions: {},
-      hash: true,
-      inputDir: 'public-typescript',
-      manifestName: 'manifest',
-      outputDir: '/',
-      sideEffects: false,
-      cacheDir: 'node_modules/.vite-plugin-public-typescript',
-    } as const
-
-    expect(() => validateOptions(opts)).not.toThrowError()
   })
 })
 

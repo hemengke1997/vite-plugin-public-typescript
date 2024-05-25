@@ -41,7 +41,7 @@ async function handleFileChange(filePath: string, cb?: () => void) {
 export async function initWatcher(cb: (file: HmrFile) => void) {
   try {
     const { default: Watcher } = await import('watcher')
-    const watcher = new Watcher(globalConfig.get('absInputDir'), {
+    const watcher = new Watcher(globalConfig.get('inputDir'), {
       debounce: 200,
       ignoreInitial: true,
       recursive: true,

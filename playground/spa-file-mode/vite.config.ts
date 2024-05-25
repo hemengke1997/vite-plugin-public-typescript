@@ -2,6 +2,8 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
 
+process.env.__Manifest_Path__ = __dirname
+
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
   base: '/vite-plugin-public-typescript/',
@@ -15,9 +17,6 @@ export default defineConfig(() => ({
   plugins: [
     react(),
     publicTypescript({
-      inputDir: 'public-typescript',
-      manifestName: 'manifest',
-      hash: true,
       outputDir: 'out',
       destination: 'file',
       babel: true,

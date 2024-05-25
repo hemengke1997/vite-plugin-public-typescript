@@ -38,18 +38,14 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheMan
 
   private _manifestPath = ''
 
-  private _beforeSet = (value: T | undefined) => {
-    return value
-  }
-
   constructor(options?: ManifestConstructor) {
     options = {
       ...DEFAULT_OPTIONS,
       ...options,
     }
 
-    this._cache = onChange<U>({} as U, (...args) => {
-      debug('cache changed:', this._cache, 'onChange args:', args)
+    this._cache = onChange<U>({} as U, () => {
+      debug('cache changed:')
 
       if (options!.writable) {
         this.writeManifestJSON()
@@ -83,7 +79,7 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheMan
       const cacheV = this.getCacheValueByKey(k)
 
       if (cacheV !== c[k]) {
-        const value = this._beforeSet(c[k]) as U[keyof U]
+        const value = c[k] as U[keyof U]
 
         if (opts?.silent) {
           onChange.target(this._cache)[k] = value
@@ -104,10 +100,6 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheMan
     }
 
     return this
-  }
-
-  set beforeSet(fn: typeof this._beforeSet) {
-    this._beforeSet = fn
   }
 
   getCacheValueByKey(k: keyof U): T {
@@ -158,7 +150,7 @@ export class ManifestCache<T extends CacheValue = CacheValue, U extends CacheMan
 
     writeJsonFile(targetPath, orderdCache)
 
-    debug('write manifest json:', JSON.stringify(orderdCache || {}, null, 2))
+    debug('write manifest json:', JSON.stringify(orderdCache || {}, null, 2), 'to:', targetPath)
 
     return orderdCache
   }

@@ -60,19 +60,18 @@ pnpm add vite-plugin-public-typescript -D
 
 ## 配置项
 
-| 参数            | 类型                                   | 默认值                                        | 描述                                           |
-| --------------- | -------------------------------------- | --------------------------------------------- | ---------------------------------------------- |
-| inputDir        | `string`                               | `public-typescript`                           | 存放需要编译的 `typescript` 的目录             |
-| outputDir       | `string`                               | `/`                                           | 输出公共 javascript 的目录，相对于 `publicDir` |
-| manifestName    | `string`                               | `manifest`                                    | `manifest` 的文件名                            |
-| hash            | `boolean`                              | `true`                                        | 编译后的 `js` 是否生成 `hash `                 |
-| esbuildOptions  | `BuildOptions`                         | `{}`                                          | esbuild 构建选项                               |
-| ~~sideEffects~~ | `boolean`                              | `true`                                        | 是否编译三方库(v2.0.0废弃⚠️)                    |
-| destination     | `string`                               | `memory`                                      | 输出模式：内存模式 \| 文件模式                 |
-| cacheDir        | `string`                               | `node_modules/.vite-plugin-public-typescript` | 存放manifest缓存的目录                         |
-| base            | `string`                               | vite config 中的 `base`                       | 资源 base url                                  |
-| publicDir       | `string`                               | vite config 中的 `publicDir`                  | public目录                                     |
-| babel           | `boolean ｜ ESBuildPluginBabelOptions` | `false`                                       | babel编译（如果需要兼容es6以下浏览器，请开启） |
+| 参数           | 类型                                   | 默认值                                        | 描述                                           |
+| -------------- | -------------------------------------- | --------------------------------------------- | ---------------------------------------------- |
+| inputDir       | `string`                               | `public-typescript`                           | 存放需要编译的 `typescript` 的目录             |
+| publicDir      | `string`                               | vite config 中的 publicDir                    | public 目录                                    |
+| outputDir      | `string`                               | `/`                                           | 输出公共 javascript 的目录，相对于 `publicDir` |
+| esbuildOptions | `BuildOptions`                         | `{}`                                          | esbuild 构建选项                               |
+| babel          | `boolean ｜ ESBuildPluginBabelOptions` | `false`                                       | babel编译（如果需要兼容es6以下浏览器，请开启） |
+| manifestName   | `string`                               | `manifest`                                    | `manifest` 的文件名                            |
+| hash           | `boolean`                              | `true`                                        | 编译后的 `js` 是否生成 `hash`                  |
+| destination    | `string`                               | `memory`                                      | 输出模式：内存模式 \| 文件模式                 |
+| cacheDir       | `string`                               | `node_modules/.vite-plugin-public-typescript` | 存放manifest缓存的目录                         |
+| base           | `string`                               | vite config 中的 `base`                       | 资源 base url                                  |
 
 
 

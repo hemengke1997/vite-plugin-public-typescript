@@ -1,11 +1,12 @@
+import createDebug from 'debug'
+import path from 'node:path'
 import { normalizePath } from 'vite'
 import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
 import { type CacheValueEx } from '../manifest-cache'
-// import createDebug from 'debug'
 import { type ManifestCache } from '../manifest-cache/ManifestCache'
 import { BaseCacheProcessor } from './BaseCacheProcessor'
 
-// const debug = createDebug('vite-plugin-public-typescript:ManifestCacheProcessor ===> ')
+const debug = createDebug('vite-plugin-public-typescript:ManifestCacheProcessor ===> ')
 
 export interface DeleteFileArgs {
   originFile: string
@@ -29,25 +30,41 @@ export abstract class ManifestCacheProcessor extends BaseCacheProcessor<CacheVal
     this.manifestCache = manifestCache
   }
 
-  genCacheItemPath(args: { contentHash: string; originFile: string; outputDir: string; base: string }) {
-    const { contentHash, originFile, outputDir, base } = args
-    const hash = contentHash ? `.${contentHash}` : ''
-    return normalizePath(`${base + outputDir}/${originFile}${hash}.js`)
+  genCacheItemPath(args: { contentHash: string; originFile: string; outputDir: string; base?: string }) {
+    let { contentHash, originFile, outputDir, base } = args
+    contentHash = contentHash ? `.${contentHash}` : ''
+    base = base || ''
+    return normalizePath(`${base}/${outputDir}/${originFile}${contentHash}.js`)
   }
 
   setCache(args: AddFileArgs, config: GlobalConfig) {
     const { contentHash, originFile, code } = args
-    const { outputDir, base } = config
-
-    const pathWithBase = this.genCacheItemPath({ base, contentHash, originFile, outputDir })
+    const { outputDir, base, publicDir } = config
 
     this.manifestCache.set({
       [originFile]: {
-        path: pathWithBase,
+        path: this.genCacheItemPath({
+          base,
+          contentHash,
+          originFile,
+          outputDir: path.relative(publicDir, outputDir),
+        }),
         _code: code || '',
         _hash: contentHash,
+        _pathToDisk: this.genCacheItemPath({
+          contentHash,
+          originFile,
+          outputDir: path.relative(publicDir, outputDir),
+        }),
       },
     })
-    return this.manifestCache.get(originFile)._pathToDisk || ''
+
+    const absFilePath = this.genCacheItemPath({
+      contentHash,
+      originFile,
+      outputDir,
+    })
+    debug('setCache absFilePath:', absFilePath)
+    return absFilePath
   }
 }

@@ -1,8 +1,6 @@
 import fs from 'fs-extra'
-import path from 'node:path'
 import { normalizePath } from 'vite'
-import { globalConfig } from '../global-config'
-import { DEFAULT_OPTIONS } from '../helper/default-options'
+import { resolveOptions } from '../helper/default-options'
 import { readJsonFile, writeJsonFile } from '../helper/io'
 import { isEmptyObject, isInTest } from '../helper/utils'
 import { type CacheValue, ManifestCache } from './ManifestCache'
@@ -15,22 +13,23 @@ export type CacheValueEx = {
 
 export const manifestCache = new ManifestCache<CacheValueEx>()
 
-const ManifestCachePath = normalizePath(`${DEFAULT_OPTIONS.cacheDir}/_manifest_path.json`)
+const ManifestCachePath = '_manifest_path.json'
 
 function getManifestPath(root?: string) {
-  if (isInTest()) {
-    root = process.env.__Manifest_Path__
+  let cacheDir = ''
+  if (isInTest() && process.env.__Manifest_Path__) {
+    // @ts-ignore
+    cacheDir = resolveOptions({ root: process.env.__Manifest_Path__ as string }).cacheDir
+  } else {
+    // @ts-ignore
+    cacheDir = resolveOptions({ root }).cacheDir
   }
-  if (!root) {
-    root = globalConfig.get('viteConfig')?.root || process.cwd()
-  }
-
-  return normalizePath(path.resolve(root, ManifestCachePath))
+  return normalizePath(`${cacheDir}/${ManifestCachePath}`)
 }
 
-export function saveManifestPathToDisk() {
+export function saveManifestPathToDisk(cacheDir: string) {
   // save manifest path to cache dir
-  fs.ensureDir(DEFAULT_OPTIONS.cacheDir)
+  fs.ensureDirSync(cacheDir)
   writeJsonFile(getManifestPath(), {
     manifestPath: manifestCache.manifestPath,
   })

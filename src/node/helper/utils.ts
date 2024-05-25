@@ -3,21 +3,20 @@ import glob from 'fast-glob'
 import fs from 'fs-extra'
 import { createHash } from 'node:crypto'
 import path from 'node:path'
-import colors from 'picocolors'
 import { isCI, isWindows } from 'std-env'
 import { type ResolvedConfig, createLogger, normalizePath } from 'vite'
-import { type VPPTPluginOptions } from '..'
 import { name as pkgName } from '../../../package.json'
 import { globalConfig } from '../global-config'
+import { type VPPTPluginOptions } from '../interface'
 import { manifestCache, saveManifestPathToDisk } from '../manifest-cache'
 import { initCacheProcessor } from '../processor/processor'
 import { disableManifestHmr } from './server'
 
 const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
-type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+// type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export type OptionsTypeWithDefault = PartialBy<Required<VPPTPluginOptions>, 'base' | 'publicDir' | 'sideEffects'>
+export type OptionsTypeWithDefault = Required<VPPTPluginOptions>
 
 export { pkgName }
 
@@ -112,31 +111,6 @@ export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VP
   return createHash('md5').update(chunk).digest('hex').slice(0, Math.max(0, hashLen))
 }
 
-export function validateOptions(options: OptionsTypeWithDefault) {
-  let { outputDir } = options
-  // ensure outputDir is Dir
-  if (!outputDir.startsWith('/')) {
-    outputDir = `/${outputDir}`
-  } else if (outputDir.length > 1 && outputDir.endsWith('/')) {
-    // remove last slash
-    options.outputDir = outputDir.replace(/\/$/, '')
-  }
-  options.outputDir = outputDir
-
-  // ensure inputDir is Dir
-  const { inputDir } = options
-  if (inputDir.endsWith('/')) {
-    // remove last slash
-    options.inputDir = inputDir.replace(/\/$/, '')
-  }
-
-  if (options.sideEffects !== undefined && !isInTest()) {
-    console.warn(
-      colors.yellow(`${colors.bold('(warning!)')} [${pkgName}]: sideEffects option is ${colors.bold('deprecated')}`),
-    )
-  }
-}
-
 // remove slash at the start and end of path
 export function normalizeAssetsDirPath(dir: string) {
   return dir.replaceAll(/^\/|\/$/g, '')
@@ -146,13 +120,13 @@ export function getInputDir(resolvedRoot: string, originInputDir: string, suffix
   return normalizePath(path.resolve(resolvedRoot, `${originInputDir}${suffix}`))
 }
 
-export async function findAllOldJsFile(args: { originFiles: string[]; publicDir: string; outputDir: string }) {
-  const { publicDir, outputDir, originFiles } = args
-  const dir = path.join(publicDir, outputDir)
+export async function findAllOldJsFile(args: { originFiles: string[]; outputDir: string }) {
+  const { outputDir, originFiles } = args
+  const dir = outputDir
   const oldFiles: string[] = []
   if (fs.existsSync(dir)) {
     for (const originFile of originFiles) {
-      const old = await glob(normalizePath(path.join(publicDir, `${outputDir}/${originFile}.?(*.)js`)))
+      const old = await glob(normalizePath(`${outputDir}/${originFile}.?(*.)js`))
       if (old.length > 0) {
         oldFiles.push(...old)
       }
@@ -180,9 +154,6 @@ export function removeBase(filePath: string, base: string): string {
 export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: OptionsTypeWithDefault) {
   const resolvedRoot = normalizePath(viteConfig.root ? path.resolve(viteConfig.root) : process.cwd())
 
-  opts.base = opts.base ?? viteConfig.base
-  opts.publicDir = opts.publicDir ?? viteConfig.publicDir
-
   fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
 
   const originFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*.ts`), {
@@ -207,19 +178,11 @@ export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: Option
 }
 
 export async function setupManifestCache(viteConfig: ResolvedConfig, opts: OptionsTypeWithDefault) {
-  const cacheDir = path.resolve(viteConfig.root, opts.cacheDir)
+  const cacheDir = opts.cacheDir
 
   manifestCache.setManifestPath(`${cacheDir}/${opts.manifestName}.json`)
 
-  saveManifestPathToDisk()
-
-  // no need to set `_pathToDisk` manually anymore
-  manifestCache.beforeSet = (value) => {
-    if (value?.path) {
-      value._pathToDisk = removeBase(value.path, opts.base!)
-    }
-    return value
-  }
+  saveManifestPathToDisk(cacheDir)
 
   disableManifestHmr(viteConfig, manifestCache.manifestPath)
 

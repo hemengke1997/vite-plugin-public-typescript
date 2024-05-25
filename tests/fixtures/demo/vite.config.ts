@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { publicTypescript } from '../../../src/node'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
@@ -10,9 +11,7 @@ export default defineConfig(() => ({
   },
   plugins: [
     publicTypescript({
-      inputDir: 'public-typescript',
-      manifestName: 'manifest',
-      hash: true,
+      inputDir: path.resolve(__dirname, 'public-typescript'),
       outputDir: 'out',
       destination: 'file',
     }),

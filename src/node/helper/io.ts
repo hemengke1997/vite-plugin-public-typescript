@@ -36,9 +36,8 @@ export function readJsonFile(file: string): Record<string, string> {
 
 export function writeFile(filename: string, content: string, hash = true): void {
   const dir = path.dirname(filename)
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
+
+  fs.ensureDirSync(dir)
 
   const newContent = setEol(content)
 

@@ -15,7 +15,7 @@
 
 # vite-plugin-public-typescript
 
-**English** | [中文](./README-zh.md)
+**English** | [中文](./README.zh.md)
 
 > A vite plugin inject typescript script into html
 
@@ -61,17 +61,16 @@ pnpm add vite-plugin-public-typescript -D
 
 | Option           | Type                                   | Default                                       | Description                                                                                 |
 | ---------------- | -------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `inputDir`       | `string`                               | `public-typescript`                           | The directory where the `typescript` is stored                                              |
-| `outputDir`      | `string`                               | `public-typescript`                           | The directory where the `javascript` is stored                                              |
+| `inputDir`       | `string`                               | `public-typescript`                           | Directory of input typescript files                                                         |
+| `publicDir`      | `string`                               | publicDir of vite's config                    | Vite's publicDir                                                                            |
+| `outputDir`      | `string`                               | ''                                            | Directory of output javascript files after building                                         |
+| `esbuildOptions` | `BuildOptions`                         | `{}`                                          | esbuild build options                                                                       |
+| `babel`          | `boolean ｜ ESBuildPluginBabelOptions` | `false`                                       | babel compilation (if you need to be compatible with browsers below es6, please turn it on) |
 | `manifestName`   | `string`                               | `manifest`                                    | The name of the `manifest` file                                                             |
 | `hash`           | `boolean`                              | `true`                                        | Whether the compiled `js` generates `hash`                                                  |
-| `esbuildOptions` | `BuildOptions`                         | `{}`                                          | esbuild build options                                                                       |
-| `sideEffects`    | `boolean`                              | `true`                                        | Whether to compile third-party libraries                                                    |
 | `destination`    | `string`                               | `memory`                                      | Output mode: memory mode \| file mode                                                       |
 | `cacheDir`       | `string`                               | `node_modules/.vite-plugin-public-typescript` | The directory where the `manifest` cache is stored                                          |
 | `base`           | `string`                               | vite config `base`                            | Resource base url                                                                           |
-| `publicDir`      | `string`                               | vite config `publicDir`                       | public directory                                                                            |
-| `babel`          | `boolean ｜ ESBuildPluginBabelOptions` | `false`                                       | babel compilation (if you need to be compatible with browsers below es6, please turn it on) |
 
 ## Usage
 

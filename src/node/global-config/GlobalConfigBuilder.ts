@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { type Logger, type ResolvedConfig, type ViteDevServer } from 'vite'
 import { type OptionsTypeWithDefault } from '../helper/utils'
 import { type CacheValue, type ManifestCache } from '../manifest-cache/ManifestCache'
@@ -13,8 +12,6 @@ export type UserConfig<T extends CacheValue = CacheValue> = {
 } & Required<OptionsTypeWithDefault>
 
 export type GlobalConfig<T extends CacheValue = CacheValue> = UserConfig<T> & {
-  absOutputDir: string
-  absInputDir: string
   viteDevServer?: ViteDevServer
 }
 
@@ -26,14 +23,8 @@ export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
   }
 
   init(c: UserConfig<T>) {
-    const root = c.viteConfig?.root || process.cwd()
-    const absOutputDir = path.join(root, c.outputDir)
-    const absInputDir = path.join(root, c.inputDir)
-
     this._globalConfig = {
       ...c,
-      absInputDir,
-      absOutputDir,
     }
 
     return this

@@ -1,5 +1,5 @@
 import createDebug from 'debug'
-import { type BuildResult, type Plugin } from 'esbuild'
+import { type BuildResult } from 'esbuild'
 import path from 'node:path'
 import colors from 'picocolors'
 import { isDevelopment } from 'std-env'
@@ -11,25 +11,6 @@ import { detectBabelPluginMissing, ensureBabelPluginInstalled, esbuildPluginBabe
 import { transformEnvToDefine } from './define'
 
 const debug = createDebug('vite-plugin-public-typescript:build ===> ')
-
-const _noSideEffectsPlugin: Plugin = {
-  name: 'no-side-effects',
-  setup(build) {
-    // https://github.com/evanw/esbuild/issues/1895#issuecomment-1003404929
-    build.onResolve({ filter: /.*/ }, async (args) => {
-      if (args.pluginData) {
-        return
-      }
-
-      const { path, ...rest } = args
-      rest.pluginData = true
-      const result = await build.resolve(path, rest)
-
-      result.sideEffects = false
-      return result
-    })
-  },
-}
 
 type IBuildOptions = {
   filePath: string
@@ -54,7 +35,6 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
   const define = transformEnvToDefine(viteConfig)
 
-  debug('tsFile:', filePath, 'esbuild define:', define)
   const filename = path.basename(filePath)
 
   let babelTarget: string[] = []

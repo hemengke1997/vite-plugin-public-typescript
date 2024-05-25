@@ -7,7 +7,6 @@ const commonConfig = (option: Options): Options => {
     define: {
       'import.meta.vitest': 'undefined',
     },
-    tsconfig: option.watch ? './tsconfig.dev.json' : './tsconfig.json',
     dts: true,
     minify: false,
     external: [/^virtual:.*/],

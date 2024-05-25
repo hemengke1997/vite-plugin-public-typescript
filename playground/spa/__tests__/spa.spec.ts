@@ -48,9 +48,7 @@ function manifestLike() {
 describe('manifest', () => {
   let manifest: string
   beforeAll(() => {
-    try {
-      manifest = readFile(manifestPath)
-    } catch {}
+    manifest = readFile(manifestPath)
   })
 
   test('should generate manifest', () => {
@@ -76,10 +74,8 @@ describe.skipIf(isServe)('build', () => {
   let jsFiles: string[]
   let manifest: string
   beforeAll(() => {
-    try {
-      manifest = readFile(manifestPath)
-      jsFiles = listFiles('dist/out')
-    } catch {}
+    manifest = readFile(manifestPath)
+    jsFiles = listFiles('dist/out')
   })
 
   test('should generate js assetes after build', () => {
