@@ -1,12 +1,12 @@
-# [3.0.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.4.2...v3.0.0) (2024-05-25)
+## [3.0.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.4.2...v3.0.1) (2024-05-25)
 
-### Feat
 
-* Support absolute inputDir and cacheDir
+### Bug Fixes
 
-### Break Changes
+* remove vite base when write file ([6750d99](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/6750d993f945dde36133aa92a5a5c8516d853123))
+* windows path fix ([4b25d1b](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/4b25d1bf0b93eacb3bc3efa9da5f2badb2c3dae7))
+* windows path fix ([1b9858a](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/1b9858a2985bf02f2db53fa8d4b0762a14e0c395))
 
-* Remove `sideEffects` option
 
 
 ## [2.4.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.4.1...v2.4.2) (2024-05-07)
