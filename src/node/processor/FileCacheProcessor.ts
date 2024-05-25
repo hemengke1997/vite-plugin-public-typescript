@@ -2,6 +2,7 @@ import createDebug from 'debug'
 import fs from 'fs-extra'
 import path from 'node:path'
 import colors from 'picocolors'
+import { normalizePath } from 'vite'
 import { globalConfig } from '../global-config'
 import { writeFile } from '../helper/io'
 import { findAllOldJsFile, pkgName } from '../helper/utils'
@@ -64,7 +65,7 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
 
     const jsFilePath = this.setCache(args, globalConfig.all)
 
-    fs.ensureDirSync(path.dirname(jsFilePath))
+    fs.ensureDirSync(normalizePath(path.dirname(jsFilePath)))
 
     writeFile(jsFilePath, code)
   }
