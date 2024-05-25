@@ -65,7 +65,7 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
 
     const jsFilePath = this.setCache(args, globalConfig.all)
 
-    fs.ensureDir(path.dirname(normalizePath(jsFilePath)))
+    fs.ensureDirSync(normalizePath(path.dirname(path.normalize(jsFilePath))))
 
     writeFile(jsFilePath, code)
   }
