@@ -1,5 +1,5 @@
-import createDebug from 'debug'
 import path from 'node:path'
+import createDebug from 'debug'
 import { normalizePath } from 'vite'
 import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
 import { type CacheValueEx } from '../manifest-cache'
@@ -33,8 +33,8 @@ export abstract class ManifestCacheProcessor extends BaseCacheProcessor<CacheVal
   genCacheItemPath(args: { contentHash: string; originFile: string; outputDir: string; base?: string }) {
     let { contentHash, originFile, outputDir, base } = args
     contentHash = contentHash ? `.${contentHash}` : ''
-    base = base || ''
-    return normalizePath(`${base}/${outputDir}/${originFile}${contentHash}.js`)
+    base = base ? `${base}/` : ''
+    return normalizePath(`${base}${outputDir}/${originFile}${contentHash}.js`)
   }
 
   setCache(args: AddFileArgs, config: GlobalConfig) {
