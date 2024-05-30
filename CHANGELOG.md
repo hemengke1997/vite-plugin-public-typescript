@@ -1,3 +1,12 @@
+## [3.1.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.1.0...v3.1.1) (2024-05-30)
+
+
+### Bug Fixes
+
+* missing options type export ([26378ab](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/26378ab67a82465d7fe725fa15cdfcd07b74c202))
+
+
+
 # [3.1.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v2.4.2...v3.1.0) (2024-05-30)
 
 
