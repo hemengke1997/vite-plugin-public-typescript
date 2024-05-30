@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { type ResolvedConfig, normalizePath } from 'vite'
-import { type VPPTPluginOptions } from '../interface'
+import { type VitePublicTypescriptOptions } from '../interface'
 import { type OptionsTypeWithDefault } from './utils'
 
 function resolve(root?: string, ...args: string[]) {
@@ -9,7 +9,7 @@ function resolve(root?: string, ...args: string[]) {
 
 export function resolveOptions(
   resolvedViteConfig?: ResolvedConfig,
-  options?: VPPTPluginOptions,
+  options?: VitePublicTypescriptOptions,
 ): OptionsTypeWithDefault {
   const publicDir = resolve(resolvedViteConfig?.root, resolvedViteConfig?.publicDir || 'public')
 

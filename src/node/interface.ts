@@ -1,7 +1,7 @@
 import { type BuildOptions } from 'esbuild'
 import { type ESBuildPluginBabelOptions } from './build/babel'
 
-export interface VPPTPluginOptions {
+export interface VitePublicTypescriptOptions {
   /**
    * @description dir of input typescript files
    * @default 'public-typescript'

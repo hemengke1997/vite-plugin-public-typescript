@@ -7,7 +7,7 @@ import { isCI, isWindows } from 'std-env'
 import { type ResolvedConfig, createLogger, normalizePath } from 'vite'
 import { name as pkgName } from '../../../package.json'
 import { globalConfig } from '../global-config'
-import { type VPPTPluginOptions } from '../interface'
+import { type VitePublicTypescriptOptions } from '../interface'
 import { manifestCache, saveManifestPathToDisk } from '../manifest-cache'
 import { initCacheProcessor } from '../processor/processor'
 import { disableManifestHmr } from './server'
@@ -16,7 +16,7 @@ const debug = createDebug('vite-plugin-public-typescript:util ===> ')
 
 // type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export type OptionsTypeWithDefault = Required<VPPTPluginOptions>
+export type OptionsTypeWithDefault = Required<VitePublicTypescriptOptions>
 
 export { pkgName }
 
@@ -89,11 +89,11 @@ const HASH_LEN = 8
 
 export const linebreak = isWindows ? '\r\n' : '\n'
 
-export function getHashLen(hash: VPPTPluginOptions['hash']) {
+export function getHashLen(hash: VitePublicTypescriptOptions['hash']) {
   return typeof hash === 'number' ? hash : HASH_LEN
 }
 
-export function extractHashFromFileName(filename: string, hash: VPPTPluginOptions['hash']) {
+export function extractHashFromFileName(filename: string, hash: VitePublicTypescriptOptions['hash']) {
   const hashLen = getHashLen(hash)
   const regex = new RegExp(`\\.([\\w\\d]{${hashLen}})\\.?`)
   const match = filename.match(regex)
@@ -103,7 +103,7 @@ export function extractHashFromFileName(filename: string, hash: VPPTPluginOption
   return ''
 }
 
-export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VPPTPluginOptions['hash']) {
+export function getContentHash(chunk: string | Uint8Array | undefined, hash?: VitePublicTypescriptOptions['hash']) {
   if (!chunk) {
     return ''
   }

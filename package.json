@@ -50,7 +50,7 @@
     "test:serve": "vitest run -c vitest.config.e2e.ts",
     "test:build": "cross-env VITE_TEST_BUILD=1 vitest run -c vitest.config.e2e.ts",
     "commitlint": "commitlint -e",
-    "lint": "eslint . --fix",
+    "lint": "eslint --fix",
     "up": "taze -I -w",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "bump": "bumpp package.json -c --no-push -t --all -x \"pnpm run changelog\""

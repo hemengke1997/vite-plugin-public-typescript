@@ -18,14 +18,14 @@ import {
   setupGlobalConfig,
   setupManifestCache,
 } from './helper/utils'
-import { type VPPTPluginOptions } from './interface'
+import { type VitePublicTypescriptOptions } from './interface'
 import { getManifest, manifestCache } from './manifest-cache'
 import { pluginServer } from './plugins/server'
 import { pluginVirtual } from './plugins/virtual'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
 
-export default function publicTypescript(options: VPPTPluginOptions = {}) {
+export default function publicTypescript(options: VitePublicTypescriptOptions = {}) {
   debug('user options:', options)
 
   let viteConfig: ResolvedConfig
