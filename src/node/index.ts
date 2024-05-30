@@ -154,5 +154,6 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
 }
 
 export { getManifest } from './manifest-cache'
-export { type ScriptDescriptor, type Scripts, injectScripts, injectScriptsToHtml } from './plugins/inject-script'
+export { type Scripts, injectScripts, injectScriptsToHtml } from './plugins/inject-script'
 export { publicTypescript }
+export { type VitePublicTypescriptOptions }
