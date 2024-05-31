@@ -1,3 +1,12 @@
+# [3.2.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.1.1...v3.2.0) (2024-05-31)
+
+
+### Features
+
+* path-like option support relative/absolute ([24a2607](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/24a2607210a1e51bbfdae4dfb1daa80143a07619))
+
+
+
 ## [3.1.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.1.0...v3.1.1) (2024-05-30)
 
 
