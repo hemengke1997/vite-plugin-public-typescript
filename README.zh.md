@@ -64,7 +64,7 @@ pnpm add vite-plugin-public-typescript -D
 | -------------- | -------------------------------------- | --------------------------------------------- | ---------------------------------------------- |
 | inputDir       | `string`                               | `public-typescript`                           | 存放需要编译的 `typescript` 的目录             |
 | publicDir      | `string`                               | vite config 中的 publicDir                    | public 目录                                    |
-| outputDir      | `string`                               | `/`                                           | 输出公共 javascript 的目录，相对于 `publicDir` |
+| outputDir      | `string`                               | ''                                            | 输出公共 javascript 的目录，相对于 `publicDir` |
 | esbuildOptions | `BuildOptions`                         | `{}`                                          | esbuild 构建选项                               |
 | babel          | `boolean ｜ ESBuildPluginBabelOptions` | `false`                                       | babel编译（如果需要兼容es6以下浏览器，请开启） |
 | manifestName   | `string`                               | `manifest`                                    | `manifest` 的文件名                            |

@@ -11,12 +11,13 @@ export function resolveOptions(
   resolvedViteConfig?: ResolvedConfig,
   options?: VitePublicTypescriptOptions,
 ): OptionsTypeWithDefault {
-  const publicDir = resolve(resolvedViteConfig?.root, resolvedViteConfig?.publicDir || 'public')
+  const publicDir = options?.publicDir
+    ? resolve(resolvedViteConfig?.root, options?.publicDir)
+    : resolvedViteConfig?.publicDir || resolve(resolvedViteConfig?.root, 'public')
 
   return {
     inputDir: resolve(resolvedViteConfig?.root, options?.inputDir || 'public-typescript'),
     // 相对于 publicDir
-    // 用户也可以自定义输出目录, e.g. outputDir: 'out/js'
     outputDir: resolve(publicDir, options?.outputDir || ''),
     esbuildOptions: options?.esbuildOptions ?? {},
     babel: options?.babel ?? false,

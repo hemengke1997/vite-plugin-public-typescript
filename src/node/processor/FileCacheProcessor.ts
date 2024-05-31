@@ -23,11 +23,11 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
   async deleteOldJs(args: DeleteFileArgs): Promise<void> {
     const { originFile, compiledFileName = '', silent } = args
 
-    const { outputDir } = globalConfig.get(['outputDir', 'viteConfig'])
+    const { outputDir } = globalConfig.get(['outputDir'])
 
     let oldFiles: string[] = []
+    fs.ensureDirSync(outputDir)
     try {
-      fs.ensureDirSync(outputDir)
       oldFiles = await findAllOldJsFile({
         originFiles: [originFile],
         outputDir,
@@ -62,12 +62,14 @@ export class FileCacheProcessor extends ManifestCacheProcessor {
 
   async addNewJs(args: AddFileArgs): Promise<void> {
     const { code = '' } = args
+    const { publicDir } = globalConfig.get('viteConfig')
 
-    const jsFilePath = this.setCache(args, globalConfig.all)
+    const pathToDisk = this.setCache(args, globalConfig.all)
+    const jsFilePath = normalizePath(path.join(publicDir, pathToDisk))
 
-    if (!fs.existsSync(jsFilePath)) {
-      fs.ensureFileSync(normalizePath(jsFilePath))
-    }
+    if (!jsFilePath) return
+
+    fs.ensureDirSync(path.dirname(jsFilePath))
 
     writeFile(jsFilePath, code)
   }

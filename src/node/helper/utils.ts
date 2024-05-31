@@ -39,20 +39,16 @@ export function isInTest() {
   return process.env.VITEST || isCI
 }
 
-export function isPublicTypescript(args: { filePath: string; inputDir: string; root: string }) {
-  const { filePath, root, inputDir } = args
+export function isPublicTypescript(args: { filePath: string; inputDir: string }) {
+  const { filePath, inputDir } = args
 
-  return (
-    path.extname(filePath) === '.ts' &&
-    normalizePath(path.resolve(root, inputDir)).endsWith(normalizePath(path.dirname(filePath)))
-  )
+  return path.extname(filePath) === '.ts' && normalizePath(inputDir).endsWith(normalizePath(path.dirname(filePath)))
 }
 
 export function _isPublicTypescript(filePath: string) {
   return isPublicTypescript({
     filePath,
     inputDir: globalConfig.get('inputDir'),
-    root: globalConfig.get('viteConfig')!.root,
   })
 }
 
@@ -117,14 +113,13 @@ export function normalizeAssetsDirPath(dir: string) {
 }
 
 export function getInputDir(resolvedRoot: string, originInputDir: string, suffix = '') {
-  return normalizePath(path.resolve(resolvedRoot, `${originInputDir}${suffix}`))
+  return normalizePath(path.join(resolvedRoot, `${originInputDir}${suffix}`))
 }
 
 export async function findAllOldJsFile(args: { originFiles: string[]; outputDir: string }) {
   const { outputDir, originFiles } = args
-  const dir = outputDir
   const oldFiles: string[] = []
-  if (fs.existsSync(dir)) {
+  if (fs.existsSync(outputDir)) {
     for (const originFile of originFiles) {
       const old = await glob(normalizePath(`${outputDir}/${originFile}.?(*.)js`))
       if (old.length > 0) {
@@ -145,20 +140,12 @@ export function removeOldJsFiles(oldFiles: string[]) {
   }
 }
 
-// NOTE: remmember call this before write compiled js file to disk
-export function removeBase(filePath: string, base: string): string {
-  const devBase = base.at(-1) === '/' ? base : `${base}/`
-  return filePath.startsWith(devBase) ? filePath.slice(devBase.length - 1) : filePath
-}
-
 export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: OptionsTypeWithDefault) {
-  const resolvedRoot = normalizePath(viteConfig.root ? path.resolve(viteConfig.root) : process.cwd())
+  fs.ensureDirSync(opts.inputDir)
 
-  fs.ensureDirSync(getInputDir(resolvedRoot, opts.inputDir))
-
-  const originFilesGlob = await glob(getInputDir(resolvedRoot, opts.inputDir, `/*.ts`), {
+  const originFilesGlob = await glob('*.ts', {
     absolute: true,
-    cwd: resolvedRoot,
+    cwd: opts.inputDir,
   })
 
   const cacheProcessor = initCacheProcessor(opts, manifestCache)

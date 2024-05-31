@@ -1,5 +1,4 @@
 import createDebug from 'debug'
-import path from 'node:path'
 import { normalizePath } from 'vite'
 import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
 import { type CacheValueEx } from '../manifest-cache'
@@ -24,6 +23,11 @@ export interface AddFileArgs {
   code?: string
 }
 
+function removeBase(filePath: string, base: string): string {
+  const devBase = base.at(-1) === '/' ? base : `${base}/`
+  return filePath.startsWith(devBase) ? filePath.slice(devBase.length - 1) : filePath
+}
+
 export abstract class ManifestCacheProcessor extends BaseCacheProcessor<CacheValueEx> {
   constructor(manifestCache: ManifestCache<CacheValueEx>) {
     super(manifestCache)
@@ -41,30 +45,27 @@ export abstract class ManifestCacheProcessor extends BaseCacheProcessor<CacheVal
     const { contentHash, originFile, code } = args
     const { outputDir, base, publicDir } = config
 
+    // 用户输入的outputDir
+    const outputDirRelativePublicDir = normalizePath(outputDir.slice(publicDir.length))
+
+    const pathWithBase = this.genCacheItemPath({
+      base,
+      contentHash,
+      originFile,
+      outputDir: outputDirRelativePublicDir,
+    })
+
     this.manifestCache.set({
       [originFile]: {
-        path: this.genCacheItemPath({
-          base,
-          contentHash,
-          originFile,
-          outputDir: path.relative(publicDir, outputDir),
-        }),
+        path: pathWithBase,
         _code: code || '',
         _hash: contentHash,
-        _pathToDisk: this.genCacheItemPath({
-          contentHash,
-          originFile,
-          outputDir: path.relative(publicDir, outputDir),
-        }),
+        _pathToDisk: removeBase(pathWithBase, base),
       },
     })
 
-    const absFilePath = this.genCacheItemPath({
-      contentHash,
-      originFile,
-      outputDir,
-    })
-    debug('setCache absFilePath:', absFilePath)
-    return absFilePath
+    const pathToDisk = this.manifestCache.get(originFile)._pathToDisk
+    debug('setCache absFilePath:', pathToDisk)
+    return pathToDisk!
   }
 }

@@ -3,16 +3,13 @@ import { type OptionsTypeWithDefault } from '../helper/utils'
 import { type CacheValue, type ManifestCache } from '../manifest-cache/ManifestCache'
 import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
 
-export type UserConfig<T extends CacheValue = CacheValue> = {
+export type GlobalConfig<T extends CacheValue = CacheValue> = Required<OptionsTypeWithDefault> & {
+  viteDevServer?: ViteDevServer
   manifestCache: ManifestCache<T>
   originFilesGlob: string[]
   viteConfig: ResolvedConfig
   cacheProcessor: BaseCacheProcessor<T>
   logger: Logger
-} & Required<OptionsTypeWithDefault>
-
-export type GlobalConfig<T extends CacheValue = CacheValue> = UserConfig<T> & {
-  viteDevServer?: ViteDevServer
 }
 
 export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
@@ -22,7 +19,7 @@ export class GlobalConfigBuilder<T extends CacheValue = CacheValue> {
     this._globalConfig = {} as GlobalConfig<T>
   }
 
-  init(c: UserConfig<T>) {
+  init(c: GlobalConfig<T>) {
     this._globalConfig = {
       ...c,
     }
