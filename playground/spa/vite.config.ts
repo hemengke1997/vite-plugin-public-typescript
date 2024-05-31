@@ -18,7 +18,7 @@ export default defineConfig(() => ({
   plugins: [
     react(),
     publicTypescript({
-      outputDir: '/out',
+      outputDir: 'out',
       destination: 'memory',
       babel: true,
     }),

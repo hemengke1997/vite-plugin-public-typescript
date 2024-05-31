@@ -6,17 +6,15 @@ import { eq, extractHashFromFileName, getContentHash, isPublicTypescript, linebr
 
 describe('unit test', () => {
   test('should return true when filePath is a public typescript file', () => {
-    const filePath = 'src/foo/bar.ts'
-    const root = 'src'
-    const inputDir = 'foo'
-    expect(isPublicTypescript({ filePath, inputDir, root })).toBe(true)
+    const filePath = '/src/foo/bar.ts'
+    const inputDir = '/src/foo'
+    expect(isPublicTypescript({ filePath, inputDir })).toBe(true)
   })
 
   test('should return false when filePath is not a public typescript file', () => {
-    const filePath = 'src/foo/bar.js'
-    const root = 'src'
-    const inputDir = 'foo'
-    expect(isPublicTypescript({ filePath, inputDir, root })).toBe(false)
+    const filePath = '/src/foo/bar.js'
+    const inputDir = '/src/foo'
+    expect(isPublicTypescript({ filePath, inputDir })).toBe(false)
   })
 
   test('should be typescript file', () => {
@@ -24,15 +22,13 @@ describe('unit test', () => {
     const tsFile = 'hello.ts'
     const otherFile = 'hello.js'
     const res1 = isPublicTypescript({
-      filePath: path.resolve(root, `public-typescript/${tsFile}`),
-      inputDir: 'public-typescript',
-      root,
+      filePath: path.join(root, `public-typescript/${tsFile}`),
+      inputDir: path.join(root, 'public-typescript'),
     })
 
     const res2 = isPublicTypescript({
       filePath: path.resolve(root, `public-typescript/${otherFile}`),
-      inputDir: 'public-typescript',
-      root,
+      inputDir: path.join(root, 'public-typescript'),
     })
 
     expect(res1).toBe(true)
