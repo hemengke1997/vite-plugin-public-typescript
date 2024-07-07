@@ -74,6 +74,9 @@ pnpm add vite-plugin-public-typescript -D
 
 ## Usage
 
+Note: The default value of 'inputDir' in 'publicTypescript' is' public-typescript ', you can also reconfigure this property.
+Then you need to create a folder with the same name in the same directory as' vite.config.ts' and create a '.ts' file inside it
+
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite'
@@ -81,10 +84,12 @@ import { publicTypescript } from 'vite-plugin-public-typescript'
 
 export default defineConfig({
   plugins: [
+    // If you use the default configuration, the source code location 'inputDir' defaults to 'public-typescript'
     publicTypescript(),
     injectScripts((manifest) => [
       {
         attrs: {
+          // The file name in the directory, for example, test.ts --> manifest.test
           src: manifest.someScript,
         },
         injectTo: 'head',

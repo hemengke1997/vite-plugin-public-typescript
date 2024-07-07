@@ -77,6 +77,9 @@ pnpm add vite-plugin-public-typescript -D
 
 ## 用法
 
+注意: `publicTypescript` 中 `inputDir` 默认值为 `public-typescript`，你也可以重新配置该属性。
+之后你需要在与 `vite.config.ts` 同级目录下中创建同名文件夹, 在里面创建 `.ts` 文件 
+
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite'
@@ -84,10 +87,12 @@ import { injectScripts, publicTypescript } from 'vite-plugin-public-typescript'
 
 export default defineConfig({
   plugins: [
+    // 如果使用默认配置, 则存放源代码的位置 `inputDir` 默认为 `public-typescript`
     publicTypescript(),
     injectScripts((manifest) => [
       {
         attrs: {
+          // 目录下的文件名, 例如: test.ts -->  manifest.test
           src: manifest.someScript,
         },
         injectTo: 'head',
