@@ -4,7 +4,7 @@ import { globalConfig } from '../global-config'
 import { fileRelativeRootPath, isInTest } from './utils'
 
 export function addCodeHeader(code: string) {
-  return `// Generated via vite-plugin-public-typescript (This line print in serve mode only)\n${code}`
+  return `// Generated via vite-plugin-public-typescript (This line is printed in serve mode only)\n${code}`
 }
 
 export type HmrFile = {

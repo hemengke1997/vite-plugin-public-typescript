@@ -1,9 +1,9 @@
 import { type OptionsTypeWithDefault } from '../helper/utils'
 import { type CacheValueEx } from '../manifest-cache'
-import { type ManifestCache } from '../manifest-cache/ManifestCache'
-import { FileCacheProcessor } from './FileCacheProcessor'
-import { type ManifestCacheProcessor } from './ManifestCacheProcessor'
-import { MemoryCacheProcessor } from './MemoryCacheProcessor'
+import { type ManifestCache } from '../manifest-cache/manifest-cache'
+import { FileCacheProcessor } from './file-cache-processor'
+import { type ManifestCacheProcessor } from './manifest-cache-processor'
+import { MemoryCacheProcessor } from './memory-cache-processor'
 
 export function initCacheProcessor(options: OptionsTypeWithDefault, manifestCache: ManifestCache<CacheValueEx>) {
   const { destination } = options

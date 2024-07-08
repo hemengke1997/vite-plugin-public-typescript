@@ -1,7 +1,7 @@
 import { type Logger, type ResolvedConfig, type ViteDevServer } from 'vite'
 import { type OptionsTypeWithDefault } from '../helper/utils'
-import { type CacheValue, type ManifestCache } from '../manifest-cache/ManifestCache'
-import { type BaseCacheProcessor } from '../processor/BaseCacheProcessor'
+import { type CacheValue, type ManifestCache } from '../manifest-cache/manifest-cache'
+import { type BaseCacheProcessor } from '../processor/base-cache-processor'
 
 export type GlobalConfig<T extends CacheValue = CacheValue> = Required<OptionsTypeWithDefault> & {
   viteDevServer?: ViteDevServer

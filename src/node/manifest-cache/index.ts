@@ -3,7 +3,7 @@ import { normalizePath } from 'vite'
 import { resolveOptions } from '../helper/default-options'
 import { readJsonFile, writeJsonFile } from '../helper/io'
 import { isEmptyObject, isInTest } from '../helper/utils'
-import { type CacheValue, ManifestCache } from './ManifestCache'
+import { type CacheValue, ManifestCache } from './manifest-cache'
 
 export type CacheValueEx = {
   _code?: string
