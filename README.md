@@ -101,10 +101,20 @@ export default defineConfig({
 
 ### get manifest in client
 
+Note: The code here can only be used in the project code, not in 'vite.config.ts' and other build time code, because it is generated after the build
+
 ```ts
 import { manifest } from 'vite-plugin-public-typescript/client'
 
 console.log(manifest)
+```
+
+If you need to get the 'manifest' at build time, such as custom implementation of your own vite plugin 'injectScript', use the following code
+
+```ts
+import { getManifest } from 'vite-plugin-public-typescript';
+
+console.log(getManifest())
 ```
 
 ### SPA

@@ -102,7 +102,9 @@ export default defineConfig({
 })
 ```
 
-### 获取manifest
+### 获取 manifest
+
+注意：这里的代码只能是在项目代码中使用, 不能在 `vite.config.ts` 以及其他构建时代码中使用, 因为他是在构建之后生成的 
 
 ```ts
 import { manifest } from 'vite-plugin-public-typescript/client'
@@ -110,6 +112,13 @@ import { manifest } from 'vite-plugin-public-typescript/client'
 console.log(manifest)
 ```
 
+如果需要在构建时获取到 `manifest`, 例如自定义实现自己的 vite 插件 `injectScript`, 请使用下面的代码
+
+```ts
+import { getManifest } from 'vite-plugin-public-typescript';
+
+console.log(getManifest())
+```
 
 ### SPA
 
