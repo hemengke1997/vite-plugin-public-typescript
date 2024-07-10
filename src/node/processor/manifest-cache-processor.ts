@@ -1,9 +1,9 @@
 import createDebug from 'debug'
 import { normalizePath } from 'vite'
-import { type GlobalConfig } from '../global-config/GlobalConfigBuilder'
+import { type GlobalConfig } from '../global-config/global-config-builder'
 import { type CacheValueEx } from '../manifest-cache'
-import { type ManifestCache } from '../manifest-cache/ManifestCache'
-import { BaseCacheProcessor } from './BaseCacheProcessor'
+import { type ManifestCache } from '../manifest-cache/manifest-cache'
+import { BaseCacheProcessor } from './base-cache-processor'
 
 const debug = createDebug('vite-plugin-public-typescript:ManifestCacheProcessor ===> ')
 

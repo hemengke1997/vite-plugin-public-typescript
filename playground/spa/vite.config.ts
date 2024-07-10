@@ -40,7 +40,7 @@ export default defineConfig(() => ({
         injectTo: 'head-prepend',
       },
     ]),
-    legacy(),
+    legacy({ renderLegacyChunks: true, renderModernChunks: true }),
   ],
   clearScreen: false,
 }))

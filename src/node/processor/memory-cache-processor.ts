@@ -1,7 +1,7 @@
 import { globalConfig } from '../global-config'
 import { type CacheValueEx } from '../manifest-cache'
-import { type ManifestCache } from '../manifest-cache/ManifestCache'
-import { type AddFileArgs, type DeleteFileArgs, ManifestCacheProcessor } from './ManifestCacheProcessor'
+import { type ManifestCache } from '../manifest-cache/manifest-cache'
+import { type AddFileArgs, type DeleteFileArgs, ManifestCacheProcessor } from './manifest-cache-processor'
 
 export class MemoryCacheProcessor extends ManifestCacheProcessor {
   constructor(manifestCache: ManifestCache<CacheValueEx>) {

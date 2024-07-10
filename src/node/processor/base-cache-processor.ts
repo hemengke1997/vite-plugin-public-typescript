@@ -1,5 +1,5 @@
 import createDebug from 'debug'
-import { type CacheValue, type ManifestCache } from '../manifest-cache/ManifestCache'
+import { type CacheValue, type ManifestCache } from '../manifest-cache/manifest-cache'
 
 const debug = createDebug('vite-plugin-public-typescript:BaseCacheProcessor ===> ')
 
