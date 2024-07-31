@@ -1,3 +1,12 @@
+## [3.2.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.2.0...v3.2.1) (2024-07-31)
+
+
+### Bug Fixes
+
+* duplicate watcher, virtual module hmr ([9ec4d8c](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/9ec4d8c077b6d5e4bac9317ddb6b226364f154a0))
+
+
+
 # [3.2.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.1.1...v3.2.0) (2024-05-31)
 
 
