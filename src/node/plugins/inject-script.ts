@@ -1,12 +1,12 @@
 import { type HtmlTagDescriptor, type PluginOption } from 'vite'
 import { VPPT_DATA_ATTR, injectTagsToHtml } from '../helper/html'
-import { getManifest } from '../manifest-cache'
+import { getManifestInNode } from '../manifest-cache'
 
 export type ScriptDescriptor = Omit<HtmlTagDescriptor, 'tag'>[]
-export type Scripts = (manifest: Record<string, string>) => ScriptDescriptor
+export type ManifestScriptsFn = (manifest: Record<string, string>) => ScriptDescriptor
 
-function generateScriptTags(scripts: Scripts) {
-  const _scripts = scripts(getManifest()) || []
+function generateScriptTags(scripts: ManifestScriptsFn) {
+  const _scripts = scripts(getManifestInNode()) || []
   const tags: HtmlTagDescriptor[] = _scripts.map((s) => ({
     ...s,
     attrs: {
@@ -19,11 +19,11 @@ function generateScriptTags(scripts: Scripts) {
   return tags
 }
 
-export function injectScriptsToHtml(html: string, scripts: Scripts) {
+export function injectScriptsToHtml(html: string, scripts: ManifestScriptsFn) {
   return injectTagsToHtml(html, generateScriptTags(scripts))
 }
 
-export function injectScripts(scripts: Scripts) {
+export function injectScripts(scripts: ManifestScriptsFn) {
   const plugin: PluginOption = {
     name: 'vite:public-typescript:inject-script',
     enforce: 'post',

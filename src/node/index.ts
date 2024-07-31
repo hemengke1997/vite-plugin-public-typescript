@@ -1,7 +1,8 @@
+import type Watcher from 'watcher'
 import createDebug from 'debug'
 import fs from 'fs-extra'
 import path from 'node:path'
-import { type PluginOption, type ResolvedConfig } from 'vite'
+import { type PluginOption, type ResolvedConfig, type ViteDevServer } from 'vite'
 import { buildAllOnce } from './build'
 import { globalConfig } from './global-config'
 import { resolveOptions } from './helper/default-options'
@@ -18,17 +19,21 @@ import {
   setupGlobalConfig,
   setupManifestCache,
 } from './helper/utils'
+import { resolvedVirtualModuleId } from './helper/virtual'
 import { type VitePublicTypescriptOptions } from './interface'
-import { getManifest, manifestCache } from './manifest-cache'
+import { getManifestInNode, manifestCache } from './manifest-cache'
 import { pluginServer } from './plugins/server'
 import { pluginVirtual } from './plugins/virtual'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
 
+let wathcer: Watcher | undefined
+
 export default function publicTypescript(options: VitePublicTypescriptOptions = {}) {
   debug('user options:', options)
 
   let viteConfig: ResolvedConfig
+  let server: ViteDevServer
 
   let opts = {
     ...options,
@@ -48,12 +53,17 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
         await setupGlobalConfig(viteConfig, opts)
         await setupManifestCache(viteConfig, opts)
       },
-      async configureServer(server) {
+      async configureServer(_server) {
+        server = _server
         const { ws } = server
 
         globalConfig.set('viteDevServer', server)
 
-        const wathcer = await initWatcher((file) => reloadPage(ws, file))
+        if (wathcer) {
+          wathcer.close()
+        }
+
+        wathcer = await initWatcher((file) => reloadPage(ws, file))
         server.httpServer?.addListener('close', () => {
           wathcer?.close()
         })
@@ -65,7 +75,7 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
 
         fs.ensureFileSync(manifestPath)
 
-        const parsedCacheJson = getManifest()
+        const parsedCacheJson = getManifestInNode()
 
         debug('buildStart - parsedCacheJson:', parsedCacheJson)
 
@@ -137,10 +147,15 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
       },
       async handleHotUpdate(ctx) {
         const { file } = ctx
-
+        const { moduleGraph } = server
+        moduleGraph.onFileChange(resolvedVirtualModuleId)
+        const module = moduleGraph.getModuleById(resolvedVirtualModuleId)
+        // virtual module hmr
+        if (module) {
+          moduleGraph.invalidateModule(module)
+        }
         if (_isPublicTypescript(file) || isManifestFile(file)) {
           debug('hmr disabled:', file)
-
           return []
         }
       },
@@ -153,7 +168,12 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
   return plugins as any
 }
 
-export { getManifest } from './manifest-cache'
-export { type Scripts, type ScriptDescriptor, injectScripts, injectScriptsToHtml } from './plugins/inject-script'
+export { getManifestInNode } from './manifest-cache'
+export {
+  type ManifestScriptsFn,
+  type ScriptDescriptor,
+  injectScripts,
+  injectScriptsToHtml,
+} from './plugins/inject-script'
 export { publicTypescript }
 export { type VitePublicTypescriptOptions }

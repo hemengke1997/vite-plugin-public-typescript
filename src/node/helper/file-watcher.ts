@@ -1,3 +1,4 @@
+import debounce from 'debounce'
 import createDebug from 'debug'
 import path from 'node:path'
 import colors from 'picocolors'
@@ -38,6 +39,10 @@ async function handleFileChange(filePath: string, cb?: () => void) {
   handleFileAdded(filePath, cb)
 }
 
+function debounced(fn: () => void) {
+  debounce(fn, 200, { immediate: true })()
+}
+
 export async function initWatcher(cb: (file: HmrFile) => void) {
   try {
     const { default: Watcher } = await import('watcher')
@@ -49,16 +54,20 @@ export async function initWatcher(cb: (file: HmrFile) => void) {
       renameTimeout: 100,
     })
 
-    watcher.on('unlink', (filePath: string) => handleUnlink(filePath, () => cb({ path: filePath, event: 'deleted' })))
+    watcher.on('unlink', (filePath: string) =>
+      debounced(() => handleUnlink(filePath, () => cb({ path: filePath, event: 'deleted' }))),
+    )
 
-    watcher.on('add', (filePath: string) => handleFileAdded(filePath, () => cb({ path: filePath, event: 'added' })))
+    watcher.on('add', (filePath: string) =>
+      debounced(() => handleFileAdded(filePath, () => cb({ path: filePath, event: 'added' }))),
+    )
 
     watcher.on('rename', async (f: string, fNext: string) => {
-      handleFileRenamed(f, fNext, () => cb({ path: fNext, event: `renamed` }))
+      debounced(() => handleFileRenamed(f, fNext, () => cb({ path: fNext, event: `renamed` })))
     })
 
     watcher.on('change', (filePath: string) => {
-      handleFileChange(filePath, () => cb({ path: filePath, event: 'changed' }))
+      debounced(() => handleFileChange(filePath, () => cb({ path: filePath, event: 'changed' })))
     })
 
     return watcher

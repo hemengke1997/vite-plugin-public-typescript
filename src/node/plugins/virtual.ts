@@ -1,6 +1,6 @@
 import { type PluginOption } from 'vite'
 import { resolvedVirtualModuleId, virtualModuleId } from '../helper/virtual'
-import { getManifest } from '../manifest-cache'
+import { getManifestInNode } from '../manifest-cache'
 
 export function pluginVirtual(): PluginOption {
   const plugin: PluginOption = {
@@ -18,7 +18,7 @@ export function pluginVirtual(): PluginOption {
     },
     async load(id) {
       if (id === resolvedVirtualModuleId) {
-        return `export default ${JSON.stringify(getManifest())}`
+        return `export default ${JSON.stringify(getManifestInNode())}`
       }
     },
   }

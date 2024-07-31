@@ -35,7 +35,7 @@ export function saveManifestPathToDisk(cacheDir: string) {
   })
 }
 
-export function getManifest(root?: string): Record<string, string> {
+export function getManifestInNode(root?: string): Record<string, string> {
   if (!isEmptyObject(manifestCache.getManifestJson())) {
     return manifestCache.getManifestJson()
   }
