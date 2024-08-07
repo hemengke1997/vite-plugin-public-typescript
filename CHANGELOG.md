@@ -1,3 +1,12 @@
+## [3.2.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.2.1...v3.2.2) (2024-08-07)
+
+
+### Bug Fixes
+
+* close watcher on bundle closed ([2209690](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/2209690c2a2bd59e77e9ce7da23d87721d5b98a5))
+
+
+
 ## [3.2.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.2.0...v3.2.1) (2024-07-31)
 
 
