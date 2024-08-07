@@ -2,7 +2,7 @@ import type Watcher from 'watcher'
 import createDebug from 'debug'
 import fs from 'fs-extra'
 import path from 'node:path'
-import { type PluginOption, type ResolvedConfig, type ViteDevServer } from 'vite'
+import { type ConfigEnv, type PluginOption, type ResolvedConfig, type ViteDevServer } from 'vite'
 import { buildAllOnce } from './build'
 import { globalConfig } from './global-config'
 import { resolveOptions } from './helper/default-options'
@@ -33,6 +33,8 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
   debug('user options:', options)
 
   let viteConfig: ResolvedConfig
+  let viteConfigEnv: ConfigEnv
+
   let server: ViteDevServer
 
   let opts = {
@@ -43,8 +45,11 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
     {
       name: 'vite:public-typescript',
       enforce: 'post',
-      async configResolved(c) {
-        viteConfig = c
+      config(_, _viteConfigEnv) {
+        viteConfigEnv = _viteConfigEnv
+      },
+      async configResolved(_viteConfig) {
+        viteConfig = _viteConfig
 
         opts = resolveOptions(viteConfig, opts)
 
@@ -54,15 +59,13 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
         await setupManifestCache(viteConfig, opts)
       },
       async configureServer(_server) {
+        if (viteConfigEnv.command === 'build') return
         server = _server
         const { ws } = server
-
         globalConfig.set('viteDevServer', server)
-
         if (wathcer) {
           wathcer.close()
         }
-
         wathcer = await initWatcher((file) => reloadPage(ws, file))
         server.httpServer?.addListener('close', () => {
           wathcer?.close()
@@ -145,10 +148,12 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
           })
         }
       },
+      closeBundle() {
+        server?.httpServer?.close()
+      },
       async handleHotUpdate(ctx) {
         const { file } = ctx
         const { moduleGraph } = server
-        moduleGraph.onFileChange(resolvedVirtualModuleId)
         const module = moduleGraph.getModuleById(resolvedVirtualModuleId)
         // virtual module hmr
         if (module) {
