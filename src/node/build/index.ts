@@ -45,8 +45,8 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
     if (!babelTarget.length) {
       esbuildTarget = [DEFAULT_ESBUILD_TARGET]
     } else {
-      const { resolveToEsbuildTarget } = await import('esbuild-plugin-browserslist')
-      esbuildTarget = resolveToEsbuildTarget(browserslist(babelTarget), { printUnknownTargets: false })
+      const { default: browserslistToEsbuild } = await import('browserslist-to-esbuild')
+      esbuildTarget = browserslistToEsbuild(babelTarget)
     }
   }
 

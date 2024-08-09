@@ -10,11 +10,11 @@ import { initWatcher } from './helper/file-watcher'
 import { reloadPage } from './helper/server'
 import {
   _isPublicTypescript,
-  type OptionsTypeWithDefault,
   findAllOldJsFile,
   isEmptyObject,
   isManifestFile,
   normalizeAssetsDirPath,
+  type OptionsTypeWithDefault,
   removeOldJsFiles,
   setupGlobalConfig,
   setupManifestCache,

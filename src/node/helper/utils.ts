@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { isCI, isWindows } from 'std-env'
-import { type ResolvedConfig, createLogger, normalizePath } from 'vite'
+import { createLogger, normalizePath, type ResolvedConfig } from 'vite'
 import { name as pkgName } from '../../../package.json'
 import { globalConfig } from '../global-config'
 import { type VitePublicTypescriptOptions } from '../interface'
@@ -56,7 +56,7 @@ export function isManifestFile(filePath: string) {
   return filePath === manifestCache.manifestPath
 }
 
-export function isObject(o: unknown): o is Object {
+export function isObject(o: unknown): o is object {
   return Object.prototype.toString.call(o) === '[object Object]'
 }
 

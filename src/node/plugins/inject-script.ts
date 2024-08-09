@@ -1,5 +1,5 @@
 import { type HtmlTagDescriptor, type PluginOption } from 'vite'
-import { VPPT_DATA_ATTR, injectTagsToHtml } from '../helper/html'
+import { injectTagsToHtml, VPPT_DATA_ATTR } from '../helper/html'
 import { getManifestInNode } from '../manifest-cache'
 
 export type ScriptDescriptor = Omit<HtmlTagDescriptor, 'tag'>[]

@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { type InlineConfig, type ResolvedConfig, resolveConfig } from 'vite'
+import { type InlineConfig, resolveConfig, type ResolvedConfig } from 'vite'
 import { beforeEach } from 'vitest'
 import { type GlobalConfig } from '../src/node/global-config/global-config-builder'
 import { resolveOptions } from '../src/node/helper/default-options'
