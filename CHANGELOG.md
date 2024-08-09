@@ -1,3 +1,12 @@
+## [3.2.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.2.2...v3.2.3) (2024-08-09)
+
+
+### Bug Fixes
+
+* replace `esbuild-plugin-browserslist` with `browserslist-to-esbuild` ([53bf299](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/53bf2995051201f15744b4330fac6b14e4cb989b))
+
+
+
 ## [3.2.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.2.1...v3.2.2) (2024-08-07)
 
 
