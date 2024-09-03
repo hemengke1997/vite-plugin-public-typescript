@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useState } from 'react'
-import { manifest } from 'vite-plugin-public-typescript/client'
+import { manifest } from 'virtual:public-typescript-manifest'
 import './App.css'
 
 function formatManifst() {

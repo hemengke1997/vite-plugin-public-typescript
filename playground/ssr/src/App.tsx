@@ -1,4 +1,4 @@
-import { manifest } from 'vite-plugin-public-typescript/client'
+import { manifest } from 'virtual:public-typescript-manifest'
 
 export default function App() {
   function formatManifst() {

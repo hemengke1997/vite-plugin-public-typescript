@@ -74,7 +74,7 @@ pnpm add vite-plugin-public-typescript -D
 
 ## Usage
 
-Note: The default value of 'inputDir' in 'publicTypescript' is' public-typescript ', you can also reconfigure this property.
+Note: The default value of 'inputDir' in 'publicTypescript' is 'public-typescript', you can also reconfigure this property.
 Then you need to create a folder with the same name in the same directory as' vite.config.ts' and create a '.ts' file inside it
 
 ```ts
@@ -99,12 +99,22 @@ export default defineConfig({
 })
 ```
 
+### Typescript types
+
+```json
+{
+  "compilerOptions": {   
+    "types": ["vite-plugin-public-typescript/manifest"]
+  }
+}
+```
+
 ### get manifest in client
 
 Note: The code here can only be used in the project code, not in 'vite.config.ts' and other build time code, because it is generated after the build
 
 ```ts
-import { manifest } from 'vite-plugin-public-typescript/client'
+import { manifest } from 'virtual:public-typescript-manifest'
 
 console.log(manifest)
 ```

@@ -27,7 +27,7 @@ export interface VitePublicTypescriptOptions {
   esbuildOptions?: BuildOptions | undefined
   /**
    * @description use babel to transform
-   * @default false
+   * @default true
    */
   babel?: boolean | ESBuildPluginBabelOptions
   /**

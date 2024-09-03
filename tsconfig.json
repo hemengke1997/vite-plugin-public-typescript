@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["vitest/importMeta"]
   },
-  "exclude": ["**/*.js"]
+  "exclude": ["**/*.js", "playground/**"]
 }

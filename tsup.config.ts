@@ -36,12 +36,4 @@ export const tsup = defineConfig((option) => [
     platform: 'node',
     ...commonConfig(option),
   },
-  {
-    entry: {
-      'client/index': './src/client/index.ts',
-    },
-    format: ['esm', 'cjs'],
-    platform: 'neutral',
-    ...commonConfig(option),
-  },
 ])

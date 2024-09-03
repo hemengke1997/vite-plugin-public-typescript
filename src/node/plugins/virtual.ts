@@ -18,7 +18,7 @@ export function pluginVirtual(): PluginOption {
     },
     async load(id) {
       if (id === resolvedVirtualModuleId) {
-        return `export default ${JSON.stringify(getManifestInNode())}`
+        return `export const manifest = ${JSON.stringify(getManifestInNode())}`
       }
     },
   }

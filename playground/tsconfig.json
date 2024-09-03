@@ -5,7 +5,7 @@
     "paths": {
       "~utils": ["./test-utils.ts"]
     },
-    "types": ["vite/client", "node"],
+    "types": ["vite/client", "node", "../manifest"],
     "isolatedModules": true,
     "strict": false
   },

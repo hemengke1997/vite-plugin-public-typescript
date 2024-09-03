@@ -20,7 +20,7 @@ export function resolveOptions(
     // 相对于 publicDir
     outputDir: resolve(publicDir, options?.outputDir || ''),
     esbuildOptions: options?.esbuildOptions ?? {},
-    babel: options?.babel ?? false,
+    babel: options?.babel ?? true,
     manifestName: options?.manifestName || 'manifest',
     hash: options?.hash ?? true,
     destination: options?.destination || 'memory',

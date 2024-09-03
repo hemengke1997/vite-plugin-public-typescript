@@ -1,13 +1,12 @@
 {
   "name": "vite-plugin-public-typescript",
   "version": "3.2.3",
-  "description": "vite plugin for inject public typescript into html. (Think it as compiled public javascript)",
+  "description": "vite plugin for inject typescript into html. (Think it as javascript files in public dir)",
   "type": "module",
   "keywords": [
     "vite",
     "typescript",
     "public-typescript",
-    "vite browser",
     "inject script",
     "html"
   ],
@@ -20,7 +19,7 @@
   "author": "hemengke <https://github.com/hemengke1997>",
   "files": [
     "*.d.ts",
-    "README.md",
+    "*.md",
     "dist"
   ],
   "main": "./dist/node/index.cjs",
@@ -32,10 +31,8 @@
       "require": "./dist/node/index.cjs",
       "import": "./dist/node/index.js"
     },
-    "./client": {
-      "types": "./dist/client/index.d.ts",
-      "require": "./dist/client/index.cjs",
-      "import": "./dist/client/index.js"
+    "./manifest": {
+      "types": "./manifest.d.ts"
     }
   },
   "scripts": {
@@ -48,9 +45,9 @@
     "test:serve": "vitest run -c vitest.config.e2e.ts",
     "test:build": "cross-env VITE_TEST_BUILD=1 vitest run -c vitest.config.e2e.ts",
     "commitlint": "commitlint -e",
-    "lint": "eslint . --fix",
+    "lint": "tsc --noEmit && eslint . --fix",
     "up": "taze -I -w",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "bump": "bumpp package.json -c --no-push -t --all -x \"pnpm run changelog\""
   },
   "peerDependencies": {
@@ -63,13 +60,13 @@
     }
   },
   "dependencies": {
-    "@antfu/install-pkg": "^0.3.3",
+    "@antfu/install-pkg": "^0.4.1",
     "@babel/core": "^7.25.2",
-    "@babel/preset-env": "^7.25.3",
+    "@babel/preset-env": "^7.25.4",
     "@babel/preset-typescript": "^7.24.7",
     "browserslist": "^4.23.3",
     "browserslist-to-esbuild": "^2.1.1",
-    "core-js": "^3.38.0",
+    "core-js": "^3.38.1",
     "debounce": "^2.1.0",
     "debug": "^4.3.6",
     "fast-glob": "^3.3.2",
@@ -79,34 +76,34 @@
     "magic-string": "^0.30.11",
     "on-change": "^5.0.1",
     "parse5": "^7.1.2",
-    "picocolors": "^1.0.1",
+    "picocolors": "^1.1.0",
     "prompts": "^2.4.2",
     "std-env": "^3.7.0",
     "watcher": "^2.3.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.4.0",
-    "@minko-fe/commitlint-config": "^2.1.0",
-    "@minko-fe/eslint-config": "^3.3.3",
-    "@minko-fe/tsconfig": "^2.1.0",
+    "@commitlint/cli": "^19.4.1",
+    "@minko-fe/commitlint-config": "^2.1.2",
+    "@minko-fe/eslint-config": "^4.0.0",
+    "@minko-fe/tsconfig": "^2.1.1",
     "@types/babel__core": "^7.20.5",
     "@types/babel__preset-env": "^7.9.7",
     "@types/debug": "^4.1.12",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash.omit": "^4.5.9",
-    "@types/node": "^20.14.14",
+    "@types/node": "^20.16.3",
     "@types/prompts": "^2.4.9",
-    "bumpp": "^9.4.2",
+    "bumpp": "^9.5.2",
     "conventional-changelog-cli": "^5.0.0",
     "cross-env": "^7.0.3",
-    "esbuild": "^0.23.0",
-    "eslint": "^9.8.0",
+    "esbuild": "^0.23.1",
+    "eslint": "^9.9.1",
     "npm-run-all2": "^6.2.2",
     "simple-git-hooks": "^2.11.1",
-    "taze": "^0.16.3",
+    "taze": "^0.16.7",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4",
-    "vite": "^5.4.0",
+    "vite": "^5.4.2",
     "vitest": "^2.0.5",
     "vitest-e2e": "^0.0.10"
   },

@@ -1,3 +1,4 @@
-declare module 'virtual:public-typescript:manifest' {
-  export default manifest as Record<string, string>
+declare module 'virtual:public-typescript-manifest' {
+  const manifest: Record<string, string>
+  export { manifest }
 }
