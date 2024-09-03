@@ -1,3 +1,7 @@
+# [4.0.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.2.3...v4.0.0) (2024-09-03)
+
+
+
 ## [3.2.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.2.2...v3.2.3) (2024-08-09)
 
 
