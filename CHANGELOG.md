@@ -1,3 +1,7 @@
+# [4.1.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.0.0...v4.1.0) (2024-10-18)
+
+
+
 # [4.0.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.2.3...v4.0.0) (2024-09-03)
 
 ### Refactor
