@@ -1,4 +1,3 @@
-import type Watcher from 'watcher'
 import createDebug from 'debug'
 import fs from 'fs-extra'
 import path from 'node:path'
@@ -6,7 +5,7 @@ import { type ConfigEnv, type PluginOption, type ResolvedConfig, type ViteDevSer
 import { buildAllOnce } from './build'
 import { globalConfig } from './global-config'
 import { resolveOptions } from './helper/default-options'
-import { initWatcher } from './helper/file-watcher'
+import { handleFileAdded, handleFileChange, handleUnlink } from './helper/file-watcher'
 import { reloadPage } from './helper/server'
 import {
   _isPublicTypescript,
@@ -26,8 +25,6 @@ import { pluginServer } from './plugins/server'
 import { pluginVirtual } from './plugins/virtual'
 
 const debug = createDebug('vite-plugin-public-typescript:index ===> ')
-
-let wathcer: Watcher | undefined
 
 export default function publicTypescript(options: VitePublicTypescriptOptions = {}) {
   debug('user options:', options)
@@ -61,15 +58,9 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
       async configureServer(_server) {
         if (viteConfigEnv.command === 'build') return
         server = _server
-        const { ws } = server
         globalConfig.set('viteDevServer', server)
-        if (wathcer) {
-          wathcer.close()
-        }
-        wathcer = await initWatcher((file) => reloadPage(ws, file))
-        server.httpServer?.addListener('close', () => {
-          wathcer?.close()
-        })
+
+        server.watcher.add(opts.inputDir)
       },
       async buildStart() {
         if (viteConfig.build.ssr) return
@@ -162,6 +153,23 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
         if (_isPublicTypescript(file) || isManifestFile(file)) {
           debug('hmr disabled:', file)
           return []
+        }
+      },
+      watchChange(id, change) {
+        if (_isPublicTypescript(id)) {
+          switch (change.event) {
+            case 'create':
+              handleFileAdded(id, () => reloadPage(server.ws, { path: id, event: 'added' }))
+              break
+            case 'delete':
+              handleUnlink(id, () => reloadPage(server.ws, { path: id, event: 'deleted' }))
+              break
+            case 'update':
+              handleFileChange(id, () => reloadPage(server.ws, { path: id, event: 'updated' }))
+              break
+            default:
+              break
+          }
         }
       },
     },

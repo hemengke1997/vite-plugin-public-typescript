@@ -11,16 +11,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.28",
-    "@types/react-dom": "^18.2.13",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.2",
     "cross-env": "^7.0.3",
-    "typescript": "^5.2.2",
-    "vite": "^5.0.12",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9",
     "vite-plugin-public-typescript": "workspace:*"
   }
 }

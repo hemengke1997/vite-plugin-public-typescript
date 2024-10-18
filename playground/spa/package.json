@@ -11,21 +11,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "modern-flexible": "^0.0.7",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "modern-flexible": "^0.0.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@babel/plugin-transform-react-constant-elements": "^7.23.3",
-    "@babel/preset-react": "^7.23.3",
-    "@types/react": "^18.2.28",
-    "@types/react-dom": "^18.2.13",
-    "@vitejs/plugin-legacy": "^5.3.0",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@babel/plugin-transform-react-constant-elements": "^7.25.7",
+    "@babel/preset-react": "^7.25.7",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-legacy": "^5.4.2",
+    "@vitejs/plugin-react": "^4.3.2",
     "cross-env": "^7.0.3",
-    "terser": "^5.26.0",
-    "typescript": "^5.2.2",
-    "vite": "^5.2.10",
+    "terser": "^5.36.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9",
     "vite-plugin-public-typescript": "workspace:*"
   }
 }
