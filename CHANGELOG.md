@@ -1,14 +1,19 @@
 ## [4.1.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.0...v4.1.1) (2024-10-24)
 
+## Refactor
 
+* Rename `vite-plugin-public-typescript/manifest` to `vite-plugin-public-typescript/virtual`
 
 # [4.1.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.0.0...v4.1.0) (2024-10-18)
 
+## Refactor
+
+* Replace `watcher` with vite's built-in server watcher (need vite>=5)
 
 
 # [4.0.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v3.2.3...v4.0.0) (2024-09-03)
 
-### Refactor
+## Refactor
 
 * Deprecated client
 * Rename `virtual:public-typescript:manifest` to `virtual:public-typescript-manifest`
