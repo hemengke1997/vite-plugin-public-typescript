@@ -1,3 +1,12 @@
+## [4.1.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.1...v4.1.2) (2024-10-24)
+
+
+### Bug Fixes
+
+* dts missing ([4c32c19](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/4c32c19b422d482b0973446b32499b7c3bd223b7))
+
+
+
 ## [4.1.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.0...v4.1.1) (2024-10-24)
 
 ## Refactor
