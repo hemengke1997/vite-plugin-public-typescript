@@ -102,6 +102,16 @@ export default defineConfig({
 })
 ```
 
+### ts类型提示
+
+```json
+{
+  "compilerOptions": {   
+    "types": ["vite-plugin-public-typescript/virtual"]
+  }
+}
+```
+
 ### 获取 manifest
 
 注意：这里的代码只能是在项目代码中使用, 不能在 `vite.config.ts` 以及其他构建时代码中使用, 因为他是在构建之后生成的 

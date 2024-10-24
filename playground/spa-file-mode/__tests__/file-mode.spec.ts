@@ -5,7 +5,7 @@ import path from 'node:path'
 import { normalizePath } from 'vite'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-const manifestPath = 'node_modules/.vite-plugin-public-typescript/manifest.json'
+const manifestPath = 'node_modules/.vite-plugin-public-typescript/virtual.json'
 
 const out = normalizePath(path.resolve(__dirname, '../public/out'))
 

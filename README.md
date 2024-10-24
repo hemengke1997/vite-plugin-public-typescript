@@ -104,7 +104,7 @@ export default defineConfig({
 ```json
 {
   "compilerOptions": {   
-    "types": ["vite-plugin-public-typescript/manifest"]
+    "types": ["vite-plugin-public-typescript/virtual"]
   }
 }
 ```

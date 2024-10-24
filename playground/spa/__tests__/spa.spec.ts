@@ -16,7 +16,7 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 const hmrOriginText = 'hmr original text'
 
-const manifestPath = 'node_modules/.vite-plugin-public-typescript/manifest.json'
+const manifestPath = 'node_modules/.vite-plugin-public-typescript/virtual.json'
 
 describe('console', async () => {
   test('should console hmr string', async () => {
