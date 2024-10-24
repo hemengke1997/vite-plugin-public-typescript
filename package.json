@@ -30,6 +30,12 @@
       "types": "./dist/node/index.d.ts",
       "require": "./dist/node/index.cjs",
       "import": "./dist/node/index.js"
+    },
+    "./virtual": {
+      "types": "./virtual.d.ts"
+    },
+    "./manifest": {
+      "types": "./manifest.d.ts"
     }
   },
   "scripts": {
