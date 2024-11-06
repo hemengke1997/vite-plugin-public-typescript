@@ -22,8 +22,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 8.7.0
 
       - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile

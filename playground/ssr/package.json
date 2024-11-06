@@ -18,13 +18,13 @@
     "vite-plugin-public-typescript": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^18.3.11",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.2",
-    "compression": "^1.7.4",
+    "@vitejs/plugin-react": "^4.3.3",
+    "compression": "^1.7.5",
     "express": "^4.21.1",
     "serve-static": "^1.16.2",
-    "tsx": "^4.19.1",
-    "vite": "^5.4.9"
+    "tsx": "^4.19.2",
+    "vite": "^5.4.10"
   }
 }
