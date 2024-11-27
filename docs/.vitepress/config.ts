@@ -126,4 +126,5 @@ export default defineConfig({
     },
     logo: '/logo.svg',
   },
+  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/vite-plugin-public-typescript/logo.svg' }]],
 })
