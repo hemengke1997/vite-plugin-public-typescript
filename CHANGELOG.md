@@ -1,3 +1,12 @@
+## [4.1.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.2...v4.1.3) (2025-01-27)
+
+
+### Bug Fixes
+
+* inject scripts order ([fa4e5c6](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/fa4e5c6e707dd067f546f212bea495fd523ecb75))
+
+
+
 ## [4.1.2](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.1...v4.1.2) (2024-10-24)
 
 
