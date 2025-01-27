@@ -32,9 +32,6 @@ importers:
       debug:
         specifier: ^4.4.0
         version: 4.4.0
-      esbuild:
-        specifier: ^0.24.2
-        version: 0.24.2
       fast-glob:
         specifier: ^3.3.3
         version: 3.3.3
@@ -108,6 +105,9 @@ importers:
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
+      esbuild:
+        specifier: ^0.24.2
+        version: 0.24.2
       eslint:
         specifier: ^9.19.0
         version: 9.19.0(jiti@2.4.2)
