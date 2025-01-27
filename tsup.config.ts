@@ -9,7 +9,7 @@ const commonConfig = (option: Options): Options => {
     },
     dts: true,
     minify: false,
-    external: [/^virtual:.*/],
+    external: [/^virtual:.*/, /esbuild/],
     shims: true,
     splitting: true,
     treeshake: true,
