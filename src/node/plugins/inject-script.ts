@@ -34,7 +34,7 @@ export function injectScripts(scripts: ManifestScriptsFn) {
           tags: generateScriptTags(scripts),
         }
       },
-      order: 'post',
+      // order: 'post',
     },
   }
 
