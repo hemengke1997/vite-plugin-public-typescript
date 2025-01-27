@@ -1,3 +1,13 @@
+## [4.1.4](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.3...v4.1.4) (2025-01-27)
+
+
+### Bug Fixes
+
+* ci ([0941f66](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/0941f66500563cafc2d33575a8b23a4fef7eadd2))
+* esbuild dep ([d20de36](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/d20de36f1fee00a185208651d6c09d674854bbb3))
+
+
+
 ## [4.1.3](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.2...v4.1.3) (2025-01-27)
 
 
