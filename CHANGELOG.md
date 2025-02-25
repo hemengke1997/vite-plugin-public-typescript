@@ -1,3 +1,30 @@
+## [4.1.5](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.4...v4.1.5) (2025-02-25)
+
+
+### Bug Fixes
+
+* remix environment ([e326029](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e326029923d6c85465cce7d5fde7dbcdc0a45c43))
+
+
+
+## [4.1.5](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.4...v4.1.5) (2025-02-25)
+
+
+### Bug Fixes
+
+* remix environment ([e326029](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e326029923d6c85465cce7d5fde7dbcdc0a45c43))
+
+
+
+## [4.1.5](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.4...v4.1.5) (2025-02-25)
+
+
+### Bug Fixes
+
+* remix environment ([e326029](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/e326029923d6c85465cce7d5fde7dbcdc0a45c43))
+
+
+
 ## [4.1.4](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.3...v4.1.4) (2025-01-27)
 
 

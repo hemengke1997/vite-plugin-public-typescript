@@ -1,3 +1,5 @@
+import path from 'node:path'
+import { beforeAll, describe, expect, test } from 'vitest'
 import {
   editFile,
   isBuild,
@@ -11,8 +13,6 @@ import {
   viteTestUrl,
   withRetry,
 } from '~utils'
-import path from 'node:path'
-import { beforeAll, describe, expect, test } from 'vitest'
 
 const hmrOriginText = 'hmr original text'
 

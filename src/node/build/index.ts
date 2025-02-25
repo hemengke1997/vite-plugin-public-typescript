@@ -1,5 +1,5 @@
 import createDebug from 'debug'
-import { type BuildResult } from 'esbuild'
+import { type BuildResult, type CommonOptions } from 'esbuild'
 import path from 'node:path'
 import colors from 'picocolors'
 import { isDevelopment } from 'std-env'
@@ -84,7 +84,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
       format: 'iife',
       logLevel: 'silent',
       minify: !!viteConfig.build.minify,
-      sourcemap: isDevelopment ? !!viteConfig.build.sourcemap && 'inline' : false,
+      sourcemap: (isDevelopment ? !!viteConfig.build.sourcemap && 'inline' : false) as CommonOptions['sourcemap'],
       splitting: false,
       treeShaking: true,
       write: false,
