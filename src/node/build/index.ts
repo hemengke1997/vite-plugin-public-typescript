@@ -14,6 +14,11 @@ const debug = createDebug('vite-plugin-public-typescript:build ===> ')
 
 type IBuildOptions = {
   filePath: string
+  /**
+   * @description
+   * remix 环境打包时会出现临时文件找不到的情况，所以在探测babel plugin的过程中，把错误忽略掉
+   */
+  ignoreError?: boolean
 } & GlobalConfig
 
 /**
@@ -28,7 +33,8 @@ type IBuildOptions = {
 const DEFAULT_ESBUILD_TARGET = 'es2015'
 
 export async function esbuildTypescript(buildOptions: IBuildOptions) {
-  const { filePath, esbuildOptions, viteConfig, babel, logger } = buildOptions
+  const { filePath, esbuildOptions, viteConfig, babel, logger, ignoreError = false } = buildOptions
+
   const { plugins = [], target = DEFAULT_ESBUILD_TARGET, ...rest } = esbuildOptions
 
   const enableBabel = !!babel
@@ -69,6 +75,7 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
 
   try {
     const { build } = await import('esbuild')
+
     res = await build({
       bundle: true,
       define,
@@ -101,9 +108,10 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
         !isInTest() && process.exit(1)
       }
     }
-
-    logger.error(colors.red(`[${pkgName}] `) + error)
-    !isInTest() && process.exit(1)
+    if (!ignoreError) {
+      logger.error(colors.red(`[${pkgName}] `) + error)
+      !isInTest() && process.exit(1)
+    }
   }
 
   const code = res!.outputFiles?.[0].text

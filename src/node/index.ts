@@ -63,7 +63,7 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
         server.watcher.add(opts.inputDir)
       },
       async buildStart() {
-        if (viteConfig.build.ssr) return
+        if (viteConfigEnv.isSsrBuild) return
 
         const manifestPath = manifestCache.manifestPath
 

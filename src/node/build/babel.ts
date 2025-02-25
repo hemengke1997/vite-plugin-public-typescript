@@ -155,14 +155,15 @@ function createBabelPresetEnvOptions(
   }
 }
 
-const getTime = () => Date.now()
+const getTime = () => Date.now() + Math.random().toString(36).substring(2, 8)
 const cacheDirectory = path.join(os.tmpdir(), pkgName)
 
 function createTmpFile() {
   if (!fs.existsSync(cacheDirectory)) {
     fs.mkdirSync(cacheDirectory)
   }
-  const tmpFile = path.join(cacheDirectory, `tmp-${getTime()}.ts`)
+  const id = getTime()
+  const tmpFile = path.join(cacheDirectory, `tmp-${id}.ts`)
   fs.writeFileSync(tmpFile, '')
   return tmpFile
 }
@@ -182,13 +183,11 @@ export async function detectBabelPluginMissing() {
 
   const tmp = createTmpFile()
   try {
-    if (fs.existsSync(tmp)) {
-      await esbuildTypescript({ ...all, filePath: tmp })
+    if (await fs.exists(tmp)) {
+      await esbuildTypescript({ ...all, filePath: tmp, ignoreError: true })
+      cleanupCache(tmp)
     }
-  } catch {
-  } finally {
-    cleanupCache(tmp)
-  }
+  } catch {}
 }
 
 const EXIT_CODE_RESTART = 43
