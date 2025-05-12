@@ -1,3 +1,12 @@
+## [4.1.6](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.5...v4.1.6) (2025-05-12)
+
+
+### Bug Fixes
+
+* bugs ([8855045](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/88550454227bbcc651e8b264782af8d7df702cc3))
+
+
+
 ## [4.1.5](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.4...v4.1.5) (2025-02-25)
 
 
