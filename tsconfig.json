@@ -2,7 +2,6 @@
   "extends": "@minko-fe/tsconfig/tsconfig.app",
   "compilerOptions": {
     "types": ["vitest/importMeta"],
-    "strictNullChecks": false
   },
   "exclude": ["**/*.js", "playground/**", "node_modules", "dist"]
 }

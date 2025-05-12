@@ -159,9 +159,7 @@ const getTime = () => Date.now() + Math.random().toString(36).substring(2, 8)
 const cacheDirectory = path.join(os.tmpdir(), pkgName)
 
 function createTmpFile() {
-  if (!fs.existsSync(cacheDirectory)) {
-    fs.mkdirSync(cacheDirectory)
-  }
+  fs.mkdirSync(cacheDirectory, { recursive: true })
   const id = getTime()
   const tmpFile = path.join(cacheDirectory, `tmp-${id}.ts`)
   fs.writeFileSync(tmpFile, '')

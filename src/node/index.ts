@@ -32,7 +32,7 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
   let viteConfig: ResolvedConfig
   let viteConfigEnv: ConfigEnv
 
-  let server: ViteDevServer
+  let server: ViteDevServer | undefined
 
   let opts = {
     ...options,
@@ -144,28 +144,31 @@ export default function publicTypescript(options: VitePublicTypescriptOptions = 
       },
       async handleHotUpdate(ctx) {
         const { file } = ctx
-        const { moduleGraph } = server
-        const module = moduleGraph.getModuleById(resolvedVirtualModuleId)
-        // virtual module hmr
-        if (module) {
-          moduleGraph.invalidateModule(module)
-        }
-        if (_isPublicTypescript(file) || isManifestFile(file)) {
-          debug('hmr disabled:', file)
-          return []
+
+        if (server) {
+          const { moduleGraph } = server
+          const module = moduleGraph.getModuleById(resolvedVirtualModuleId)
+          // virtual module hmr
+          if (module) {
+            moduleGraph.invalidateModule(module)
+          }
+          if (_isPublicTypescript(file) || isManifestFile(file)) {
+            debug('hmr disabled:', file)
+            return []
+          }
         }
       },
       watchChange(id, change) {
-        if (_isPublicTypescript(id)) {
+        if (server && _isPublicTypescript(id)) {
           switch (change.event) {
             case 'create':
-              handleFileAdded(id, () => reloadPage(server.ws, { path: id, event: 'added' }))
+              handleFileAdded(id, () => reloadPage(server!.ws, { path: id, event: 'added' }))
               break
             case 'delete':
-              handleUnlink(id, () => reloadPage(server.ws, { path: id, event: 'deleted' }))
+              handleUnlink(id, () => reloadPage(server!.ws, { path: id, event: 'deleted' }))
               break
             case 'update':
-              handleFileChange(id, () => reloadPage(server.ws, { path: id, event: 'updated' }))
+              handleFileChange(id, () => reloadPage(server!.ws, { path: id, event: 'updated' }))
               break
             default:
               break

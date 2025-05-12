@@ -1,7 +1,0 @@
-{
-  "name": "@vite-plugin-public-typescript/vite-playground",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {},
-  "devDependencies": {}
-}
