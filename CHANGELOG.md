@@ -1,3 +1,12 @@
+# [4.2.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.6...v4.2.0) (2025-05-17)
+
+
+### Features
+
+* 支持目录input ([40f41c7](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/40f41c7a2a23df3700f9cfaa56c11ab65bf650f5))
+
+
+
 ## [4.1.6](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.5...v4.1.6) (2025-05-12)
 
 
