@@ -39,6 +39,12 @@ export default defineConfig(() => ({
         },
         injectTo: 'head-prepend',
       },
+      {
+        attrs: {
+          src: manifest['dir/level-1'],
+        },
+        injectTo: 'body',
+      },
     ]),
     legacy({ renderLegacyChunks: true, renderModernChunks: true }),
   ],

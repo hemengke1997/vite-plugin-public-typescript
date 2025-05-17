@@ -119,11 +119,15 @@ export async function esbuildTypescript(buildOptions: IBuildOptions) {
   return code
 }
 
+function removeExtension(filePath: string) {
+  return path.join(path.dirname(filePath), path.basename(filePath, path.extname(filePath)))
+}
+
 export async function build(options: { filePath: string }, onBuildEnd?: BaseCacheProcessor['onTsBuildEnd']) {
   const { filePath } = options
   const _globalConfig = globalConfig.all
 
-  const originFile = path.basename(filePath, path.extname(filePath))
+  const originFile = removeExtension(path.relative(_globalConfig.inputDir, filePath))
 
   let contentHash = ''
   let compiledFileName = originFile
@@ -156,9 +160,9 @@ export async function buildAllOnce(tsFilesGlob: string[]) {
 
   for (const file of tsFilesGlob) {
     toBuildList.push(() =>
-      build({ filePath: file }, (deleteArgs, addArgs) =>
-        cacheProcessor.onTsBuildEnd({ ...deleteArgs, silent: true }, { ...addArgs, silent: true }),
-      ),
+      build({ filePath: file }, (deleteArgs, addArgs) => {
+        return cacheProcessor.onTsBuildEnd({ ...deleteArgs, silent: true }, { ...addArgs, silent: true })
+      }),
     )
   }
 

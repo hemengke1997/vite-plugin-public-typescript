@@ -46,6 +46,7 @@ export abstract class ManifestCacheProcessor extends BaseCacheProcessor<CacheVal
     const { outputDir, base, publicDir } = config
 
     // 用户输入的outputDir
+    // e.g. /out
     const outputDirRelativePublicDir = normalizePath(outputDir.slice(publicDir.length))
 
     const pathWithBase = this.genCacheItemPath({

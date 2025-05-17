@@ -143,9 +143,10 @@ export function removeOldJsFiles(oldFiles: string[]) {
 export async function setupGlobalConfig(viteConfig: ResolvedConfig, opts: OptionsTypeWithDefault) {
   fs.ensureDirSync(opts.inputDir)
 
-  const originFilesGlob = await glob('*.ts', {
+  const originFilesGlob = await glob('**/*.ts', {
     absolute: true,
     cwd: opts.inputDir,
+    onlyFiles: true,
   })
 
   const cacheProcessor = initCacheProcessor(opts, manifestCache)
