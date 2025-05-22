@@ -1,3 +1,12 @@
+## [4.2.1](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.2.0...v4.2.1) (2025-05-22)
+
+
+### Bug Fixes
+
+* ssr场景下多次build脚本的问题 ([a78b962](https://github.com/hemengke1997/vite-plugin-public-typescript/commit/a78b962a3c06ad73d129f4d1f0a642e71c4365e9))
+
+
+
 # [4.2.0](https://github.com/hemengke1997/vite-plugin-public-typescript/compare/v4.1.6...v4.2.0) (2025-05-17)
 
 
